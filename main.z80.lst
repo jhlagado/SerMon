@@ -1,0 +1,1998 @@
+0000                          .ENGINE   mycomputer   
+0000                TESTMODE:   EQU   0   
+0000                             ; 
+0000                             ; 
+0000                             ; constants
+0000                             ; 
+0000                             ; 
+0000                ROM_SIZE:   EQU   $2000   
+0000                RAM_SIZE:   EQU   $10000 - ROM_SIZE   
+0000                RET_STACK_SIZE:   EQU   $80   ; return stack
+0000                DATA_STACK_SIZE:   EQU   $80   ; data stack
+0000                PAD_SIZE:   EQU   $80   ; user scratch pad
+0000                SER_BUFSIZE:   EQU   3FH   
+0000                SER_FULLSIZE:   EQU   30H   
+0000                SER_EMPTYSIZE:   EQU   5   
+0000                LINE_BUFSIZE:   EQU   128   
+0000                START_ROM:   EQU   0   
+0000                START_RAM:   EQU   START_ROM + ROM_SIZE   
+0000                END_RAM:   EQU   START_RAM + RAM_SIZE   
+0000                RET_STACK:   EQU   END_RAM   ; return stack, grows down
+0000                IO_DATA:   EQU   $81   
+0000                IO_CTRL:   EQU   $80   
+0000                RTS_HIGH:   EQU   0D6H   ; 11010110
+0000                RTS_LOW:   EQU   096H   ; 10010110
+0000                             ; 
+0000                             ; macros
+0000                             ; 
+0000                             ; 
+0000                             ; Store the chain of links.
+0000                LINK:     .SET   0   
+0000                             ; Macros to deal with the param stack.
+0000                .macro PPUSH0,regHI,regLO
+0000                             ; 
+0000                 ld (IX+0), regLO     ; POP register pair from ret stk
+0000                 inc IX
+0000                 ld (IX+0), regHI
+0000                 inc IX
+0000                .endm
+0000                 
+0000                .macro PPOP0,regHI,regLO
+0000                             ; 
+0000                 dec IX              ; PUSH register pair on ret stack
+0000                 ld regHI, (IX+0)
+0000                 dec IX
+0000                 ld regLO, (IX+0)
+0000                .endm
+0000                 
+0000                             ; Macros to deal with the param stack with TOS in BC
+0000                .macro PPUSH,regHI,regLO
+0000                             ; 
+0000                 ppush0 B,C             ; push TOS reg pair
+0000                 ld B, regHI         ; move register pair into TOS reg pair
+0000                 ld C, regLO
+0000                .endm
+0000                 
+0000                .macro PPOP,regHI,regLO
+0000                             ; 
+0000                 ld regHI, B         ; move TOS reg pair into register pair
+0000                 ld regLO, C
+0000                 ppop0 B,C
+0000                .endm
+0000                 
+0000                .macro PPUSHVALUE,val
+0000                             ; 
+0000                 ppush0 B,C
+0000                 ld BC, val
+0000                .endm
+0000                 
+0000                .macro PPUSHTEXT,s1,len
+0000                             ; 
+0000                 ppushValue tpt_text%%M
+0000                 ppushValue len
+0000                 _skip
+0000                tpt_text%%M:
+0000                 db s1
+0000                 _endskip
+0000                .endm
+0000                 
+0000                .macro PPUSHPTEXT,s1
+0000                             ; 
+0000                 ppushValue tpt_text%%M
+0000                 ld BC, tpt_text%%M
+0000                 _skip
+0000                tpt_text%%M:
+0000                 .pstr s1
+0000                 _endskip
+0000                .endm
+0000                 
+0000                             ; Macros to deal with the return stack.
+0000                .macro PUSH_RET,regHI,regLO
+0000                             ; 
+0000                 push regHIregLO
+0000                .endm
+0000                 
+0000                .macro POP_RET,regHI,regLO
+0000                             ; 
+0000                 pop regHIregLO
+0000                .endm
+0000                 
+0000                .macro SET_RET_SP,
+0000                             ; 
+0000                 loadWord H,L, B,C
+0000                 LD SP, HL
+0000                .endm
+0000                 
+0000                .macro LOADWORD,destHI,destLO,srcHI,srcLO
+0000                             ; 
+0000                 ld destLO, srcLO
+0000                 ld destHI, srcHI
+0000                .endm
+0000                 
+0000                             ; works with HL, IX+d, IY+d
+0000                .macro READWORD,ptr,regHI,regLO
+0000                             ; 
+0000                 ld regLO, (ptr)
+0000                 inc ptr
+0000                 ld regHI, (ptr)
+0000                 inc ptr
+0000                .endm
+0000                 
+0000                             ; works with HL, IX+d, IY+d
+0000                .macro WRITEWORD,ptr,regHI,regLO
+0000                             ; 
+0000                 writeByte ptr, regLO
+0000                 writeByte ptr, regHI
+0000                .endm
+0000                 
+0000                             ; works with HL, IX+d, IY+d
+0000                .macro WRITEBYTE,ptr,reg
+0000                             ; 
+0000                 ld (ptr), reg
+0000                 inc ptr
+0000                .endm
+0000                 
+0000                             ; result: sets Z if zero
+0000                             ; destroys: A
+0000                .macro CHECKZEROWORD,regHI,regLO
+0000                             ; 
+0000                 ld A, regLO
+0000                 or regHI
+0000                .endm
+0000                 
+0000                .macro PRINT_STR,addr
+0000                             ; 
+0000                 ppush0 D,E
+0000                 ld DE, addr
+0000                 call printPStr
+0000                 ppop0 D,E
+0000                .endm
+0000                 
+0000                .macro CMP16,val
+0000                             ; 
+0000                 ld DE, val
+0000                 or A
+0000                 sbc HL, DE
+0000                 checkZeroWord H,L
+0000                .endm
+0000                 
+0000                             ;-------------------------------------------------------------------------------
+0000                             ; 
+0000                             ; Assembler Structured Control-flow Macros
+0000                             ; by John Hardy @ 2019 ALL WRONGS RESERVED
+0000                             ; https://github.com/jhlagado/struct-z80
+0000                             ; 
+0000                             ; Inspired by the work of Garth Wilson and Dave Keenan
+0000                             ; http://wilsonminesco.com/StructureMacros/
+0000                             ; http://dkeenan.com/AddingStructuredControlFlowToAnyAssembler.htm
+0000                             ; 
+0000                             ;-------------------------------------------------------------------------------
+0000                STRUC_COUNT:   .SET   0   
+0000                STRUC_12:   .SET   0   
+0000                STRUC_11:   .SET   0   
+0000                STRUC_10:   .SET   0   
+0000                STRUC_9:   .SET   0   
+0000                STRUC_8:   .SET   0   
+0000                STRUC_7:   .SET   0   
+0000                STRUC_6:   .SET   0   
+0000                STRUC_5:   .SET   0   
+0000                STRUC_4:   .SET   0   
+0000                STRUC_3:   .SET   0   
+0000                STRUC_2:   .SET   0   
+0000                STRUC_TOP:   .SET   0   
+0000                .macro STRUC_PUSH,arg
+0000                             ; 
+0000                 STRUC_COUNT .set STRUC_COUNT + 1
+0000                 STRUC_12 .set STRUC_11
+0000                 STRUC_11 .set STRUC_10
+0000                 STRUC_10 .set STRUC_9
+0000                 STRUC_9 .set STRUC_8
+0000                 STRUC_8 .set STRUC_7
+0000                 STRUC_7 .set STRUC_6
+0000                 STRUC_6 .set STRUC_5
+0000                 STRUC_5 .set STRUC_4
+0000                 STRUC_4 .set STRUC_3
+0000                 STRUC_3 .set STRUC_2
+0000                 STRUC_2 .set STRUC_TOP
+0000                 STRUC_TOP .set arg
+0000                .endm
+0000                 
+0000                .macro STRUC_POP,
+0000                             ; 
+0000                 STRUC_COUNT .set STRUC_COUNT - 1
+0000                 STRUC_TOP .set STRUC_2
+0000                 STRUC_2 .set STRUC_3
+0000                 STRUC_3 .set STRUC_4
+0000                 STRUC_4 .set STRUC_5
+0000                 STRUC_5 .set STRUC_6
+0000                 STRUC_6 .set STRUC_7
+0000                 STRUC_7 .set STRUC_8
+0000                 STRUC_8 .set STRUC_9
+0000                 STRUC_9 .set STRUC_10
+0000                 STRUC_10 .set STRUC_11
+0000                 STRUC_11 .set STRUC_12
+0000                 STRUC_12 .set 0
+0000                .endm
+0000                 
+0000                .macro STRUC_FWD,
+0000                             ; 
+0000                 CUR_ADR .set $
+0000                 org STRUC_TOP - 2
+0000                 dw CUR_ADR
+0000                 org CUR_ADR
+0000                .endm
+0000                 
+0000                             ; if
+0000                .macro _IF,flag
+0000                             ; 
+0000                 jp flag, L_%%M
+0000                 jp $              ; placeholder jump to _else or _endif
+0000                 STRUC_PUSH $
+0000                L_%%M:
+0000                .endm
+0000                 
+0000                .macro _ELSE,
+0000                             ; 
+0000                 jp $              ; placeholder jump to _endif
+0000                 STRUC_FWD
+0000                 STRUC_TOP .set $  ;reuse top of stack
+0000                .endm
+0000                 
+0000                .macro _ENDIF,
+0000                             ; 
+0000                 STRUC_FWD
+0000                 STRUC_POP
+0000                .endm
+0000                 
+0000                             ; switch
+0000                .macro _SWITCH,
+0000                             ; 
+0000                 jr L_%%M
+0000                 jp $            ; placeholder jump to endswitch
+0000                 STRUC_PUSH $
+0000                L_%%M:
+0000                .endm
+0000                 
+0000                .macro _CASE,flag
+0000                             ; 
+0000                 jp flag, L_%%M
+0000                 jp $            ; placeholder jump to endcase
+0000                 STRUC_PUSH $
+0000                L_%%M:
+0000                .endm
+0000                 
+0000                .macro _ENDCASE,
+0000                             ; 
+0000                 jp STRUC_2 - 3  ; jump to placeholder jump to endswitch
+0000                 STRUC_FWD
+0000                 STRUC_POP
+0000                .endm
+0000                 
+0000                .macro _ENDSWITCH,
+0000                             ; 
+0000                 STRUC_FWD
+0000                 STRUC_POP
+0000                .endm
+0000                 
+0000                             ; skip
+0000                .macro _SKIP,
+0000                             ; 
+0000                 jp $              ; placeholder jump to _else or _endif
+0000                 STRUC_PUSH $
+0000                .endm
+0000                 
+0000                .macro _ENDSKIP,
+0000                             ; 
+0000                 STRUC_FWD
+0000                 STRUC_POP
+0000                .endm
+0000                 
+0000                             ;-------------------------------------------------------------------------------
+0000                             ; 
+0000                             ; Assembler Structured Looping Macros
+0000                             ; by John Hardy @ 2019 ALL WRONGS RESERVED
+0000                             ; https://github.com/jhlagado/struct-z80
+0000                             ; 
+0000                             ; Inspired by the work of Garth Wilson and Dave Keenan
+0000                             ; http://wilsonminesco.com/StructureMacros/
+0000                             ; http://dkeenan.com/AddingStructuredControlFlowToAnyAssembler.htm
+0000                             ; 
+0000                             ;-------------------------------------------------------------------------------
+0000                DLOOP_COUNT:   .SET   0   
+0000                DLOOP_12:   .SET   0   
+0000                DLOOP_11:   .SET   0   
+0000                DLOOP_10:   .SET   0   
+0000                DLOOP_9:   .SET   0   
+0000                DLOOP_8:   .SET   0   
+0000                DLOOP_7:   .SET   0   
+0000                DLOOP_6:   .SET   0   
+0000                DLOOP_5:   .SET   0   
+0000                DLOOP_4:   .SET   0   
+0000                DLOOP_3:   .SET   0   
+0000                DLOOP_2:   .SET   0   
+0000                DLOOP_TOP:   .SET   0   
+0000                .macro DLOOP_PUSH,arg
+0000                             ; 
+0000                 DLOOP_COUNT .set DLOOP_COUNT + 1
+0000                 DLOOP_12 .set DLOOP_11
+0000                 DLOOP_11 .set DLOOP_10
+0000                 DLOOP_10 .set DLOOP_9
+0000                 DLOOP_9 .set DLOOP_8
+0000                 DLOOP_8 .set DLOOP_7
+0000                 DLOOP_7 .set DLOOP_6
+0000                 DLOOP_6 .set DLOOP_5
+0000                 DLOOP_5 .set DLOOP_4
+0000                 DLOOP_4 .set DLOOP_3
+0000                 DLOOP_3 .set DLOOP_2
+0000                 DLOOP_2 .set DLOOP_TOP
+0000                 DLOOP_TOP .set arg
+0000                .endm
+0000                 
+0000                .macro DLOOP_POP,
+0000                             ; 
+0000                 DLOOP_COUNT .set DLOOP_COUNT - 1
+0000                 DLOOP_TOP .set DLOOP_2
+0000                 DLOOP_2 .set DLOOP_3
+0000                 DLOOP_3 .set DLOOP_4
+0000                 DLOOP_4 .set DLOOP_5
+0000                 DLOOP_5 .set DLOOP_6
+0000                 DLOOP_6 .set DLOOP_7
+0000                 DLOOP_7 .set DLOOP_8
+0000                 DLOOP_8 .set DLOOP_9
+0000                 DLOOP_9 .set DLOOP_10
+0000                 DLOOP_10 .set DLOOP_11
+0000                 DLOOP_11 .set DLOOP_12
+0000                 DLOOP_12 .set 0
+0000                .endm
+0000                 
+0000                .macro DLOOP_FWD,
+0000                             ; 
+0000                 CUR_ADR .set $
+0000                 org DLOOP_TOP - 2
+0000                 dw CUR_ADR
+0000                 org CUR_ADR
+0000                .endm
+0000                 
+0000                .macro _DO,
+0000                             ; 
+0000                 jr L_%%M
+0000                 jp $                    ; placeholder jump to enddo
+0000                 DLOOP_PUSH $
+0000                L_%%M:
+0000                .endm
+0000                 
+0000                .macro _WHILE,flag
+0000                             ; 
+0000                 jr flag, L_%%M
+0000                 jp DLOOP_TOP - 3         ; jump to jump to enddo
+0000                 DLOOP_FWD                ; needed?
+0000                L_%%M:
+0000                .endm
+0000                 
+0000                .macro _UNTIL,flag
+0000                             ; 
+0000                 jp flag, DLOOP_TOP - 3  ; jump to jump to enddo
+0000                 DLOOP_FWD               ; needed?
+0000                .endm
+0000                 
+0000                .macro _BREAK,
+0000                             ; 
+0000                 jp DLOOP_TOP - 3        ; start of loop
+0000                .endm
+0000                 
+0000                .macro _CONTINUE,
+0000                             ; 
+0000                 jp DLOOP_TOP            ; start of loop
+0000                .endm
+0000                 
+0000                .macro _ENDDO,
+0000                             ; 
+0000                 jp DLOOP_TOP
+0000                 DLOOP_FWD
+0000                 DLOOP_POP
+0000                .endm
+0000                 
+0000                .macro _DJNZ,
+0000                             ; 
+0000                 djnz DLOOP_TOP
+0000                 DLOOP_FWD
+0000                 DLOOP_POP
+0000                .endm
+0000                 
+0000                          .ORG   START_ROM   
+0000                RST00:       ; Reset
+0000   F3                     DI      ; Disable interrupts
+0001   C3 21 02               JP   start   
+0038                          .ORG   $0038   
+0038                RST38:       ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
+0038   C3 92 00               JP   serialIn   
+0066                          .ORG   $0066   ; rst 66 - NON-MASKABLE INTERRUPT
+0066                RST66:       
+0066   C3 92 00               JP   serialIn   
+0069                             ; serial I/O
+0069                INITSERIAL:      
+0069   21 00 00               LD   HL,0   
+006C   22 56 20               LD   (serbufused),HL   
+006F   21 13 20               LD   HL,serbuf   
+0072   22 52 20               LD   (serinptr),HL   
+0075   22 54 20               LD   (serrdptr),HL   
+0078   21 60 20               LD   HL,linebuf   
+007B   22 58 20               LD   (lineBufStart),HL   
+007E   22 5C 20               LD   (currkey),HL   
+0081   22 5E 20               LD   (linebuftop),HL   
+0084   21 80 00               LD   HL,LINE_BUFSIZE   
+0087   22 5A 20               LD   (lineBufSize),HL   
+008A   3E 96                  LD   A,rts_low   
+008C   D3 80                  OUT   ($80),A   ; initialise acia
+008E   ED 56                  IM   1   
+0090   FB                     EI      
+0091   C9                     RET      
+0092                SERIALIN:      
+0092   F5                     PUSH   AF   
+0093   E5                     PUSH   HL   
+0094   DB 80                  IN   A,($80)   
+0096   E6 01                  AND   $01   ; Check if interupt due to read lineBuf full
+0098                          ;*Macro unroll:  _if nz
+0098   C2 9E 00               JP   nz,L_M_434   
+009B   C3 9B 00               JP   $   
+009E                          ;*Macro unroll:  STRUC_PUSH $
+009E                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+009E                STRUC_12:   .SET   STRUC_11   
+009E                STRUC_11:   .SET   STRUC_10   
+009E                STRUC_10:   .SET   STRUC_9   
+009E                STRUC_9:   .SET   STRUC_8   
+009E                STRUC_8:   .SET   STRUC_7   
+009E                STRUC_7:   .SET   STRUC_6   
+009E                STRUC_6:   .SET   STRUC_5   
+009E                STRUC_5:   .SET   STRUC_4   
+009E                STRUC_4:   .SET   STRUC_3   
+009E                STRUC_3:   .SET   STRUC_2   
+009E                STRUC_2:   .SET   STRUC_TOP   
+009E                STRUC_TOP:   .SET   $   
+009E                L_M_434:      
+009E   DB 81                  IN   A,($81)   
+00A0   F5                     PUSH   AF   
+00A1   3A 56 20               LD   A,(serBufUsed)   
+00A4   FE 3F                  CP   SER_BUFSIZE   ; If full then ignore
+00A6                          ;*Macro unroll:  _if z
+00A6   CA AC 00               JP   z,L_M_439   
+00A9   C3 A9 00               JP   $   
+00AC                          ;*Macro unroll:  STRUC_PUSH $
+00AC                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+00AC                STRUC_12:   .SET   STRUC_11   
+00AC                STRUC_11:   .SET   STRUC_10   
+00AC                STRUC_10:   .SET   STRUC_9   
+00AC                STRUC_9:   .SET   STRUC_8   
+00AC                STRUC_8:   .SET   STRUC_7   
+00AC                STRUC_7:   .SET   STRUC_6   
+00AC                STRUC_6:   .SET   STRUC_5   
+00AC                STRUC_5:   .SET   STRUC_4   
+00AC                STRUC_4:   .SET   STRUC_3   
+00AC                STRUC_3:   .SET   STRUC_2   
+00AC                STRUC_2:   .SET   STRUC_TOP   
+00AC                STRUC_TOP:   .SET   $   
+00AC                L_M_439:      
+00AC   F1                     POP   AF   
+00AD                          ;*Macro unroll:  _else
+00AD   C3 AD 00               JP   $   
+00B0                          ;*Macro unroll:  STRUC_FWD
+00B0                CUR_ADR:   .SET   $   
+00AA                          .ORG   STRUC_TOP - 2   
+00AA   B0 00                  DW   CUR_ADR   
+00B0                          .ORG   CUR_ADR   
+00B0                STRUC_TOP:   .SET   $   
+00B0   2A 52 20               LD   HL,(serInPtr)   
+00B3   23                     INC   HL   
+00B4   7D                     LD   A,L   ; Only need to check low byte becasuse lineBuf<256 bytes
+00B5   FE 52                  CP   (serBuf + SER_BUFSIZE) & $FF   
+00B7                          ;*Macro unroll:  _if z
+00B7   CA BD 00               JP   z,L_M_446   
+00BA   C3 BA 00               JP   $   
+00BD                          ;*Macro unroll:  STRUC_PUSH $
+00BD                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+00BD                STRUC_12:   .SET   STRUC_11   
+00BD                STRUC_11:   .SET   STRUC_10   
+00BD                STRUC_10:   .SET   STRUC_9   
+00BD                STRUC_9:   .SET   STRUC_8   
+00BD                STRUC_8:   .SET   STRUC_7   
+00BD                STRUC_7:   .SET   STRUC_6   
+00BD                STRUC_6:   .SET   STRUC_5   
+00BD                STRUC_5:   .SET   STRUC_4   
+00BD                STRUC_4:   .SET   STRUC_3   
+00BD                STRUC_3:   .SET   STRUC_2   
+00BD                STRUC_2:   .SET   STRUC_TOP   
+00BD                STRUC_TOP:   .SET   $   
+00BD                L_M_446:      
+00BD   21 13 20               LD   HL,serBuf   
+00C0                          ;*Macro unroll:  _endif
+00C0                          ;*Macro unroll:  STRUC_FWD
+00C0                CUR_ADR:   .SET   $   
+00BB                          .ORG   STRUC_TOP - 2   
+00BB   C0 00                  DW   CUR_ADR   
+00C0                          .ORG   CUR_ADR   
+00C0                          ;*Macro unroll:  STRUC_POP
+00C0                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+00C0                STRUC_TOP:   .SET   STRUC_2   
+00C0                STRUC_2:   .SET   STRUC_3   
+00C0                STRUC_3:   .SET   STRUC_4   
+00C0                STRUC_4:   .SET   STRUC_5   
+00C0                STRUC_5:   .SET   STRUC_6   
+00C0                STRUC_6:   .SET   STRUC_7   
+00C0                STRUC_7:   .SET   STRUC_8   
+00C0                STRUC_8:   .SET   STRUC_9   
+00C0                STRUC_9:   .SET   STRUC_10   
+00C0                STRUC_10:   .SET   STRUC_11   
+00C0                STRUC_11:   .SET   STRUC_12   
+00C0                STRUC_12:   .SET   0   
+00C0   22 52 20               LD   (serInPtr),HL   
+00C3   F1                     POP   AF   
+00C4   77                     LD   (HL),A   
+00C5   3A 56 20               LD   A,(serBufUsed)   
+00C8   3C                     INC   A   
+00C9   32 56 20               LD   (serBufUsed),A   
+00CC   FE 30                  CP   SER_FULLSIZE   
+00CE                          ;*Macro unroll:  _if nc
+00CE   D2 D4 00               JP   nc,L_M_456   
+00D1   C3 D1 00               JP   $   
+00D4                          ;*Macro unroll:  STRUC_PUSH $
+00D4                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+00D4                STRUC_12:   .SET   STRUC_11   
+00D4                STRUC_11:   .SET   STRUC_10   
+00D4                STRUC_10:   .SET   STRUC_9   
+00D4                STRUC_9:   .SET   STRUC_8   
+00D4                STRUC_8:   .SET   STRUC_7   
+00D4                STRUC_7:   .SET   STRUC_6   
+00D4                STRUC_6:   .SET   STRUC_5   
+00D4                STRUC_5:   .SET   STRUC_4   
+00D4                STRUC_4:   .SET   STRUC_3   
+00D4                STRUC_3:   .SET   STRUC_2   
+00D4                STRUC_2:   .SET   STRUC_TOP   
+00D4                STRUC_TOP:   .SET   $   
+00D4                L_M_456:      
+00D4   3E D6                  LD   A,RTS_HIGH   
+00D6   D3 80                  OUT   ($80),A   
+00D8                          ;*Macro unroll:  _endif
+00D8                          ;*Macro unroll:  STRUC_FWD
+00D8                CUR_ADR:   .SET   $   
+00D2                          .ORG   STRUC_TOP - 2   
+00D2   D8 00                  DW   CUR_ADR   
+00D8                          .ORG   CUR_ADR   
+00D8                          ;*Macro unroll:  STRUC_POP
+00D8                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+00D8                STRUC_TOP:   .SET   STRUC_2   
+00D8                STRUC_2:   .SET   STRUC_3   
+00D8                STRUC_3:   .SET   STRUC_4   
+00D8                STRUC_4:   .SET   STRUC_5   
+00D8                STRUC_5:   .SET   STRUC_6   
+00D8                STRUC_6:   .SET   STRUC_7   
+00D8                STRUC_7:   .SET   STRUC_8   
+00D8                STRUC_8:   .SET   STRUC_9   
+00D8                STRUC_9:   .SET   STRUC_10   
+00D8                STRUC_10:   .SET   STRUC_11   
+00D8                STRUC_11:   .SET   STRUC_12   
+00D8                STRUC_12:   .SET   0   
+00D8                          ;*Macro unroll:  _endif
+00D8                          ;*Macro unroll:  STRUC_FWD
+00D8                CUR_ADR:   .SET   $   
+00AE                          .ORG   STRUC_TOP - 2   
+00AE   D8 00                  DW   CUR_ADR   
+00D8                          .ORG   CUR_ADR   
+00D8                          ;*Macro unroll:  STRUC_POP
+00D8                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+00D8                STRUC_TOP:   .SET   STRUC_2   
+00D8                STRUC_2:   .SET   STRUC_3   
+00D8                STRUC_3:   .SET   STRUC_4   
+00D8                STRUC_4:   .SET   STRUC_5   
+00D8                STRUC_5:   .SET   STRUC_6   
+00D8                STRUC_6:   .SET   STRUC_7   
+00D8                STRUC_7:   .SET   STRUC_8   
+00D8                STRUC_8:   .SET   STRUC_9   
+00D8                STRUC_9:   .SET   STRUC_10   
+00D8                STRUC_10:   .SET   STRUC_11   
+00D8                STRUC_11:   .SET   STRUC_12   
+00D8                STRUC_12:   .SET   0   
+00D8                          ;*Macro unroll:  _endif
+00D8                          ;*Macro unroll:  STRUC_FWD
+00D8                CUR_ADR:   .SET   $   
+009C                          .ORG   STRUC_TOP - 2   
+009C   D8 00                  DW   CUR_ADR   
+00D8                          .ORG   CUR_ADR   
+00D8                          ;*Macro unroll:  STRUC_POP
+00D8                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+00D8                STRUC_TOP:   .SET   STRUC_2   
+00D8                STRUC_2:   .SET   STRUC_3   
+00D8                STRUC_3:   .SET   STRUC_4   
+00D8                STRUC_4:   .SET   STRUC_5   
+00D8                STRUC_5:   .SET   STRUC_6   
+00D8                STRUC_6:   .SET   STRUC_7   
+00D8                STRUC_7:   .SET   STRUC_8   
+00D8                STRUC_8:   .SET   STRUC_9   
+00D8                STRUC_9:   .SET   STRUC_10   
+00D8                STRUC_10:   .SET   STRUC_11   
+00D8                STRUC_11:   .SET   STRUC_12   
+00D8                STRUC_12:   .SET   0   
+00D8   E1                     POP   HL   
+00D9   F1                     POP   AF   
+00DA   FB                     EI      
+00DB   C9                     RET      
+00DC                             ; 
+00DC                             ; getc - input
+00DC                             ; returns: A = input char
+00DC                             ; 
+00DC                GETC:        
+00DC                          IF   TESTMODE   
+                              PUSH   HL   
+                              LD   HL,(char_pointer)   
+                              LD   A,(HL)   
+                              INC   HL   
+                              LD   (char_pointer),HL   
+                              POP   HL   
+                              RET      
+00DC                          ELSE      
+00DC                          ;*Macro unroll:  _do
+00DC   18 03                  JR   L_M_480   
+00DE   C3 DE 00               JP   $   
+00E1                          ;*Macro unroll:  DLOOP_PUSH $
+00E1                DLOOP_COUNT:   .SET   DLOOP_COUNT + 1   
+00E1                DLOOP_12:   .SET   DLOOP_11   
+00E1                DLOOP_11:   .SET   DLOOP_10   
+00E1                DLOOP_10:   .SET   DLOOP_9   
+00E1                DLOOP_9:   .SET   DLOOP_8   
+00E1                DLOOP_8:   .SET   DLOOP_7   
+00E1                DLOOP_7:   .SET   DLOOP_6   
+00E1                DLOOP_6:   .SET   DLOOP_5   
+00E1                DLOOP_5:   .SET   DLOOP_4   
+00E1                DLOOP_4:   .SET   DLOOP_3   
+00E1                DLOOP_3:   .SET   DLOOP_2   
+00E1                DLOOP_2:   .SET   DLOOP_TOP   
+00E1                DLOOP_TOP:   .SET   $   
+00E1                L_M_480:      
+00E1   3A 56 20               LD   A,(serBufUsed)   
+00E4   FE 00                  CP   $00   
+00E6                          ;*Macro unroll:  _until nz
+00E6   C2 DE 00               JP   nz,DLOOP_TOP - 3   
+00E9                          ;*Macro unroll:  DLOOP_FWD               ; needed?
+00E9                CUR_ADR:   .SET   $   ; needed?
+00DF                          .ORG   DLOOP_TOP - 2   
+00DF   E9 00                  DW   CUR_ADR   
+00E9                          .ORG   CUR_ADR   
+00E9                          ;*Macro unroll:  _enddo
+00E9   C3 E1 00               JP   DLOOP_TOP   
+00EC                          ;*Macro unroll:  DLOOP_FWD
+00EC                CUR_ADR:   .SET   $   
+00DF                          .ORG   DLOOP_TOP - 2   
+00DF   EC 00                  DW   CUR_ADR   
+00EC                          .ORG   CUR_ADR   
+00EC                          ;*Macro unroll:  DLOOP_POP
+00EC                DLOOP_COUNT:   .SET   DLOOP_COUNT - 1   
+00EC                DLOOP_TOP:   .SET   DLOOP_2   
+00EC                DLOOP_2:   .SET   DLOOP_3   
+00EC                DLOOP_3:   .SET   DLOOP_4   
+00EC                DLOOP_4:   .SET   DLOOP_5   
+00EC                DLOOP_5:   .SET   DLOOP_6   
+00EC                DLOOP_6:   .SET   DLOOP_7   
+00EC                DLOOP_7:   .SET   DLOOP_8   
+00EC                DLOOP_8:   .SET   DLOOP_9   
+00EC                DLOOP_9:   .SET   DLOOP_10   
+00EC                DLOOP_10:   .SET   DLOOP_11   
+00EC                DLOOP_11:   .SET   DLOOP_12   
+00EC                DLOOP_12:   .SET   0   
+00EC   E5                     PUSH   HL   
+00ED   2A 54 20               LD   HL,(serRdPtr)   
+00F0   23                     INC   HL   
+00F1   7D                     LD   A,L   ; Only need to check low byte because lineBuf<256 bytes
+00F2   FE 52                  CP   (serBuf + SER_BUFSIZE) & $FF   
+00F4                          ;*Macro unroll:  _if z
+00F4   CA FA 00               JP   z,L_M_490   
+00F7   C3 F7 00               JP   $   
+00FA                          ;*Macro unroll:  STRUC_PUSH $
+00FA                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+00FA                STRUC_12:   .SET   STRUC_11   
+00FA                STRUC_11:   .SET   STRUC_10   
+00FA                STRUC_10:   .SET   STRUC_9   
+00FA                STRUC_9:   .SET   STRUC_8   
+00FA                STRUC_8:   .SET   STRUC_7   
+00FA                STRUC_7:   .SET   STRUC_6   
+00FA                STRUC_6:   .SET   STRUC_5   
+00FA                STRUC_5:   .SET   STRUC_4   
+00FA                STRUC_4:   .SET   STRUC_3   
+00FA                STRUC_3:   .SET   STRUC_2   
+00FA                STRUC_2:   .SET   STRUC_TOP   
+00FA                STRUC_TOP:   .SET   $   
+00FA                L_M_490:      
+00FA   21 13 20               LD   HL,serBuf   
+00FD                          ;*Macro unroll:  _endif
+00FD                          ;*Macro unroll:  STRUC_FWD
+00FD                CUR_ADR:   .SET   $   
+00F8                          .ORG   STRUC_TOP - 2   
+00F8   FD 00                  DW   CUR_ADR   
+00FD                          .ORG   CUR_ADR   
+00FD                          ;*Macro unroll:  STRUC_POP
+00FD                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+00FD                STRUC_TOP:   .SET   STRUC_2   
+00FD                STRUC_2:   .SET   STRUC_3   
+00FD                STRUC_3:   .SET   STRUC_4   
+00FD                STRUC_4:   .SET   STRUC_5   
+00FD                STRUC_5:   .SET   STRUC_6   
+00FD                STRUC_6:   .SET   STRUC_7   
+00FD                STRUC_7:   .SET   STRUC_8   
+00FD                STRUC_8:   .SET   STRUC_9   
+00FD                STRUC_9:   .SET   STRUC_10   
+00FD                STRUC_10:   .SET   STRUC_11   
+00FD                STRUC_11:   .SET   STRUC_12   
+00FD                STRUC_12:   .SET   0   
+00FD   F3                     DI      
+00FE   22 54 20               LD   (serRdPtr),HL   
+0101   3A 56 20               LD   A,(serBufUsed)   
+0104   3D                     DEC   A   
+0105   32 56 20               LD   (serBufUsed),A   
+0108   FE 05                  CP   SER_EMPTYSIZE   
+010A                          ;*Macro unroll:  _if c
+010A   DA 10 01               JP   c,L_M_499   
+010D   C3 0D 01               JP   $   
+0110                          ;*Macro unroll:  STRUC_PUSH $
+0110                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+0110                STRUC_12:   .SET   STRUC_11   
+0110                STRUC_11:   .SET   STRUC_10   
+0110                STRUC_10:   .SET   STRUC_9   
+0110                STRUC_9:   .SET   STRUC_8   
+0110                STRUC_8:   .SET   STRUC_7   
+0110                STRUC_7:   .SET   STRUC_6   
+0110                STRUC_6:   .SET   STRUC_5   
+0110                STRUC_5:   .SET   STRUC_4   
+0110                STRUC_4:   .SET   STRUC_3   
+0110                STRUC_3:   .SET   STRUC_2   
+0110                STRUC_2:   .SET   STRUC_TOP   
+0110                STRUC_TOP:   .SET   $   
+0110                L_M_499:      
+0110   3E 96                  LD   A,RTS_LOW   
+0112   D3 80                  OUT   ($80),A   
+0114                          ;*Macro unroll:  _endif
+0114                          ;*Macro unroll:  STRUC_FWD
+0114                CUR_ADR:   .SET   $   
+010E                          .ORG   STRUC_TOP - 2   
+010E   14 01                  DW   CUR_ADR   
+0114                          .ORG   CUR_ADR   
+0114                          ;*Macro unroll:  STRUC_POP
+0114                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+0114                STRUC_TOP:   .SET   STRUC_2   
+0114                STRUC_2:   .SET   STRUC_3   
+0114                STRUC_3:   .SET   STRUC_4   
+0114                STRUC_4:   .SET   STRUC_5   
+0114                STRUC_5:   .SET   STRUC_6   
+0114                STRUC_6:   .SET   STRUC_7   
+0114                STRUC_7:   .SET   STRUC_8   
+0114                STRUC_8:   .SET   STRUC_9   
+0114                STRUC_9:   .SET   STRUC_10   
+0114                STRUC_10:   .SET   STRUC_11   
+0114                STRUC_11:   .SET   STRUC_12   
+0114                STRUC_12:   .SET   0   
+0114   7E                     LD   A,(HL)   
+0115   FB                     EI      
+0116   E1                     POP   HL   
+0117   C9                     RET      ; Char ready in A
+0118                          ENDIF      
+0118                             ; 
+0118                             ; putc - output a character
+0118                             ; params: A = char to output
+0118                             ; 
+0118                PUTC:        
+0118   F5                     PUSH   AF   ; Store character
+0119                          ;*Macro unroll:  _do
+0119   18 03                  JR   L_M_514   
+011B   C3 1B 01               JP   $   
+011E                          ;*Macro unroll:  DLOOP_PUSH $
+011E                DLOOP_COUNT:   .SET   DLOOP_COUNT + 1   
+011E                DLOOP_12:   .SET   DLOOP_11   
+011E                DLOOP_11:   .SET   DLOOP_10   
+011E                DLOOP_10:   .SET   DLOOP_9   
+011E                DLOOP_9:   .SET   DLOOP_8   
+011E                DLOOP_8:   .SET   DLOOP_7   
+011E                DLOOP_7:   .SET   DLOOP_6   
+011E                DLOOP_6:   .SET   DLOOP_5   
+011E                DLOOP_5:   .SET   DLOOP_4   
+011E                DLOOP_4:   .SET   DLOOP_3   
+011E                DLOOP_3:   .SET   DLOOP_2   
+011E                DLOOP_2:   .SET   DLOOP_TOP   
+011E                DLOOP_TOP:   .SET   $   
+011E                L_M_514:      
+011E   DB 80                  IN   A,($80)   ; Status byte
+0120   CB 4F                  BIT   1,A   ; Set Zero flag if still transmitting character
+0122                          ;*Macro unroll:  _until nz
+0122   C2 1B 01               JP   nz,DLOOP_TOP - 3   
+0125                          ;*Macro unroll:  DLOOP_FWD               ; needed?
+0125                CUR_ADR:   .SET   $   ; needed?
+011C                          .ORG   DLOOP_TOP - 2   
+011C   25 01                  DW   CUR_ADR   
+0125                          .ORG   CUR_ADR   
+0125                          ;*Macro unroll:  _enddo
+0125   C3 1E 01               JP   DLOOP_TOP   
+0128                          ;*Macro unroll:  DLOOP_FWD
+0128                CUR_ADR:   .SET   $   
+011C                          .ORG   DLOOP_TOP - 2   
+011C   28 01                  DW   CUR_ADR   
+0128                          .ORG   CUR_ADR   
+0128                          ;*Macro unroll:  DLOOP_POP
+0128                DLOOP_COUNT:   .SET   DLOOP_COUNT - 1   
+0128                DLOOP_TOP:   .SET   DLOOP_2   
+0128                DLOOP_2:   .SET   DLOOP_3   
+0128                DLOOP_3:   .SET   DLOOP_4   
+0128                DLOOP_4:   .SET   DLOOP_5   
+0128                DLOOP_5:   .SET   DLOOP_6   
+0128                DLOOP_6:   .SET   DLOOP_7   
+0128                DLOOP_7:   .SET   DLOOP_8   
+0128                DLOOP_8:   .SET   DLOOP_9   
+0128                DLOOP_9:   .SET   DLOOP_10   
+0128                DLOOP_10:   .SET   DLOOP_11   
+0128                DLOOP_11:   .SET   DLOOP_12   
+0128                DLOOP_12:   .SET   0   
+0128   F1                     POP   AF   ; Retrieve character
+0129   D3 81                  OUT   ($81),A   ; Output the character
+012B   C9                     RET      
+012C                INPUTREADY:      
+012C   3A 56 20               LD   A,(serBufUsed)   
+012F   FE 00                  CP   $0   
+0131   C9                     RET      
+0132                             ; 
+0132                             ; getline - input line of text ***
+0132                             ; params: HL = addr, DE = max (currently up to 255)
+0132                             ; returns: BC = length - up to 255
+0132                             ; 
+0132                GETLINE:      
+0132   F5                     PUSH   AF   
+0133   E5                     PUSH   HL   
+0134                          ;*Macro unroll:  PRINT_STR TXT_PROMPT
+0134                          ;*Macro unroll:  ppush0 D,E
+0134   DD 73 00               LD   (IX+0),E   
+0137   DD 23                  INC   IX   
+0139   DD 72 00               LD   (IX+0),D   
+013C   DD 23                  INC   IX   
+013E   11 03 20               LD   DE,TXT_PROMPT   
+0141   CD F7 01               CALL   printPStr   
+0144                          ;*Macro unroll:  ppop0 D,E
+0144   DD 2B                  DEC   IX   
+0146   DD 56 00               LD   D,(IX+0)   
+0149   DD 2B                  DEC   IX   
+014B   DD 5E 00               LD   E,(IX+0)   
+014E   E1                     POP   HL   
+014F   E5                     PUSH   HL   
+0150   01 00 00               LD   BC,0   
+0153                          ;*Macro unroll:  _do
+0153   18 03                  JR   L_M_538   
+0155   C3 55 01               JP   $   
+0158                          ;*Macro unroll:  DLOOP_PUSH $
+0158                DLOOP_COUNT:   .SET   DLOOP_COUNT + 1   
+0158                DLOOP_12:   .SET   DLOOP_11   
+0158                DLOOP_11:   .SET   DLOOP_10   
+0158                DLOOP_10:   .SET   DLOOP_9   
+0158                DLOOP_9:   .SET   DLOOP_8   
+0158                DLOOP_8:   .SET   DLOOP_7   
+0158                DLOOP_7:   .SET   DLOOP_6   
+0158                DLOOP_6:   .SET   DLOOP_5   
+0158                DLOOP_5:   .SET   DLOOP_4   
+0158                DLOOP_4:   .SET   DLOOP_3   
+0158                DLOOP_3:   .SET   DLOOP_2   
+0158                DLOOP_2:   .SET   DLOOP_TOP   
+0158                DLOOP_TOP:   .SET   $   
+0158                L_M_538:      
+0158                          ;*Macro unroll:  _do
+0158   18 03                  JR   L_M_539   
+015A   C3 5A 01               JP   $   
+015D                          ;*Macro unroll:  DLOOP_PUSH $
+015D                DLOOP_COUNT:   .SET   DLOOP_COUNT + 1   
+015D                DLOOP_12:   .SET   DLOOP_11   
+015D                DLOOP_11:   .SET   DLOOP_10   
+015D                DLOOP_10:   .SET   DLOOP_9   
+015D                DLOOP_9:   .SET   DLOOP_8   
+015D                DLOOP_8:   .SET   DLOOP_7   
+015D                DLOOP_7:   .SET   DLOOP_6   
+015D                DLOOP_6:   .SET   DLOOP_5   
+015D                DLOOP_5:   .SET   DLOOP_4   
+015D                DLOOP_4:   .SET   DLOOP_3   
+015D                DLOOP_3:   .SET   DLOOP_2   
+015D                DLOOP_2:   .SET   DLOOP_TOP   
+015D                DLOOP_TOP:   .SET   $   
+015D                L_M_539:      
+015D   CD DC 00               CALL   getc   
+0160   FE 08                  CP   $08   
+0162                          ;*Macro unroll:  _if z
+0162   CA 68 01               JP   z,L_M_542   
+0165   C3 65 01               JP   $   
+0168                          ;*Macro unroll:  STRUC_PUSH $
+0168                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+0168                STRUC_12:   .SET   STRUC_11   
+0168                STRUC_11:   .SET   STRUC_10   
+0168                STRUC_10:   .SET   STRUC_9   
+0168                STRUC_9:   .SET   STRUC_8   
+0168                STRUC_8:   .SET   STRUC_7   
+0168                STRUC_7:   .SET   STRUC_6   
+0168                STRUC_6:   .SET   STRUC_5   
+0168                STRUC_5:   .SET   STRUC_4   
+0168                STRUC_4:   .SET   STRUC_3   
+0168                STRUC_3:   .SET   STRUC_2   
+0168                STRUC_2:   .SET   STRUC_TOP   
+0168                STRUC_TOP:   .SET   $   
+0168                L_M_542:      
+0168                          ;*Macro unroll:  checkZeroWord B,C
+0168   79                     LD   A,C   
+0169   B0                     OR   B   
+016A                          ;*Macro unroll:  _if nz
+016A   C2 70 01               JP   nz,L_M_544   
+016D   C3 6D 01               JP   $   
+0170                          ;*Macro unroll:  STRUC_PUSH $
+0170                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+0170                STRUC_12:   .SET   STRUC_11   
+0170                STRUC_11:   .SET   STRUC_10   
+0170                STRUC_10:   .SET   STRUC_9   
+0170                STRUC_9:   .SET   STRUC_8   
+0170                STRUC_8:   .SET   STRUC_7   
+0170                STRUC_7:   .SET   STRUC_6   
+0170                STRUC_6:   .SET   STRUC_5   
+0170                STRUC_5:   .SET   STRUC_4   
+0170                STRUC_4:   .SET   STRUC_3   
+0170                STRUC_3:   .SET   STRUC_2   
+0170                STRUC_2:   .SET   STRUC_TOP   
+0170                STRUC_TOP:   .SET   $   
+0170                L_M_544:      
+0170   2B                     DEC   HL   
+0171   0B                     DEC   BC   
+0172   3E 08                  LD   a,$08   
+0174   CD 18 01               CALL   putc   
+0177   CD 19 02               CALL   printSpace   
+017A   3E 08                  LD   A,$08   
+017C   CD 18 01               CALL   putc   
+017F                          ;*Macro unroll:  _endif
+017F                          ;*Macro unroll:  STRUC_FWD
+017F                CUR_ADR:   .SET   $   
+016E                          .ORG   STRUC_TOP - 2   
+016E   7F 01                  DW   CUR_ADR   
+017F                          .ORG   CUR_ADR   
+017F                          ;*Macro unroll:  STRUC_POP
+017F                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+017F                STRUC_TOP:   .SET   STRUC_2   
+017F                STRUC_2:   .SET   STRUC_3   
+017F                STRUC_3:   .SET   STRUC_4   
+017F                STRUC_4:   .SET   STRUC_5   
+017F                STRUC_5:   .SET   STRUC_6   
+017F                STRUC_6:   .SET   STRUC_7   
+017F                STRUC_7:   .SET   STRUC_8   
+017F                STRUC_8:   .SET   STRUC_9   
+017F                STRUC_9:   .SET   STRUC_10   
+017F                STRUC_10:   .SET   STRUC_11   
+017F                STRUC_11:   .SET   STRUC_12   
+017F                STRUC_12:   .SET   0   
+017F                          ;*Macro unroll:  _else
+017F   C3 7F 01               JP   $   
+0182                          ;*Macro unroll:  STRUC_FWD
+0182                CUR_ADR:   .SET   $   
+0166                          .ORG   STRUC_TOP - 2   
+0166   82 01                  DW   CUR_ADR   
+0182                          .ORG   CUR_ADR   
+0182                STRUC_TOP:   .SET   $   
+0182   77                     LD   (HL),A   
+0183   23                     INC   HL   
+0184   03                     INC   BC   
+0185   CB 7F                  BIT   7,a   
+0187                          ;*Macro unroll:  _if z
+0187   CA 8D 01               JP   z,L_M_558   
+018A   C3 8A 01               JP   $   
+018D                          ;*Macro unroll:  STRUC_PUSH $
+018D                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+018D                STRUC_12:   .SET   STRUC_11   
+018D                STRUC_11:   .SET   STRUC_10   
+018D                STRUC_10:   .SET   STRUC_9   
+018D                STRUC_9:   .SET   STRUC_8   
+018D                STRUC_8:   .SET   STRUC_7   
+018D                STRUC_7:   .SET   STRUC_6   
+018D                STRUC_6:   .SET   STRUC_5   
+018D                STRUC_5:   .SET   STRUC_4   
+018D                STRUC_4:   .SET   STRUC_3   
+018D                STRUC_3:   .SET   STRUC_2   
+018D                STRUC_2:   .SET   STRUC_TOP   
+018D                STRUC_TOP:   .SET   $   
+018D                L_M_558:      
+018D   CD 18 01               CALL   putc   
+0190                          ;*Macro unroll:  _endif
+0190                          ;*Macro unroll:  STRUC_FWD
+0190                CUR_ADR:   .SET   $   
+018B                          .ORG   STRUC_TOP - 2   
+018B   90 01                  DW   CUR_ADR   
+0190                          .ORG   CUR_ADR   
+0190                          ;*Macro unroll:  STRUC_POP
+0190                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+0190                STRUC_TOP:   .SET   STRUC_2   
+0190                STRUC_2:   .SET   STRUC_3   
+0190                STRUC_3:   .SET   STRUC_4   
+0190                STRUC_4:   .SET   STRUC_5   
+0190                STRUC_5:   .SET   STRUC_6   
+0190                STRUC_6:   .SET   STRUC_7   
+0190                STRUC_7:   .SET   STRUC_8   
+0190                STRUC_8:   .SET   STRUC_9   
+0190                STRUC_9:   .SET   STRUC_10   
+0190                STRUC_10:   .SET   STRUC_11   
+0190                STRUC_11:   .SET   STRUC_12   
+0190                STRUC_12:   .SET   0   
+0190   FE 0D                  CP   "\r"   
+0192   28 0B                  JR   z,getLineCheck   
+0194   FE 0A                  CP   "\n"   
+0196   28 07                  JR   z,getLineCheck   
+0198   7B                     LD   A,E   
+0199   B9                     CP   C   
+019A   38 03                  JR   c,getLineCheck   
+019C                          ;*Macro unroll:  _endif
+019C                          ;*Macro unroll:  STRUC_FWD
+019C                CUR_ADR:   .SET   $   
+0180                          .ORG   STRUC_TOP - 2   
+0180   9C 01                  DW   CUR_ADR   
+019C                          .ORG   CUR_ADR   
+019C                          ;*Macro unroll:  STRUC_POP
+019C                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+019C                STRUC_TOP:   .SET   STRUC_2   
+019C                STRUC_2:   .SET   STRUC_3   
+019C                STRUC_3:   .SET   STRUC_4   
+019C                STRUC_4:   .SET   STRUC_5   
+019C                STRUC_5:   .SET   STRUC_6   
+019C                STRUC_6:   .SET   STRUC_7   
+019C                STRUC_7:   .SET   STRUC_8   
+019C                STRUC_8:   .SET   STRUC_9   
+019C                STRUC_9:   .SET   STRUC_10   
+019C                STRUC_10:   .SET   STRUC_11   
+019C                STRUC_11:   .SET   STRUC_12   
+019C                STRUC_12:   .SET   0   
+019C                          ;*Macro unroll:  _enddo
+019C   C3 5D 01               JP   DLOOP_TOP   
+019F                          ;*Macro unroll:  DLOOP_FWD
+019F                CUR_ADR:   .SET   $   
+015B                          .ORG   DLOOP_TOP - 2   
+015B   9F 01                  DW   CUR_ADR   
+019F                          .ORG   CUR_ADR   
+019F                          ;*Macro unroll:  DLOOP_POP
+019F                DLOOP_COUNT:   .SET   DLOOP_COUNT - 1   
+019F                DLOOP_TOP:   .SET   DLOOP_2   
+019F                DLOOP_2:   .SET   DLOOP_3   
+019F                DLOOP_3:   .SET   DLOOP_4   
+019F                DLOOP_4:   .SET   DLOOP_5   
+019F                DLOOP_5:   .SET   DLOOP_6   
+019F                DLOOP_6:   .SET   DLOOP_7   
+019F                DLOOP_7:   .SET   DLOOP_8   
+019F                DLOOP_8:   .SET   DLOOP_9   
+019F                DLOOP_9:   .SET   DLOOP_10   
+019F                DLOOP_10:   .SET   DLOOP_11   
+019F                DLOOP_11:   .SET   DLOOP_12   
+019F                DLOOP_12:   .SET   0   
+019F                GETLINECHECK:      
+019F   3E 00                  LD   a,0   
+01A1   B9                     CP   c   
+01A2                          ;*Macro unroll:  _until nz
+01A2   C2 55 01               JP   nz,DLOOP_TOP - 3   
+01A5                          ;*Macro unroll:  DLOOP_FWD               ; needed?
+01A5                CUR_ADR:   .SET   $   ; needed?
+0156                          .ORG   DLOOP_TOP - 2   
+0156   A5 01                  DW   CUR_ADR   
+01A5                          .ORG   CUR_ADR   
+01A5                          ;*Macro unroll:  _enddo
+01A5   C3 58 01               JP   DLOOP_TOP   
+01A8                          ;*Macro unroll:  DLOOP_FWD
+01A8                CUR_ADR:   .SET   $   
+0156                          .ORG   DLOOP_TOP - 2   
+0156   A8 01                  DW   CUR_ADR   
+01A8                          .ORG   CUR_ADR   
+01A8                          ;*Macro unroll:  DLOOP_POP
+01A8                DLOOP_COUNT:   .SET   DLOOP_COUNT - 1   
+01A8                DLOOP_TOP:   .SET   DLOOP_2   
+01A8                DLOOP_2:   .SET   DLOOP_3   
+01A8                DLOOP_3:   .SET   DLOOP_4   
+01A8                DLOOP_4:   .SET   DLOOP_5   
+01A8                DLOOP_5:   .SET   DLOOP_6   
+01A8                DLOOP_6:   .SET   DLOOP_7   
+01A8                DLOOP_7:   .SET   DLOOP_8   
+01A8                DLOOP_8:   .SET   DLOOP_9   
+01A8                DLOOP_9:   .SET   DLOOP_10   
+01A8                DLOOP_10:   .SET   DLOOP_11   
+01A8                DLOOP_11:   .SET   DLOOP_12   
+01A8                DLOOP_12:   .SET   0   
+01A8   F1                     POP   AF   
+01A9   E1                     POP   HL   
+01AA   CD 10 02               CALL   printCR   
+01AD   C9                     RET      
+01AE                PRINTROUTINE:      
+01AE                          ;*Macro unroll:  _do
+01AE   18 03                  JR   L_M_580   
+01B0   C3 B0 01               JP   $   
+01B3                          ;*Macro unroll:  DLOOP_PUSH $
+01B3                DLOOP_COUNT:   .SET   DLOOP_COUNT + 1   
+01B3                DLOOP_12:   .SET   DLOOP_11   
+01B3                DLOOP_11:   .SET   DLOOP_10   
+01B3                DLOOP_10:   .SET   DLOOP_9   
+01B3                DLOOP_9:   .SET   DLOOP_8   
+01B3                DLOOP_8:   .SET   DLOOP_7   
+01B3                DLOOP_7:   .SET   DLOOP_6   
+01B3                DLOOP_6:   .SET   DLOOP_5   
+01B3                DLOOP_5:   .SET   DLOOP_4   
+01B3                DLOOP_4:   .SET   DLOOP_3   
+01B3                DLOOP_3:   .SET   DLOOP_2   
+01B3                DLOOP_2:   .SET   DLOOP_TOP   
+01B3                DLOOP_TOP:   .SET   $   
+01B3                L_M_580:      
+01B3   1A                     LD   A,(DE)   
+01B4   CD 18 01               CALL   putc   
+01B7   13                     INC   DE   
+01B8   0B                     DEC   BC   
+01B9                          ;*Macro unroll:  checkZeroWord B,C
+01B9   79                     LD   A,C   
+01BA   B0                     OR   B   
+01BB                          ;*Macro unroll:  _until z
+01BB   CA B0 01               JP   z,DLOOP_TOP - 3   
+01BE                          ;*Macro unroll:  DLOOP_FWD               ; needed?
+01BE                CUR_ADR:   .SET   $   ; needed?
+01B1                          .ORG   DLOOP_TOP - 2   
+01B1   BE 01                  DW   CUR_ADR   
+01BE                          .ORG   CUR_ADR   
+01BE                          ;*Macro unroll:  _enddo
+01BE   C3 B3 01               JP   DLOOP_TOP   
+01C1                          ;*Macro unroll:  DLOOP_FWD
+01C1                CUR_ADR:   .SET   $   
+01B1                          .ORG   DLOOP_TOP - 2   
+01B1   C1 01                  DW   CUR_ADR   
+01C1                          .ORG   CUR_ADR   
+01C1                          ;*Macro unroll:  DLOOP_POP
+01C1                DLOOP_COUNT:   .SET   DLOOP_COUNT - 1   
+01C1                DLOOP_TOP:   .SET   DLOOP_2   
+01C1                DLOOP_2:   .SET   DLOOP_3   
+01C1                DLOOP_3:   .SET   DLOOP_4   
+01C1                DLOOP_4:   .SET   DLOOP_5   
+01C1                DLOOP_5:   .SET   DLOOP_6   
+01C1                DLOOP_6:   .SET   DLOOP_7   
+01C1                DLOOP_7:   .SET   DLOOP_8   
+01C1                DLOOP_8:   .SET   DLOOP_9   
+01C1                DLOOP_9:   .SET   DLOOP_10   
+01C1                DLOOP_10:   .SET   DLOOP_11   
+01C1                DLOOP_11:   .SET   DLOOP_12   
+01C1                DLOOP_12:   .SET   0   
+01C1   C9                     RET      
+01C2                             ; 
+01C2                             ; getKey -  inputs a line buffered character
+01C2                             ; params: none
+01C2                             ; returns: A = character,
+01C2                             ; 
+01C2                GETKEY:      
+01C2   E5                     PUSH   HL   
+01C3   D5                     PUSH   DE   
+01C4   C5                     PUSH   BC   
+01C5   2A 5C 20               LD   HL,(currkey)   
+01C8   ED 5B 5E 20            LD   DE,(lineBufTop)   
+01CC   B7                     OR   A   
+01CD   ED 52                  SBC   HL,DE   ; exhausted the input lineBuf?
+01CF                          ;*Macro unroll:  _if nc
+01CF   D2 D5 01               JP   nc,L_M_602   
+01D2   C3 D2 01               JP   $   
+01D5                          ;*Macro unroll:  STRUC_PUSH $
+01D5                STRUC_COUNT:   .SET   STRUC_COUNT + 1   
+01D5                STRUC_12:   .SET   STRUC_11   
+01D5                STRUC_11:   .SET   STRUC_10   
+01D5                STRUC_10:   .SET   STRUC_9   
+01D5                STRUC_9:   .SET   STRUC_8   
+01D5                STRUC_8:   .SET   STRUC_7   
+01D5                STRUC_7:   .SET   STRUC_6   
+01D5                STRUC_6:   .SET   STRUC_5   
+01D5                STRUC_5:   .SET   STRUC_4   
+01D5                STRUC_4:   .SET   STRUC_3   
+01D5                STRUC_3:   .SET   STRUC_2   
+01D5                STRUC_2:   .SET   STRUC_TOP   
+01D5                STRUC_TOP:   .SET   $   
+01D5                L_M_602:      
+01D5   2A 58 20               LD   HL,(lineBufStart)   ; lineBuf
+01D8   ED 5B 5A 20            LD   DE,(lineBufSize)   ; LINE_BUFSIZE
+01DC   CD 32 01               CALL   getline   
+01DF   21 60 20               LD   HL,lineBuf   
+01E2   22 5C 20               LD   (currkey),HL   
+01E5   B7                     OR   A   
+01E6   ED 4A                  ADC   HL,BC   ; lineBuf+DE = lineBufTop
+01E8   22 5E 20               LD   (lineBufTop),HL   
+01EB                          ;*Macro unroll:  _endif
+01EB                          ;*Macro unroll:  STRUC_FWD
+01EB                CUR_ADR:   .SET   $   
+01D3                          .ORG   STRUC_TOP - 2   
+01D3   EB 01                  DW   CUR_ADR   
+01EB                          .ORG   CUR_ADR   
+01EB                          ;*Macro unroll:  STRUC_POP
+01EB                STRUC_COUNT:   .SET   STRUC_COUNT - 1   
+01EB                STRUC_TOP:   .SET   STRUC_2   
+01EB                STRUC_2:   .SET   STRUC_3   
+01EB                STRUC_3:   .SET   STRUC_4   
+01EB                STRUC_4:   .SET   STRUC_5   
+01EB                STRUC_5:   .SET   STRUC_6   
+01EB                STRUC_6:   .SET   STRUC_7   
+01EB                STRUC_7:   .SET   STRUC_8   
+01EB                STRUC_8:   .SET   STRUC_9   
+01EB                STRUC_9:   .SET   STRUC_10   
+01EB                STRUC_10:   .SET   STRUC_11   
+01EB                STRUC_11:   .SET   STRUC_12   
+01EB                STRUC_12:   .SET   0   
+01EB   2A 5C 20               LD   HL,(currkey)   
+01EE   7E                     LD   A,(HL)   ; get next key from input lineBuf
+01EF   23                     INC   HL   
+01F0   22 5C 20               LD   (currkey),HL   ; increment currkey
+01F3   C1                     POP   BC   
+01F4   D1                     POP   DE   
+01F5   E1                     POP   HL   
+01F6   C9                     RET      
+01F7                             ; 
+01F7                             ; Output pascal string ***
+01F7                             ; params: DE = addr
+01F7                             ; 
+01F7                PRINTPSTR:      
+01F7   F5                     PUSH   AF   
+01F8   C5                     PUSH   BC   
+01F9   D5                     PUSH   DE   
+01FA   1A                     LD   A,(DE)   
+01FB   4F                     LD   C,A   
+01FC   06 00                  LD   B,0   
+01FE   13                     INC   DE   
+01FF   CD AE 01               CALL   printRoutine   
+0202   D1                     POP   DE   
+0203   C1                     POP   BC   
+0204   F1                     POP   AF   
+0205   C9                     RET      
+0206                             ; 
+0206                             ; Output string
+0206                             ; params: DE = addr, BC = length
+0206                             ; 
+0206                PRINTSTR:      
+0206   F5                     PUSH   AF   
+0207   C5                     PUSH   BC   
+0208   D5                     PUSH   DE   
+0209   CD AE 01               CALL   printRoutine   
+020C   D1                     POP   DE   
+020D   C1                     POP   BC   
+020E   F1                     POP   AF   
+020F   C9                     RET      
+0210                PRINTCR:      
+0210   D5                     PUSH   DE   
+0211   11 00 20               LD   DE,TXT_NEWLINE   
+0214   CD F7 01               CALL   printPStr   
+0217   D1                     POP   DE   
+0218   C9                     RET      
+0219                PRINTSPACE:      
+0219   F5                     PUSH   AF   
+021A   3E 20                  LD   A," "   
+021C   CD 18 01               CALL   putc   
+021F   F1                     POP   AF   
+0220   C9                     RET      
+0221                START:       
+0221   31 00 00               LD   SP,RET_STACK   ; Initialise the return stack.
+0224   CD 69 00               CALL   initSerial   
+0227                          IF   TESTMODE   
+                              JP   TESTS_START   
+0227                          ELSE      
+0227                          ;*Macro unroll:  PRINT_STR TXT_INTRO
+0227                          ;*Macro unroll:  ppush0 D,E
+0227   DD 73 00               LD   (IX+0),E   
+022A   DD 23                  INC   IX   
+022C   DD 72 00               LD   (IX+0),D   
+022F   DD 23                  INC   IX   
+0231   11 08 20               LD   DE,TXT_INTRO   
+0234   CD F7 01               CALL   printPStr   
+0237                          ;*Macro unroll:  ppop0 D,E
+0237   DD 2B                  DEC   IX   
+0239   DD 56 00               LD   D,(IX+0)   
+023C   DD 2B                  DEC   IX   
+023E   DD 5E 00               LD   E,(IX+0)   
+0241   76                     HALT      
+0242                          ENDIF      
+2000                          .ORG   START_RAM   
+2000                          IF   TESTMODE   
+                    TESTS_START:      
+                                 ; 
+                                 ; test-macros
+                                 ; 
+                                 ; macros to facilitate tests
+                                 ; 
+                    .macro TEST_SET_TEXT,s1
+                                 ; 
+                     ld HL, (lineBufStart)
+                     ld (lineBufTop),HL
+                     ld (currkey),HL
+                     ld HL, tst_text%%M
+                     ld (char_pointer), HL
+                     _skip
+                    tst_text%%M:
+                     db s1,"\r\n",-1,"\r\n"
+                     _endskip
+                    .endm
+                     
+                                 ; prevents using _if macro here
+                    .macro EXPECT,expect,failtxt
+                                 ; 
+                     call printNum
+                     loadWord H,L, B,C
+                     ld L, C
+                     ppop0 B,C
+                     CMP16 expect
+                     jp z, tf_done%%M            ; asm80 macro nesting issue
+                     ld DE, FAILED
+                     call printPStr
+                     ld DE, te_fail%%M
+                     call printPStr
+                     halt
+                     _skip
+                    te_fail%%M:
+                     .pstr failtxt
+                     _endskip
+                    tf_done%%M:
+                    .endm
+                     
+2000                          ENDIF      
+2000                          IF   TESTMODE = 1   
+                                 ; 
+                                 ; tests
+                                 ; 
+                                 ; these tests will evaluate when TESTMODE = 1
+                                 ; 
+2000                          ENDIF      
+2000                          IF   TESTMODE = 2   
+2000                          ENDIF      
+2000                          IF   TESTMODE   
+                              ;*Macro unroll:  PRINT_STR DONE
+                              ;*Macro unroll:  ppush0 D,E
+                              LD   (IX+0),E   
+                              INC   IX   
+                              LD   (IX+0),D   
+                              INC   IX   
+                              LD   DE,DONE   
+                              CALL   printPStr   
+                              ;*Macro unroll:  ppop0 D,E
+                              DEC   IX   
+                              LD   D,(IX+0)   
+                              DEC   IX   
+                              LD   E,(IX+0)   
+                              HALT      
+2000                          ENDIF      
+2000   02 0D 0A     TXT_NEWLINE:   .PSTR   "\r\n"   
+2003   04 0D 0A 3E 20 TXT_PROMPT:   .PSTR   "\r\n> "   
+2008   0A 53 65 72 4D 6F 6E 0D 0A 0D 0A TXT_INTRO:   .PSTR   "SerMon\r\n\r\n"   
+2013                          IF   TESTMODE   
+                    DONE:     .PSTR   "\r\nDone! \r\n"   
+                    FAILED:   .PSTR   "Failed: \r\n"   
+2013                          ENDIF      
+2013                             ; 
+2013                             ; variables
+2013                             ; 
+2013                             ; storage locations declared in RAM
+2013                             ; 
+2013                SERBUF:   DS   SER_BUFSIZE   
+2052   00 00        SERINPTR:   DW   0   
+2054   00 00        SERRDPTR:   DW   0   
+2056   00 00        SERBUFUSED:   DW   0   
+2058   00 00        LINEBUFSTART:   DW   0   
+205A   00 00        LINEBUFSIZE:   DW   0   
+205C   00 00        CURRKEY:   DW   0   
+205E   00 00        LINEBUFTOP:   DW   0   
+2060                LINEBUF:   DS   LINE_BUFSIZE   
+20E0                             ; A static lineBuf TOKEN fills.  Subsequent calls
+20E0                             ; overwrite this lineBuf.  Maximum word length is 32 chars.
+20E0                DATA_STACK:   DS   DATA_STACK_SIZE   
+2160                          IF   TESTMODE   
+                                 ; used for mocking getc
+                    CHAR_POINTER:   DW   0   
+2160                          ENDIF      
+2160                START_USER:      ; user allocated data starts here
+
+
+TESTMODE:           0000 DEFINED AT LINE 3
+ROM_SIZE:           2000 DEFINED AT LINE 7 IN constants.z80
+                    > USED AT LINE 8 IN constants.z80
+                    > USED AT LINE 19 IN constants.z80
+RAM_SIZE:           E000 DEFINED AT LINE 8 IN constants.z80
+                    > USED AT LINE 20 IN constants.z80
+RET_STACK_SIZE:     0080 DEFINED AT LINE 9 IN constants.z80
+DATA_STACK_SIZE:    0080 DEFINED AT LINE 10 IN constants.z80
+                    > USED AT LINE 20 IN variables.z80
+PAD_SIZE:           0080 DEFINED AT LINE 11 IN constants.z80
+SER_BUFSIZE:        003F DEFINED AT LINE 13 IN constants.z80
+                    > USED AT LINE 35 IN serial.z80
+                    > USED AT LINE 42 IN serial.z80
+                    > USED AT LINE 90 IN serial.z80
+                    > USED AT LINE 7 IN variables.z80
+SER_FULLSIZE:       0030 DEFINED AT LINE 14 IN constants.z80
+                    > USED AT LINE 52 IN serial.z80
+SER_EMPTYSIZE:      0005 DEFINED AT LINE 15 IN constants.z80
+                    > USED AT LINE 99 IN serial.z80
+LINE_BUFSIZE:       0080 DEFINED AT LINE 16 IN constants.z80
+                    > USED AT LINE 16 IN serial.z80
+                    > USED AT LINE 15 IN variables.z80
+START_ROM:          0000 DEFINED AT LINE 18 IN constants.z80
+                    > USED AT LINE 19 IN constants.z80
+                    > USED AT LINE 10
+START_RAM:          2000 DEFINED AT LINE 19 IN constants.z80
+                    > USED AT LINE 20 IN constants.z80
+                    > USED AT LINE 37
+END_RAM:            10000 DEFINED AT LINE 20 IN constants.z80
+                    > USED AT LINE 21 IN constants.z80
+RET_STACK:          10000 DEFINED AT LINE 21 IN constants.z80
+                    > USED AT LINE 26
+IO_DATA:            0081 DEFINED AT LINE 23 IN constants.z80
+IO_CTRL:            0080 DEFINED AT LINE 24 IN constants.z80
+RTS_HIGH:           00D6 DEFINED AT LINE 26 IN constants.z80
+                    > USED AT LINE 54 IN serial.z80
+RTS_LOW:            0096 DEFINED AT LINE 27 IN constants.z80
+                    > USED AT LINE 19 IN serial.z80
+                    > USED AT LINE 101 IN serial.z80
+LINK:               0000 DEFINED AT LINE 7 IN macros.z80
+STRUC_COUNT:        01EA DEFINED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 29
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 46
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+STRUC_12:           0000 DEFINED AT LINE 59
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+STRUC_11:           0000 DEFINED AT LINE 58
+                    > USED AT LINE 31
+                    > USED AT LINE 31
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 57
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+STRUC_10:           0000 DEFINED AT LINE 57
+                    > USED AT LINE 32
+                    > USED AT LINE 32
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 56
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+STRUC_9:            0000 DEFINED AT LINE 56
+                    > USED AT LINE 33
+                    > USED AT LINE 33
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 55
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+STRUC_8:            0000 DEFINED AT LINE 55
+                    > USED AT LINE 34
+                    > USED AT LINE 34
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 54
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+STRUC_7:            0000 DEFINED AT LINE 54
+                    > USED AT LINE 35
+                    > USED AT LINE 35
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 53
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+STRUC_6:            0000 DEFINED AT LINE 53
+                    > USED AT LINE 36
+                    > USED AT LINE 36
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 52
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+STRUC_5:            0000 DEFINED AT LINE 52
+                    > USED AT LINE 37
+                    > USED AT LINE 37
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 51
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+STRUC_4:            0000 DEFINED AT LINE 51
+                    > USED AT LINE 38
+                    > USED AT LINE 38
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 50
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+STRUC_3:            0000 DEFINED AT LINE 50
+                    > USED AT LINE 39
+                    > USED AT LINE 39
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 49
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+STRUC_2:            0000 DEFINED AT LINE 49
+                    > USED AT LINE 40
+                    > USED AT LINE 40
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 48
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+STRUC_TOP:          0000 DEFINED AT LINE 48
+                    > USED AT LINE 41
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 64
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 64
+DLOOP_COUNT:        01C0 DEFINED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+                    > USED AT LINE 46
+                    > USED AT LINE 29
+                    > USED AT LINE 46
+DLOOP_12:           0000 DEFINED AT LINE 59
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+                    > USED AT LINE 58
+DLOOP_11:           0000 DEFINED AT LINE 58
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+                    > USED AT LINE 57
+                    > USED AT LINE 31
+                    > USED AT LINE 57
+DLOOP_10:           0000 DEFINED AT LINE 57
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+                    > USED AT LINE 56
+                    > USED AT LINE 32
+                    > USED AT LINE 56
+DLOOP_9:            0000 DEFINED AT LINE 56
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+                    > USED AT LINE 55
+                    > USED AT LINE 33
+                    > USED AT LINE 55
+DLOOP_8:            0000 DEFINED AT LINE 55
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+                    > USED AT LINE 54
+                    > USED AT LINE 34
+                    > USED AT LINE 54
+DLOOP_7:            0000 DEFINED AT LINE 54
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+                    > USED AT LINE 53
+                    > USED AT LINE 35
+                    > USED AT LINE 53
+DLOOP_6:            0000 DEFINED AT LINE 53
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+                    > USED AT LINE 52
+                    > USED AT LINE 36
+                    > USED AT LINE 52
+DLOOP_5:            0000 DEFINED AT LINE 52
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+                    > USED AT LINE 51
+                    > USED AT LINE 37
+                    > USED AT LINE 51
+DLOOP_4:            0000 DEFINED AT LINE 51
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+                    > USED AT LINE 50
+                    > USED AT LINE 38
+                    > USED AT LINE 50
+DLOOP_3:            0000 DEFINED AT LINE 50
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+                    > USED AT LINE 49
+                    > USED AT LINE 39
+                    > USED AT LINE 49
+DLOOP_2:            0000 DEFINED AT LINE 49
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+                    > USED AT LINE 48
+                    > USED AT LINE 40
+                    > USED AT LINE 48
+DLOOP_TOP:          0000 DEFINED AT LINE 48
+                    > USED AT LINE 41
+                    > USED AT LINE 84
+                    > USED AT LINE 64
+                    > USED AT LINE 97
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 84
+                    > USED AT LINE 64
+                    > USED AT LINE 97
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 41
+                    > USED AT LINE 97
+                    > USED AT LINE 64
+                    > USED AT LINE 84
+                    > USED AT LINE 64
+                    > USED AT LINE 97
+                    > USED AT LINE 64
+                    > USED AT LINE 41
+                    > USED AT LINE 84
+                    > USED AT LINE 64
+                    > USED AT LINE 97
+                    > USED AT LINE 64
+RST00:              0000 DEFINED AT LINE 11
+RST38:              0038 DEFINED AT LINE 16
+RST66:              0066 DEFINED AT LINE 20
+INITSERIAL:         0069 DEFINED AT LINE 3 IN serial.z80
+                    > USED AT LINE 27
+SERIALIN:           0092 DEFINED AT LINE 25 IN serial.z80
+                    > USED AT LINE 17
+                    > USED AT LINE 21
+L_M_434:            009E DEFINED AT LINE 75
+                    > USED AT LINE 72
+L_M_439:            00AC DEFINED AT LINE 75
+                    > USED AT LINE 72
+CUR_ADR:            01EB DEFINED AT LINE 63
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+                    > USED AT LINE 65
+                    > USED AT LINE 66
+L_M_446:            00BD DEFINED AT LINE 75
+                    > USED AT LINE 72
+L_M_456:            00D4 DEFINED AT LINE 75
+                    > USED AT LINE 72
+GETC:               00DC DEFINED AT LINE 69 IN serial.z80
+                    > USED AT LINE 146 IN serial.z80
+L_M_480:            00E1 DEFINED AT LINE 73
+                    > USED AT LINE 70
+L_M_490:            00FA DEFINED AT LINE 75
+                    > USED AT LINE 72
+L_M_499:            0110 DEFINED AT LINE 75
+                    > USED AT LINE 72
+PUTC:               0118 DEFINED AT LINE 115 IN serial.z80
+                    > USED AT LINE 154 IN serial.z80
+                    > USED AT LINE 157 IN serial.z80
+                    > USED AT LINE 165 IN serial.z80
+                    > USED AT LINE 190 IN serial.z80
+                    > USED AT LINE 275 IN serial.z80
+L_M_514:            011E DEFINED AT LINE 73
+                    > USED AT LINE 70
+INPUTREADY:         012C DEFINED AT LINE 126 IN serial.z80
+GETLINE:            0132 DEFINED AT LINE 137 IN serial.z80
+                    > USED AT LINE 215 IN serial.z80
+L_M_538:            0158 DEFINED AT LINE 73
+                    > USED AT LINE 70
+L_M_539:            015D DEFINED AT LINE 73
+                    > USED AT LINE 70
+L_M_542:            0168 DEFINED AT LINE 75
+                    > USED AT LINE 72
+L_M_544:            0170 DEFINED AT LINE 75
+                    > USED AT LINE 72
+L_M_558:            018D DEFINED AT LINE 75
+                    > USED AT LINE 72
+GETLINECHECK:       019F DEFINED AT LINE 177 IN serial.z80
+                    > USED AT LINE 169 IN serial.z80
+                    > USED AT LINE 171 IN serial.z80
+                    > USED AT LINE 174 IN serial.z80
+PRINTROUTINE:       01AE DEFINED AT LINE 187 IN serial.z80
+                    > USED AT LINE 244 IN serial.z80
+                    > USED AT LINE 259 IN serial.z80
+L_M_580:            01B3 DEFINED AT LINE 73
+                    > USED AT LINE 70
+GETKEY:             01C2 DEFINED AT LINE 204 IN serial.z80
+L_M_602:            01D5 DEFINED AT LINE 75
+                    > USED AT LINE 72
+PRINTPSTR:          01F7 DEFINED AT LINE 236 IN serial.z80
+                    > USED AT LINE 109
+                    > USED AT LINE 268 IN serial.z80
+                    > USED AT LINE 109
+PRINTSTR:           0206 DEFINED AT LINE 255 IN serial.z80
+PRINTCR:            0210 DEFINED AT LINE 265 IN serial.z80
+                    > USED AT LINE 184 IN serial.z80
+PRINTSPACE:         0219 DEFINED AT LINE 272 IN serial.z80
+                    > USED AT LINE 155 IN serial.z80
+START:              0221 DEFINED AT LINE 25
+                    > USED AT LINE 13
+TXT_NEWLINE:        2000 DEFINED AT LINE 1 IN strings.z80
+                    > USED AT LINE 267 IN serial.z80
+TXT_PROMPT:         2003 DEFINED AT LINE 2 IN strings.z80
+                    > USED AT LINE 108
+TXT_INTRO:          2008 DEFINED AT LINE 4 IN strings.z80
+                    > USED AT LINE 108
+SERBUF:             2013 DEFINED AT LINE 7 IN variables.z80
+                    > USED AT LINE 7 IN serial.z80
+                    > USED AT LINE 42 IN serial.z80
+                    > USED AT LINE 44 IN serial.z80
+                    > USED AT LINE 90 IN serial.z80
+                    > USED AT LINE 92 IN serial.z80
+SERINPTR:           2052 DEFINED AT LINE 8 IN variables.z80
+                    > USED AT LINE 8 IN serial.z80
+                    > USED AT LINE 39 IN serial.z80
+                    > USED AT LINE 46 IN serial.z80
+SERRDPTR:           2054 DEFINED AT LINE 9 IN variables.z80
+                    > USED AT LINE 9 IN serial.z80
+                    > USED AT LINE 87 IN serial.z80
+                    > USED AT LINE 95 IN serial.z80
+SERBUFUSED:         2056 DEFINED AT LINE 10 IN variables.z80
+                    > USED AT LINE 5 IN serial.z80
+                    > USED AT LINE 34 IN serial.z80
+                    > USED AT LINE 49 IN serial.z80
+                    > USED AT LINE 51 IN serial.z80
+                    > USED AT LINE 82 IN serial.z80
+                    > USED AT LINE 96 IN serial.z80
+                    > USED AT LINE 98 IN serial.z80
+                    > USED AT LINE 127 IN serial.z80
+LINEBUFSTART:       2058 DEFINED AT LINE 11 IN variables.z80
+                    > USED AT LINE 12 IN serial.z80
+                    > USED AT LINE 213 IN serial.z80
+LINEBUFSIZE:        205A DEFINED AT LINE 12 IN variables.z80
+                    > USED AT LINE 17 IN serial.z80
+                    > USED AT LINE 214 IN serial.z80
+CURRKEY:            205C DEFINED AT LINE 13 IN variables.z80
+                    > USED AT LINE 13 IN serial.z80
+                    > USED AT LINE 208 IN serial.z80
+                    > USED AT LINE 217 IN serial.z80
+                    > USED AT LINE 222 IN serial.z80
+                    > USED AT LINE 225 IN serial.z80
+LINEBUFTOP:         205E DEFINED AT LINE 14 IN variables.z80
+                    > USED AT LINE 14 IN serial.z80
+                    > USED AT LINE 209 IN serial.z80
+                    > USED AT LINE 220 IN serial.z80
+LINEBUF:            2060 DEFINED AT LINE 15 IN variables.z80
+                    > USED AT LINE 11 IN serial.z80
+                    > USED AT LINE 216 IN serial.z80
+DATA_STACK:         20E0 DEFINED AT LINE 20 IN variables.z80
+START_USER:         2160 DEFINED AT LINE 63

@@ -1,0 +1,28 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; variables
+;;
+;; storage locations declared in RAM
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+serBuf:         ds SER_BUFSIZE
+serInPtr:       dw 0
+serRdPtr:       dw 0
+serBufUsed:     dw 0
+lineBufStart    dw 0
+lineBufSize     dw 0
+currkey:        dw 0
+lineBufTop:     dw 0
+lineBuf:        ds LINE_BUFSIZE
+
+; A static lineBuf TOKEN fills.  Subsequent calls
+; overwrite this lineBuf.  Maximum word length is 32 chars.
+
+DATA_STACK:     ds DATA_STACK_SIZE
+
+.if TESTMODE
+
+    ; used for mocking getc
+
+    char_pointer:   dw 0
+
+.endif
