@@ -1,6 +1,7 @@
 .engine mycomputer
 
 TESTMODE equ 0
+SERIALMODE equ 6850
 
 .include "constants.z80"
 .include "macros.z80"
@@ -12,29 +13,43 @@ RST00:                                      ; Reset
     di                                      ; Disable interrupts
     jp start
 
-.org $0038
-RST38:                                      ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
-    jp serialIn
+.if SERIALMODE = 6850
 
-.org $0066                                  ; rst 66 - NON-MASKABLE INTERRUPT
-RST66:
-    jp serialIn
+    .org $0038
+    RST38:                                      ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
+        jp serialIn
 
-.include "serial.z80"
+.else
+
+    .org $0066                                  ; rst 66 - NON-MASKABLE INTERRUPT
+    RST66:
+        jp serialIn
+
+.endif
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     call initSerial
 
-.if TESTMODE
-    jp TESTS_START
+.if TESTMODE = 0
 
-.else
     PRINT_STR TXT_INTRO
     halt
+
+.else
+
+    jp TESTS_START
+
 .endif
 
+.include "serial.z80"
+.include "strings.z80"
+
 org START_RAM
+
+.include "variables.z80"
+
+START_USER:                                 ; user allocated data starts here
 
 .if TESTMODE
 
@@ -56,8 +71,3 @@ TESTS_START:
     halt
 
 .endif
-
-.include "strings.z80"
-.include "variables.z80"
-
-START_USER:                                 ; user allocated data starts here
