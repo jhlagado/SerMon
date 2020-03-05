@@ -1,7 +1,7 @@
 TXT_NEWLINE:    .pstr "\r\n"
 TXT_PROMPT:     .pstr "\r\n> "
 
-TXT_INTRO:      .pstr "SerMon\r\n\r\n"
+TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
 
 .if TESTMODE
 

@@ -28,9 +28,13 @@ link: .set 0
     ld C, regLO
 .endm
 
-.macro ppop, regHI, regLO
+.macro ppeek, regHI, regLO
     ld regHI, B         ; move TOS reg pair into register pair
     ld regLO, C
+.endm
+
+.macro ppop, regHI, regLO
+    ppeek regHI,regLO
     ppop0 B,C
 .endm
 
@@ -101,13 +105,6 @@ tpt_text%%M:
 .macro checkZeroWord, regHI, regLO          ; check if reg pair is zero
     ld A, regLO
     or regHI
-.endm
-
-.macro PRINT_STR, addr
-    ppush0 D,E
-    ld DE, addr
-    call printPStr
-    ppop0 D,E
 .endm
 
 .macro CMP16, val

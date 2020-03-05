@@ -17,7 +17,8 @@ lineBuf:        ds LINE_BUFSIZE
 ; A static lineBuf TOKEN fills.  Subsequent calls
 ; overwrite this lineBuf.  Maximum word length is 32 chars.
 
-DATA_STACK:     ds DATA_STACK_SIZE
+PARAM_STACK:    ds PARAM_STACK_SIZE
+wordBuf:        ds 64
 
 .if TESTMODE
 

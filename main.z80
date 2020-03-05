@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 0
+TESTMODE equ 1
 SERIALMODE equ 6850
 
 .include "constants.z80"
@@ -16,12 +16,12 @@ RST00:                                      ; Reset
 .if SERIALMODE = 6850
 
     .org $0038
-    RST38:                                      ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
+    RST38:                                  ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
         jp serialIn
 
 .else
 
-    .org $0066                                  ; rst 66 - NON-MASKABLE INTERRUPT
+    .org $0066                              ; rst 66 - NON-MASKABLE INTERRUPT
     RST66:
         jp serialIn
 
@@ -29,11 +29,14 @@ RST00:                                      ; Reset
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
+    ld IX, PARAM_STACK                      ; initialise the param stack.
     call initSerial
 
 .if TESTMODE = 0
 
-    PRINT_STR TXT_INTRO
+    ld BC, TXT_INTRO
+    call printPStr
+    ; call repl
     halt
 
 .else
@@ -42,6 +45,8 @@ start:
 
 .endif
 
+.include "parse.z80"
+.include "print.z80"
 .include "serial.z80"
 .include "strings.z80"
 
@@ -56,18 +61,24 @@ START_USER:                                 ; user allocated data starts here
 TESTS_START:
 
     .include "test-macros.z80"
-.endif
 
-.if TESTMODE = 1
-    .include "tests.z80"
-.endif
-
-.if TESTMODE = 2
-
+    .if TESTMODE = 1
+    
+        .include "tests.z80"
+    
+    .endif
+    
+    .if TESTMODE = 2
+    
+    .endif
+    
 .endif
 
 .if TESTMODE
-    PRINT_STR DONE
+
+    ppushValue DONE
+    call printPStr
     halt
 
 .endif
+

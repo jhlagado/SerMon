@@ -1,0 +1,112 @@
+repl:
+    ld IX, PARAM_STACK                  ; reset param stack
+    call interpret
+    ret
+
+interpret: 
+    _do
+        ppushValue $20                  ; delim
+    	call parseWord
+        ppush0 B,C                      ; duplicate
+        call getLength                  ; ptr -- len
+        checkZeroWord B,C               ; check TOS
+        _if z
+            ppop0 B,C                   ; drop TOS x 2
+            ppop0 B,C
+            ret
+        _endif
+        call interpWord                   ; interpret the next word
+    _endDo
+    ret
+
+getLength:                              ; ptr -- len
+    ld A,(BC)
+    ld B, 0
+    ld C, A
+    ret
+
+interpWord:
+    call printPStr
+    ret
+
+parseWord:                              ; delim -- c-addr
+    ppushValue $40                      ; max length
+    ppushValue wordBuf                  ; buffer
+    call skipDelims
+    call wordRead
+    ret
+
+skipDelims:                             ; delim addr -- delim addr char
+    ppop H,L
+    ppop D,E
+    ppush0 B,C
+    ppush0 D,E
+    ppush0 H,L
+    _do
+        call getKey                     ; get next key, returned in A
+
+        _switch
+
+            bit 7, A                    ; check end of input
+            _if nz
+                ld (HL),0
+                ld A,0
+                _break
+            _endif
+
+            cp $5C                      ; \ start of a comment?
+            _case z                     ; if yes skip to end of line
+                _do
+                    call getKey
+                    cp "\r"             ; end of line yet?
+                    _if nz
+                        cp "\n"         ; end of line yet?
+                    _endif
+                _until z
+                _enddo
+            _endcase
+
+            cp C                        ; = space?
+            _case z
+            _endcase
+
+            cp " "                      ; < space?
+            _case c
+            _endcase
+
+            ; default case
+            _break
+
+        _endswitch
+    _enddo
+    ld B,0
+    ld C,A
+    ret
+
+wordRead:                               ; delim addr char -- c-addr
+    ld A,C
+    ppop0 B,C
+    ppop H,L
+    ppop D,E
+    ld D,0
+    or A
+    _if nz
+        push HL                         ; save a copy of HL
+        inc HL                          ; move to leave space for length byte
+        ld B,E
+        _do
+            ld (HL), A                  ; add character to return lineBuf
+            inc HL
+            inc D
+            call getKey                 ; get next key
+            cp C                        ; = delim?
+        _until z
+            cp " "                      ; < space? i.e. control chars
+        _until c
+        _djnz
+        pop HL                          ; restore HL
+    _endif
+    ld (HL),D                           ; write length
+    loadWord B,C, H,L                   ; TOS = str ptr
+    ret
+

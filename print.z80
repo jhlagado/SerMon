@@ -1,0 +1,38 @@
+printRoutine:
+    _do
+        ld A,(HL)
+        call putc
+        inc HL
+        dec BC
+        checkZeroWord B,C
+    _until z
+    _enddo
+    ret
+
+printPStr:              ; ptr --
+    loadWord H,L, B,C
+    ld C, (HL)
+    ld B, 0
+    inc HL
+    call printRoutine
+    ppop0 B,C
+    ret
+
+printStr:               ; ptr len --
+    ppop0 H,L
+    call printRoutine
+    ppop0 B,C
+    ret
+
+printCR:
+    ld A,"\r"
+    call putc
+    ld A,"\n"
+    call putc
+    ret
+
+printSpace:
+    ld A," "
+    call putc
+    ret
+

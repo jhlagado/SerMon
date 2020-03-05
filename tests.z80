@@ -3,3 +3,10 @@
 ;;
 ;; these tests will evaluate when TESTMODE = 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+TEST_SET_TEXT "x"
+ppushValue $20
+call parseWord
+call getLength
+EXPECT 1, "word 'x'"
+ppop H,L                    ; drop
