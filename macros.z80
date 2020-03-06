@@ -3,20 +3,6 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; Macros to deal with the return stack.
-.macro PUSH_RET, regHI, regLO
-    push regHIregLO
-.endm
-
-.macro POP_RET, regHI, regLO
-    pop regHIregLO
-.endm
-
-.macro SET_RET_SP
-    loadWord H,L, B,C
-    LD SP, HL
-.endm
-
 .macro loadWord, destHI, destLO, srcHI, srcLO    ; transfer from src reg pair to dest reg pair
     ld destLO, srcLO
     ld destHI, srcHI
