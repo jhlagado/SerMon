@@ -25,9 +25,9 @@ tst_text%%M:
     CMP16 expect
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
-    ld DE, FAILED
+    ppushValue FAILED
     call printPStr
-    ld DE, te_fail%%M
+    ppushValue  te_fail%%M
     call printPStr
     halt
     _skip

@@ -7,16 +7,20 @@ interpret:
     _do
         ppushValue $20                  ; delim
     	call parseWord
-        ppush0 B,C                      ; duplicate
+        dup                      ; duplicate
         call getLength                  ; ptr -- len
         checkZeroWord B,C               ; check TOS
-        _if z
-            ppop0 B,C                   ; drop TOS x 2
-            ppop0 B,C
-            ret
-        _endif
+        drop                   ; drop TOS x 2
+    _until z
         call interpWord                   ; interpret the next word
     _endDo
+    ret
+
+parseWord:                              ; delim -- c-addr
+    ppushValue $40                      ; max length
+    ppushValue wordBuf                  ; buffer
+    call skipDelims
+    call wordRead
     ret
 
 getLength:                              ; ptr -- len
@@ -27,13 +31,6 @@ getLength:                              ; ptr -- len
 
 interpWord:
     call printPStr
-    ret
-
-parseWord:                              ; delim -- c-addr
-    ppushValue $40                      ; max length
-    ppushValue wordBuf                  ; buffer
-    call skipDelims
-    call wordRead
     ret
 
 skipDelims:                             ; delim addr -- delim addr char

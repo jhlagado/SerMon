@@ -15,13 +15,13 @@ printPStr:              ; ptr --
     ld B, 0
     inc HL
     call printRoutine
-    ppop0 B,C
+    drop
     ret
 
 printStr:               ; ptr len --
     ppop0 H,L
     call printRoutine
-    ppop0 B,C
+    drop
     ret
 
 printCR:

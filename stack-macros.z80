@@ -1,0 +1,104 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;; param stack
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; drop the top of param stack
+.macro drop                       ; x --
+    ppop0 B,C		        ; drop top of stack
+.endm
+
+; duplicate the top of param stack
+.macro dup                        ; x -- x x
+    ppush0 B,C
+.endm
+
+; reverse rot top three items, top of param stack becomes third from top  stack
+.macro nrot                       ; x1 x2 x3 -- x3 x1 x2
+                            ; x3 in BC
+    ppop0 D,E               ; x2 in DE
+    ppop0 H,L               ; x1 in HL
+    ppush H,L               ; PUSH x1 - x3 x1
+    ppush D,E               ; PUSH x2 - x3 x1 x2
+                            ; x2 in BC
+.endm
+
+; duplicate second from top of param stack
+.macro over                       ;x1 x2 -- x1 x2 x1
+    ppop0 H,L
+    ppush0 H,L
+    ppush H,L
+.endm
+
+; rot top three items, third from top ends up on top of param stack
+.macro rot                        ; x1 x2 x3 -- x2 x3 x1
+                            ; x3 in BC
+    ppop0 D,E               ; x2 in DE
+    ppop0 H,L               ; x1 in HL
+    ppush0 D,E              ; x2 on stack
+    ppush H,L               ; PUSH x1 - x2 x3 x1
+                            ; x1 in BC
+.endm
+
+; swap the top two items of param stack
+.macro swap                       ; x1 x2 -- x2 x1
+    ppop0 D,E
+    ppush D,E
+.endm
+
+; Macros to deal with the param stack.
+.macro ppush0, regHI, regLO
+    ld (IX+0), regLO     ; POP register pair from ret stk
+    inc IX
+    ld (IX+0), regHI
+    inc IX
+.endm
+
+.macro ppop0, regHI, regLO
+    dec IX              ; PUSH register pair on ret stack
+    ld regHI, (IX+0)
+    dec IX
+    ld regLO, (IX+0)
+.endm
+
+; Macros to deal with the param stack with TOS in BC
+.macro ppush, regHI, regLO
+    ppush0 B,C             ; push TOS reg pair
+    ld B, regHI         ; move register pair into TOS reg pair
+    ld C, regLO
+.endm
+
+.macro ppeek, regHI, regLO
+    ld regHI, B         ; move TOS reg pair into register pair
+    ld regLO, C
+.endm
+
+.macro ppop, regHI, regLO
+    ppeek regHI,regLO
+    ppop0 B,C
+.endm
+
+.macro ppushValue, val
+    ppush0 B,C
+    ld BC, val
+.endm
+
+.macro ppushText, s1, len
+    ppushValue tpt_text%%M
+    ppushValue len
+    _skip
+tpt_text%%M:
+        db s1
+    _endskip
+.endm
+
+.macro ppushPText, s1
+    ppushValue tpt_text%%M
+    ld BC, tpt_text%%M
+    _skip
+tpt_text%%M:
+        .pstr s1
+    _endskip
+.endm
+

@@ -7,25 +7,16 @@ SERIALMODE equ 6850
 .include "macros.z80"
 .include "struct-macros.z80"
 .include "dloop-macros.z80"
+.include "stack-macros.z80"
 
 .org START_ROM
 RST00:                                      ; Reset
     di                                      ; Disable interrupts
     jp start
 
-.if SERIALMODE = 6850
-
-    .org $0038
-    RST38:                                  ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
-        jp serialIn
-
-.else
-
-    .org $0066                              ; rst 66 - NON-MASKABLE INTERRUPT
-    RST66:
-        jp serialIn
-
-.endif
+.org $0038
+RST38:                                  ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
+    jp serialIn
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
@@ -36,7 +27,7 @@ start:
 
     ld BC, TXT_INTRO
     call printPStr
-    ; call repl
+    call repl
     halt
 
 .else
