@@ -23,7 +23,7 @@ serialIn:
     push HL
     _do
         in A,(PORT_STATUS)
-        bit 1,(HL)
+        bit 1,A
     _until z
     _enddo
     
