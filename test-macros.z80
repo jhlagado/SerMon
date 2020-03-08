@@ -21,13 +21,13 @@ tst_text%%M:
     ; call printNum
     loadWord H,L, B,C
     ld L, C
-    ppop0 B,C
+    _pop0 B,C
     CMP16 expect
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
-    ppushValue FAILED
+    _pushValue FAILED
     call printPStr
-    ppushValue  te_fail%%M
+    _pushValue  te_fail%%M
     call printPStr
     halt
     _skip

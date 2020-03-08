@@ -5,20 +5,20 @@ repl:
 
 interpret: 
     _do
-        ppushValue $20                  ; delim
+        _pushValue $20                  ; delim
     	call parseWord
-        dup                      ; duplicate
+        _dup                      ; duplicate
         call getLength                  ; ptr -- len
         checkZeroWord B,C               ; check TOS
-        drop                   ; drop TOS x 2
+        _drop                   ; drop TOS x 2
     _until z
         call interpWord                   ; interpret the next word
     _endDo
     ret
 
 parseWord:                              ; delim -- c-addr
-    ppushValue $40                      ; max length
-    ppushValue wordBuf                  ; buffer
+    _pushValue $40                      ; max length
+    _pushValue wordBuf                  ; buffer
     call skipDelims
     call wordRead
     ret
@@ -34,11 +34,11 @@ interpWord:
     ret
 
 skipDelims:                             ; delim addr -- delim addr char
-    ppop H,L
-    ppop D,E
-    ppush0 B,C
-    ppush0 D,E
-    ppush0 H,L
+    _pop H,L
+    _pop D,E
+    _push0 B,C
+    _push0 D,E
+    _push0 H,L
     _do
         call getKey                     ; get next key, returned in A
 
@@ -82,9 +82,9 @@ skipDelims:                             ; delim addr -- delim addr char
 
 wordRead:                               ; delim addr char -- c-addr
     ld A,C
-    ppop0 B,C
-    ppop H,L
-    ppop D,E
+    _pop0 B,C
+    _pop H,L
+    _pop D,E
     ld D,0
     or A
     _if nz

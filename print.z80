@@ -10,14 +10,14 @@ printSpace:                         ; --
     call putc
     ret
 
-printPStr:                          ; pptr --
+printPStr:                          ; _ptr --
     loadWord H,L, B,C
     ld C, (HL)
     ld B, 0
     inc HL
     jr printStr1
 printStr:                           ; ptr len --
-    ppop0 H,L
+    _pop0 H,L
 printStr1:               
     _do
         ld A,(HL)
@@ -27,6 +27,6 @@ printStr1:
         checkZeroWord B,C
     _until z
     _enddo
-    drop                            ; clear TOS
+    _drop                            ; clear TOS
     ret
 

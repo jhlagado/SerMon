@@ -5,7 +5,7 @@ TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
 
 .if TESTMODE
 
-DONE:           .pstr "\r\nDone! \r\n"
-FAILED:         .pstr "Failed: \r\n"
+    DONE:           .pstr "\r\nDone! \r\n"
+    FAILED:         .pstr "Failed: \r\n"
 
 .endif

@@ -69,7 +69,7 @@ TESTS_START:
 
 .if TESTMODE
 
-    ppushValue DONE
+    _pushValue DONE
     call printPStr
     halt
 
