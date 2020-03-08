@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 1
+TESTMODE equ 0
 SERIALMODE equ 6850
 
 .include "constants.z80"
@@ -21,6 +21,7 @@ RST38:                                  ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     ld IX, PARAM_STACK                      ; initialise the param stack.
+    call initInput
     call initSerial
 
 .if TESTMODE = 0
@@ -36,6 +37,7 @@ start:
 
 .endif
 
+.include "input.z80"
 .include "parse.z80"
 .include "print.z80"
 .include "serial.z80"

@@ -1,4 +1,24 @@
-printRoutine:
+printCR:                            ; --
+    ld A,"\r"
+    call putc
+    ld A,"\n"
+    call putc
+    ret
+
+printSpace:                         ; --
+    ld A," "
+    call putc
+    ret
+
+printPStr:                          ; pptr --
+    loadWord H,L, B,C
+    ld C, (HL)
+    ld B, 0
+    inc HL
+    jr printStr1
+printStr:                           ; ptr len --
+    ppop0 H,L
+printStr1:               
     _do
         ld A,(HL)
         call putc
@@ -7,32 +27,6 @@ printRoutine:
         checkZeroWord B,C
     _until z
     _enddo
-    ret
-
-printPStr:              ; ptr --
-    loadWord H,L, B,C
-    ld C, (HL)
-    ld B, 0
-    inc HL
-    call printRoutine
-    drop
-    ret
-
-printStr:               ; ptr len --
-    ppop0 H,L
-    call printRoutine
-    drop
-    ret
-
-printCR:
-    ld A,"\r"
-    call putc
-    ld A,"\n"
-    call putc
-    ret
-
-printSpace:
-    ld A," "
-    call putc
+    drop                            ; clear TOS
     ret
 

@@ -11,17 +11,9 @@ PARAM_STACK_SIZE equ     $80                ; parameter stack
 PAD_SIZE        equ     $80                 ; user scratch pad
 
 SER_BUFSIZE     equ     3FH
-SER_FULLSIZE    equ     30H
-SER_EMPTYSIZE   equ     5
 LINE_BUFSIZE    equ     128
 
 START_ROM       equ     0
 START_RAM       equ     START_ROM + ROM_SIZE
 END_RAM         equ     START_RAM + RAM_SIZE
 RET_STACK       equ     END_RAM             ; return stack, grows down
-
-IO_DATA         equ     $81
-IO_CTRL         equ     $80
-
-RTS_HIGH        equ     0D6H                ; 11010110
-RTS_LOW         equ     096H                ; 10010110

@@ -1,6 +1,16 @@
-; serial I/O
+SER_EMPTYSIZE   equ 5
+SER_FULLSIZE    equ 30H
+
+IO_CTRL         equ $80
+IO_DATA         equ $81
+RTS_HIGH        equ $D6                ; 11010110
+RTS_LOW         equ $96                ; 10010110
+
+PORT_STATUS     equ $80
+PORT_DATA       equ $81
 
 initSerial:
+
     ld HL,0
     ld (serbufused),HL
 
@@ -8,16 +18,11 @@ initSerial:
     ld (serinptr),HL
     ld (serrdptr),HL
 
-    ld HL, linebuf
-    ld (lineBufStart), HL
-    ld (currkey), HL
-    ld (linebuftop), HL
+    .if SERIALMODE = 6850
+        ld A,RTS_LOW
+        out (IO_CTRL),A                             
+    .endif
 
-    ld HL, LINE_BUFSIZE
-    ld (lineBufSize), HL
-
-    ld A,rts_low
-    out ($80),A                             ; initialise acia
     im 1
     ei
     ret
@@ -25,87 +30,56 @@ initSerial:
 serialIn:
     push AF
     push HL
-
-    in A,($80)
-    and $01             ; Check if interupt due to read lineBuf full
-    _if nz
-        in A,($81)
-        push AF
-        ld A,(serBufUsed)
-        cp SER_BUFSIZE     ; If full then ignore
-        _if z
-            pop AF
-        _else
-            ld HL,(serInPtr)
-            inc HL
-            ld A,L             ; Only need to check low byte becasuse lineBuf<256 bytes
-            cp (serBuf + SER_BUFSIZE) & $FF
-            _if z
-                ld HL,serBuf
-            _endif
-            ld (serInPtr),HL
-            pop AF
-            ld (HL),A
-            ld A,(serBufUsed)
-            inc A
-            ld (serBufUsed),A
-            cp SER_FULLSIZE
-            _if nc
-                ld A,RTS_HIGH
-                out ($80),A
-            _endif
+    .if SERIALMODE = 6850
+        in A,(IO_CTRL)
+        and $01             
+        _if nz
+            in A,(IO_DATA)
+            call serialIn2
         _endif
-    _endif
+    .else
+        _do
+            in A,(PORT_STATUS)
+            bit 1,A
+        _until z
+        _enddo
+        in A,(PORT_DATA)
+        call serialIn2
+    .endif
     pop HL
     pop AF
     ei
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; getc - input
-; returns: A = input char
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-getc:
-.if TESTMODE
-
-    push HL
-    ld HL, (char_pointer)
-    ld A, (HL)
+serialIn2:
+    push AF
+    ld A,(serBufUsed)
+    cp SER_BUFSIZE    
+    _if z
+        pop AF
+        ret
+    _endif
+    ld HL,(serInPtr)
     inc HL
-    ld (char_pointer), HL
-    pop HL
-    ret
-
-.else
-    _do
-        ld A,(serBufUsed)
-        cp $00
-    _until nz
-    _enddo
-    push HL
-    ld HL,(serRdPtr)
-    inc HL
-    ld A,L             ; Only need to check low byte because lineBuf<256 bytes
+    ld A,L             ; Only need to check low byte becasuse lineBuf<256 bytes
     cp (serBuf + SER_BUFSIZE) & $FF
     _if z
         ld HL,serBuf
     _endif
-    di
-    ld (serRdPtr),HL
+    ld (serInPtr),HL
+    pop AF
+    ld (HL),A
     ld A,(serBufUsed)
-    dec A
+    inc A
     ld (serBufUsed),A
-    cp SER_EMPTYSIZE
-    _if c
-        ld A,RTS_LOW
-        out ($80),A
-    _endif
-    ld A,(HL)
-    ei
-    pop HL
-    ret                      ; Char ready in A
-.endif
+    .if SERIALMODE = 6850
+        cp SER_FULLSIZE
+        _if nc
+            ld A,RTS_HIGH
+            out (IO_CTRL),A
+        _endif
+    .endif
+    ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; putc - output a character
@@ -113,130 +87,81 @@ getc:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 putc:
-    push     AF              ; Store character
-    _do
-        in A,($80)         ; Status byte
-        bit 1,A             ; Set Zero flag if still transmitting character
-    _until nz
-    _enddo
-    pop AF              ; Retrieve character
-    out ($81),A         ; Output the character
+    .if SERIALMODE = 6850
+        push AF                     ; Store character
+        _do
+            in A,(IO_CTRL)      ; Status byte
+            bit 1,A             ; Set Zero flag if still transmitting character
+        _until nz
+        _enddo
+        pop AF                  ; Retrieve character
+        out (IO_DATA),A         ; Output the character
+    .else
+        push AF                     ; Store character
+        _do
+            in A,(PORT_STATUS)  ; Status byte
+            bit 0,A             ; Set Zero flag if still transmitting character
+        _until nz
+        _enddo
+        pop AF                  ; Retrieve character
+    .endif
     ret
 
-inputReady:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; serReady - check if there is input waiting to be read
+; flags: NZ if input ready
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+serReady:
     ld A,(serBufUsed)
     cp $0
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; getline - input line of text ***
-; params: HL = addr, DE = max (currently up to 255)
-; returns: BC = length - up to 255
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-getline:
-    push AF
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; getc - input
+; returns: A = input char
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+getc:
     push HL
-    ppush0 B,C
-    ld BC, TXT_PROMPT
-    call printPStr
-    pop HL
-    push HL
-    ld BC, 0
-    _do
+
+    .if TESTMODE
+    
+        ld HL, (char_pointer)
+        ld A, (HL)
+        inc HL
+        ld (char_pointer), HL
+    
+    .else
         _do
-            call getc
-            cp $08
-            _if z
-                checkZeroWord B,C
-                _if nz
-                    dec HL
-                    dec BC
-                    ld a, $08
-                    call putc
-                    call printSpace
-                    ld A, $08
-                    call putc
-                _endif
-            _else
-                ld (HL), A
-                inc HL
-                inc BC
-                bit 7,a
-                _if z
-                    call putc
-                _endif
-
-                cp "\r"
-                jr z, getLineCheck
-                cp "\n"
-                jr z, getLineCheck
-                ld A, E
-                cp C
-                jr c, getLineCheck
-            _endif
+            call serReady
+        _until nz
         _enddo
-getLineCheck:
-        ld a, 0
-        cp c
-    _until nz
-    _enddo
-    pop AF
+        ld HL,(serRdPtr)
+        inc HL
+        ld A,L             ; Only need to check low byte because lineBuf<256 bytes
+        cp (serBuf + SER_BUFSIZE) & $FF
+        _if z
+            ld HL,serBuf
+        _endif
+        di
+        ld (serRdPtr),HL
+        ld A,(serBufUsed)
+        dec A
+        ld (serBufUsed),A
+        
+        .if SERIALMODE = 6850
+            cp SER_EMPTYSIZE
+            _if c
+                ld A,RTS_LOW
+                out (IO_CTRL),A
+            _endif
+        .endif
+        
+        ld A,(HL)
+        ei
+    .endif
+
     pop HL
-    call printCR
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; getKey -  inputs a line buffered character
-; params: none
-; returns: A = character,
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-getKey:
-    push HL
-    push DE
-    push BC
-    ld HL, (currkey)
-    ld DE, (lineBufTop)
-    or A
-    sbc HL, DE                  ; exhausted the input lineBuf?
-    _if nc
-        ld HL, (lineBufStart)   ; lineBuf
-        ld DE, (lineBufSize)    ; LINE_BUFSIZE
-        call getline
-        ld HL, lineBuf
-        ld (currkey), HL
-        or A
-        adc HL, BC              ; lineBuf+DE = lineBufTop
-        ld (lineBufTop),HL
-    _endif
-    ld HL, (currkey)
-    ld A,(HL)               ; get next key from input lineBuf
-    inc HL
-    ld (currkey),HL         ; increment currkey
-    pop BC
-    pop DE
-    pop HL
-    ret
-
-; .org 8000h
-; ld HL,1002h ;The Status Register
-; jp wait4bytereceived
-; WriteByte:
-; ld (1000h),a
-
-; wait4TxComplete:
-; bit 0,(HL)
-; jr z,wait4TxComplete
-
-; ;The byte has been sent. Check for a received byte
-
-; wait4bytereceived:
-; bit 1,(HL)
-; jr z,wait4bytereceived
-
-; ld a,(1001h) ;Get the byte
-
-; jr WriteByte
-
-; .END
+    ret                         

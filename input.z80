@@ -1,0 +1,103 @@
+initInput:
+
+    ld HL, linebuf
+    ld (lineBufStart), HL
+    ld (currkey), HL
+    ld (linebuftop), HL
+
+    ld HL, LINE_BUFSIZE
+    ld (lineBufSize), HL
+
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; getline - input line of text ***
+; params: HL = addr, DE = max (currently up to 255)
+; returns: BC = length - up to 255
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+getline:
+    push AF
+    push HL
+    ppush0 B,C
+    ld BC, TXT_PROMPT
+    call printPStr
+    pop HL
+    push HL
+    ld BC, 0
+    _do
+        _do
+            call getc
+            cp $08
+            _if z
+                checkZeroWord B,C
+                _if nz
+                    dec HL
+                    dec BC
+                    ld a, $08
+                    call putc
+                    call printSpace
+                    ld A, $08
+                    call putc
+                _endif
+            _else
+                ld (HL), A
+                inc HL
+                inc BC
+                bit 7,a
+                _if z
+                    call putc
+                _endif
+
+                cp "\r"
+                jr z, getLineCheck
+                cp "\n"
+                jr z, getLineCheck
+                ld A, E
+                cp C
+                jr c, getLineCheck
+            _endif
+        _enddo
+getLineCheck:
+        ld a, 0
+        cp c
+    _until nz
+    _enddo
+    pop AF
+    pop HL
+    call printCR
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; getKey -  inputs a line buffered character
+; params: none
+; returns: A = character,
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+getKey:
+    push HL
+    push DE
+    push BC
+    ld HL, (currkey)
+    ld DE, (lineBufTop)
+    or A
+    sbc HL, DE                  ; exhausted the input lineBuf?
+    _if nc
+        ld HL, (lineBufStart)   ; lineBuf
+        ld DE, (lineBufSize)    ; LINE_BUFSIZE
+        call getline
+        ld HL, lineBuf
+        ld (currkey), HL
+        or A
+        adc HL, BC              ; lineBuf+DE = lineBufTop
+        ld (lineBufTop),HL
+    _endif
+    ld HL, (currkey)
+    ld A,(HL)               ; get next key from input lineBuf
+    inc HL
+    ld (currkey),HL         ; increment currkey
+    pop BC
+    pop DE
+    pop HL
+    ret
+
