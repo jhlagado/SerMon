@@ -7,19 +7,20 @@ interpret:
     _do
         _pushValue $20                  ; delim
     	call parseWord
-        _dup                      ; duplicate
+        _dup                            ; duplicate
         call getLength                  ; ptr -- len
         checkZeroWord B,C               ; check TOS
-        _drop                   ; drop TOS x 2
+        _drop                           ; drop TOS x 2
     _until z
-        call interpWord                   ; interpret the next word
+        call interpWord                 ; interpret the next word
     _endDo
     ret
 
 parseWord:                              ; delim -- c-addr
+    _dup                                ; dup delim
+    call skipDelims
     _pushValue $40                      ; max length
     _pushValue wordBuf                  ; buffer
-    call skipDelims
     call wordRead
     ret
 
@@ -31,25 +32,13 @@ getLength:                              ; ptr -- len
 
 interpWord:
     call printPStr
+    call printSpace
     ret
 
-skipDelims:                             ; delim addr -- delim addr char
-    _pop H,L
-    _pop D,E
-    _push0 B,C
-    _push0 D,E
-    _push0 H,L
+skipDelims:                             ; delim -- char
     _do
         call getKey                     ; get next key, returned in A
-
         _switch
-
-            bit 7, A                    ; check end of input
-            _if nz
-                ld (HL),0
-                ld A,0
-                _break
-            _endif
 
             cp $5C                      ; \ start of a comment?
             _case z                     ; if yes skip to end of line
@@ -76,21 +65,21 @@ skipDelims:                             ; delim addr -- delim addr char
 
         _endswitch
     _enddo
-    ld B,0
-    ld C,A
+    loadWord B,C, 0,A                   ; TOS = char
     ret
 
-wordRead:                               ; delim addr char -- c-addr
-    ld A,C
-    _pop0 B,C
-    _pop H,L
-    _pop D,E
-    ld D,0
+wordRead:                               ; delim char len addr -- c-addr
+    _pop H,L                            ; HL = addr
+    ld E,C                              ; E = TOS(LO) = len (max length)
+    _drop                               ; C = TOS(LO) = char
+    ld A,C                              ; A = char 
+    _drop                               ; C = TOS(LO) = delim
+    ld B,E                              ; B = (max) length 
+    ld D,0                              ; D = len count
     or A
     _if nz
         push HL                         ; save a copy of HL
         inc HL                          ; move to leave space for length byte
-        ld B,E
         _do
             ld (HL), A                  ; add character to return lineBuf
             inc HL

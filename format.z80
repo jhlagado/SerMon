@@ -1,0 +1,112 @@
+divideWordByWord:               ; dividend divisor -- quotient remainder            
+    _pop D,E                    ; DE = divisor, BC = dividend
+    ld HL,0
+    
+    ld A,B
+    call divideWordByWord2
+    ld B,A
+    
+    ld A,C
+    ld C,B
+    call divideWordByWord2
+    ld B,C
+    ld C,A
+    
+    _push H,L                   ; TOS = remainder
+    ret
+
+divideWordByWord2:
+    ld B,8
+    _do
+        rla
+        adc HL,HL
+        sbc HL,DE
+        _if c
+            add HL,DE
+        _endif
+    _djnz
+    rla
+    cpl
+    ret
+
+formatNum:                              ; num -- ptr len
+    _pop H,L
+    bit 7, H                            ; Detect sign of HL.
+    ld DE, wordBuf
+    _if nz
+        ld A, '-'                       ; Output '-' to string and negate HL.
+        ld (DE), A
+        inc DE
+        call negateNum
+    _endif
+
+    ld BC,(VAR_BASE)                    ; C = BASE
+    ld B, 0                             ; B will count character length of number
+    _do
+        push BC
+        call divideWordByByte           ; HL = HL / A, A = remainder
+        pop BC
+        push AF                         ; pushes digits on stack
+        inc B
+        checkZeroWord H,L
+    _until z
+    _enddo
+    _do
+        pop AF                          ; pops digits off stack
+        add A,$30                       ; convert digit to ASCII
+        cp $3A
+        _if nc
+            add A,7
+        _endif
+        ld (DE), A
+        inc DE
+    _djnz
+
+    ld HL,wordBuf                       ;calc length
+    ex DE,HL
+    or A
+    sbc HL,DE
+    _push D,E
+    _push H,L
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; negate ***
+; params: HL = number
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+negateNum:
+    ; Negate HL (using two's complement)
+    xor A
+    sub L
+    ld L, A
+    ld A, 0     ; Note that xor A or SUB A would disturb CF
+    sbc A, H
+    ld H, A
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; divide word by byte ***
+; params: HL = dividend, C = divisor
+; returns: HL = result, A = remainder
+; destroys: ?
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+divideWordByByte:
+    ld B, 16
+    xor A
+    _do
+        add HL, HL
+        rla
+        _if c
+            sub C
+            inc L
+        _else
+            cp C
+            _if nc
+                sub C
+                inc L
+            _endif
+        _endif
+    _djnz
+    ret

@@ -21,6 +21,8 @@ lineBuf:        ds LINE_BUFSIZE
 PARAM_STACK:    ds PARAM_STACK_SIZE
 wordBuf:        ds 64
 
+VAR_BASE:       dw 0
+
 .if TESTMODE
 
     ; used for mocking getc

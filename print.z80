@@ -30,3 +30,15 @@ printStr1:
     _drop                            ; clear TOS
     ret
 
+printNum:
+    push HL
+    push DE
+    push BC
+    call formatNum
+    call printStr
+    call printSpace
+    pop BC
+    pop DE
+    pop HL
+    ret
+

@@ -17,17 +17,22 @@
 .endm
 
 ; swap the top two items of param stack
+; destroys AF'
 .macro _swap                       ; x1 x2 -- x2 x1
+    ex AF,AF'
     ld A,(IX-2)
     ld (IX-2),C
     ld C,A
     ld A,(IX-1)
     ld (IX-1),B
     ld B,A
+    ex AF,AF'
 .endm
 
 ; reverse rot top three items, top of param stack becomes third from top  stack
+; destroys AF'
 .macro _nrot                       ; x1 x2 x3 -- x3 x1 x2
+    ex AF,AF'
     ld A,(IX-4)
     ld (IX-4),C 
     ld C,(IX-2)
@@ -36,6 +41,7 @@
     ld (IX-3),B 
     ld B,(IX-1)
     ld (IX-1),A 
+    ex AF,AF'
 .endm
 
 ; duplicate second from top of param stack
@@ -47,9 +53,9 @@
 .endm
 
 ; rot top three items, third from top ends up on top of param stack
-
-; optimisation:
+; destroys AF'
 .macro _rot                 ; x1 x2 x3 -- x2 x3 x1
+    ex AF,AF'
     ld A,(IX-2)
     ld (IX-2),C 
     ld C,(IX-4)
@@ -58,6 +64,7 @@
     ld (IX-1),B 
     ld B,(IX-3)
     ld (IX-3),A 
+    ex AF,AF'
 .endm
 
 ; Macros to deal with the param stack.
@@ -77,7 +84,7 @@
 
 ; Macros to deal with the param stack with TOS in BC
 .macro _push, regHI, regLO
-    _push0 B,C              ; push TOS reg pair
+    _dup                    ; push TOS reg pair
     ld B, regHI             ; move register pair into TOS reg pair
     ld C, regLO
 .endm
@@ -93,7 +100,7 @@
 .endm
 
 .macro _pushValue, val
-    _push0 B,C
+    _dup
     ld BC, val
 .endm
 
