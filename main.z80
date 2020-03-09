@@ -8,6 +8,7 @@ SERIALMODE equ 6850
 .include "struct-macros.z80"
 .include "dloop-macros.z80"
 .include "stack-macros.z80"
+.include "test-macros.z80"
 
 .org START_ROM
 RST00:                                      ; Reset
@@ -15,7 +16,7 @@ RST00:                                      ; Reset
     jp start
 
 .org $0038
-RST38:                                  ; rst 38 - INTERRUPT VECTOR [ for IM 1 ]
+RST38:                                      ; rst 38
     jp serialIn
 
 start:
@@ -48,24 +49,18 @@ org START_RAM
 .include "variables.z80"
 
 START_USER:                                 ; user allocated data starts here
-
-.if TESTMODE
-
 TESTS_START:
 
-    .include "test-macros.z80"
+.if TESTMODE = 1
 
-    .if TESTMODE = 1
-    
-        .include "tests.z80"
-    
-    .endif
-    
-    .if TESTMODE = 2
-    
-    .endif
-    
+    .include "tests.z80"
+
 .endif
+
+.if TESTMODE = 2
+
+.endif
+
 
 .if TESTMODE
 

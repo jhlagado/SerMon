@@ -4,7 +4,35 @@
 ;; these tests will evaluate when TESTMODE = 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TEST_SET_TEXT "x"
-call interpret
-EXPECT 1, "word 'x'"
+    TEST_SET_TEXT "x"
+    call interpret
+    EXPECT 1, "word 'x'"
 
+    _pushValue $AAAA
+    _pushValue $BBBB
+    _swap
+    EXPECT $AAAA, "swap $AAAA"
+    EXPECT $BBBB, "swap $BBBB"
+
+    _pushValue $AAAA
+    _pushValue $BBBB
+    _over
+    EXPECT $AAAA, "over $AAAA"
+    EXPECT $BBBB, "over $BBBB"
+    EXPECT $AAAA, "over $AAAA"
+
+    _pushValue $AAAA
+    _pushValue $BBBB
+    _pushValue $CCCC
+    _rot
+    EXPECT $AAAA, "rot $AAAA"
+    EXPECT $CCCC, "rot $CCCC"
+    EXPECT $BBBB, "rot $BBBB"
+
+    _pushValue $AAAA
+    _pushValue $BBBB
+    _pushValue $CCCC
+    _nrot
+    EXPECT $BBBB, "nrot $BBBB"
+    EXPECT $AAAA, "nrot $AAAA"
+    EXPECT $CCCC, "nrot $CCCC"
