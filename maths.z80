@@ -1,0 +1,31 @@
+divideWordByWord:               ; dividend divisor -- quotient remainder
+    _pop D,E                    ; DE = divisor, BC = dividend
+    ld HL,0
+
+    ld A,B
+    call divideWordByWord2
+    ld B,A
+
+    ld A,C
+    ld C,B
+    call divideWordByWord2
+    ld B,C
+    ld C,A
+
+    _push H,L                   ; TOS = remainder
+    ret
+
+divideWordByWord2:
+    ld B,8
+    _do
+        rla
+        adc HL,HL
+        sbc HL,DE
+        _if c
+            add HL,DE
+        _endif
+    _djnz
+    rla
+    cpl
+    ret
+

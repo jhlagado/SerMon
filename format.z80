@@ -1,44 +1,21 @@
-divideWordByWord:               ; dividend divisor -- quotient remainder            
-    _pop D,E                    ; DE = divisor, BC = dividend
-    ld HL,0
-    
-    ld A,B
-    call divideWordByWord2
-    ld B,A
-    
-    ld A,C
-    ld C,B
-    call divideWordByWord2
-    ld B,C
-    ld C,A
-    
-    _push H,L                   ; TOS = remainder
-    ret
+formatNum:                              ; ptr num -- ptr len
+    push IY
+    _pop H,L                            ; HL = num, BC = TOS = ptr
 
-divideWordByWord2:
-    ld B,8
-    _do
-        rla
-        adc HL,HL
-        sbc HL,DE
-        _if c
-            add HL,DE
-        _endif
-    _djnz
-    rla
-    cpl
-    ret
+    ld IY,0
+    add IY,BC                           ; copy BC to IY
+    _dup                                ; save BC for later
 
-formatNum:                              ; num -- ptr len
-    _pop H,L
+    ld A,0
     bit 7, H                            ; Detect sign of HL.
-    ld DE, wordBuf
     _if nz
         ld A, '-'                       ; Output '-' to string and negate HL.
-        ld (DE), A
-        inc DE
+        ld (IY+0), A
+        inc IY
         call negateNum
+        ld A,1
     _endif
+    ex AF,AF'                           ; save sign in A prime
 
     ld BC,(VAR_BASE)                    ; C = BASE
     ld B, 0                             ; B will count character length of number
@@ -51,6 +28,8 @@ formatNum:                              ; num -- ptr len
         checkZeroWord H,L
     _until z
     _enddo
+
+    ld C,B                              ; copy B count in C
     _do
         pop AF                          ; pops digits off stack
         add A,$30                       ; convert digit to ASCII
@@ -58,16 +37,15 @@ formatNum:                              ; num -- ptr len
         _if nc
             add A,7
         _endif
-        ld (DE), A
-        inc DE
+        ld (IY+0), A
+        inc IY
     _djnz
-
-    ld HL,wordBuf                       ;calc length
-    ex DE,HL
-    or A
-    sbc HL,DE
-    _push D,E
-    _push H,L
+                                        ; B = 0, BC = count
+    ex AF,AF'                           ; if sign negative increase count
+    add A,C
+    ld C,A
+                                        ; ptr count
+    pop IY
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -93,6 +71,7 @@ negateNum:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 divideWordByByte:
+
     ld B, 16
     xor A
     _do
@@ -110,3 +89,27 @@ divideWordByByte:
         _endif
     _djnz
     ret
+
+divideWordByByte1:                  ; dividend divisor -- result remainder
+    _pop0 H,L
+    ld B, 16                        ; we only use the 8-bits in C as divisor
+    xor A
+    _do
+        add HL, HL
+        rla
+        _if c
+            sub C
+            inc L
+        _else
+            cp C
+            _if nc
+                sub C
+                inc L
+            _endif
+        _endif
+    _djnz
+    _push0 H,L                      ; push result
+    ld C,A                          ; tos = remainder
+    ld B,0
+    ret
+
