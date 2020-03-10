@@ -6,7 +6,7 @@
 TESTMODE        equ 0
 SERIALMODE      equ 6850
 
-ROM_SIZE        equ     $2000
+ROM_SIZE        equ     $800
 RAM_SIZE        equ     $10000 - ROM_SIZE
 
 START_ROM       equ     $0
