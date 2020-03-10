@@ -1,119 +1,95 @@
+.engine mycomputer
+
 .include "struct-macros.z80"
 .include "dloop-macros.z80"
 
-SER_BUFSIZE     equ $7F
-SER_FULLSIZE    equ $30
-SER_EMPTYSIZE   equ 5
-ROM_SIZE        equ $800
-RAM_SIZE        equ $800
+TESTMODE equ 0
+SERIALMODE equ 6850
 
-START_ROM       equ $0000
-START_RAM       equ START_ROM + ROM_SIZE
-RET_STACK       equ START_RAM + RAM_SIZE
+ROM_SIZE        equ     $2000
+RAM_SIZE        equ     $10000 - ROM_SIZE
 
-PORT_STATUS     equ $80
-PORT_DATA       equ $81
+SER_BUFSIZE     equ     $3F
+PARAM_STACK_SIZE equ    $80                ; parameter stack
+
+START_ROM       equ     $0
+START_RAM       equ     START_ROM + ROM_SIZE
+END_RAM         equ     START_RAM + RAM_SIZE
+RET_STACK       equ     END_RAM             ; return stack, grows down
+
+.macro loadWord, destHI, destLO, srcHI, srcLO    ; transfer from src reg pair to dest reg pair
+    ld destLO, srcLO
+    ld destHI, srcHI
+.endm
+
+.macro checkZeroWord, regHI, regLO          ; check if reg pair is zero
+    ld A, regLO
+    or regHI
+.endm
+
+.macro _pop0, regHI, regLO
+    dec IX                  ; POP register pair
+    ld regHI, (IX+0)
+    dec IX
+    ld regLO, (IX+0)
+.endm
+
+.macro _drop                       ; x --
+    _pop0 B,C		        ; drop top of stack
+.endm
 
 .org START_ROM
-jp start
+RST00:                                      ; Reset
+    di                                      ; Disable interrupts
+    jp start
 
 .org $0038
-serialIn:
-    push AF
-    push HL
-    _do
-        in A,(PORT_STATUS)
-        bit 1,A
-    _until z
-    _enddo
-    
-    in A,(PORT_DATA)
-    push AF
-    
-    ld A,(serBufUsed)
-    cp SER_BUFSIZE     ; If full then ignore
-    _if z
-        pop AF
-    _else
-        ld HL,(serInPtr)
-        inc HL
-        ld A,L             ; Only need to check low byte because lineBuf < 128 bytes
-        cp (serBuf + SER_BUFSIZE) & $7F
-        _if z
-            ld HL,serBuf
-        _endif
-        ld (serInPtr),HL
-        pop AF
-        ld (HL),A
-        ld A,(serBufUsed)
-        inc A
-        ld (serBufUsed),A
-    _endif
-    pop HL
-    pop AF
-    ei
-    ret
-
-initSerial:
-    ld HL,0
-    ld (serBufUsed),HL
-
-    ld HL,serbuf
-    ld (serInPtr),HL
-    ld (serRdPtr),HL
-
-    ret
-
-getc:
-    _do
-        ld A,(serBufUsed)
-        cp $00
-    _until nz
-    _enddo
-    ld HL,(serRdPtr)
-    inc HL
-    ld A,L             ; Only need to check low byte because lineBuf < 128 bytes
-    cp (serBuf + SER_BUFSIZE) & $7F
-    _if z
-        ld HL,serBuf
-    _endif
-    di
-    ld (serRdPtr),HL
-    ld A,(serBufUsed)
-    dec A
-    ld (serBufUsed),A
-    ld A,(HL)
-    ei
-    ret                         ; Char ready in A
-
-putc:
-    out (PORT_DATA),A           ; Output the character
-    _do
-        in A,(PORT_STATUS)      ; Status byte
-        bit 0,A                 ; Set Zero flag if still transmitting character
-    _until nz
-    _enddo
-    ret
-
-inputReady:
-    ld A,(serBufUsed)
-    cp $0
-    ret
+RST38:                                      ; rst 38
+    jp serialIn
 
 start:
-    ld SP, RET_STACK
+    ld SP, RET_STACK                        ; Initialise the return stack.
+    ld IX, PARAM_STACK                      ; initialise the param stack.
     call initSerial
-    im 1
-    ei
+
+    ld BC, TXT_INTRO
+    call printPStr
+
     _do
         call getc
         call putc
     _enddo
 
+printPStr:                          ; _ptr --
+    loadWord H,L, B,C
+    ld C, (HL)
+    ld B, 0
+    inc HL
+    jr printStr1
+printStr:                           ; ptr len --
+    _pop0 H,L
+printStr1:
+    _do
+        ld A,(HL)
+        call putc
+        inc HL
+        dec BC
+        checkZeroWord B,C
+    _until z
+    _enddo
+    _drop                            ; clear TOS
+    ret
 
-.org START_RAM
+.include "serial.z80"
+
+TXT_INTRO:      .pstr "Echo 2020\r\n\r\n"
+
+org START_RAM
 
 serInPtr:       dw 0
 serRdPtr:       dw 0
 serBufUsed:     dw 0
-serBuf: ds SER_BUFSIZE
+serBuf:         ds SER_BUFSIZE
+PARAM_STACK:    ds PARAM_STACK_SIZE
+
+START_USER:
