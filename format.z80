@@ -19,11 +19,16 @@ formatNum:                              ; ptr num -- ptr len
 
     ld BC,(VAR_BASE)                    ; C = BASE
     ld B, 0                             ; B will count character length of number
+
     _do
-        push BC
-        call divideWordByByte           ; HL = HL / A, A = remainder
-        pop BC
-        push AF                         ; pushes digits on stack
+        _dup
+        _push0 H,L
+        ld B,0                          ; mutate TOS to equal C
+        call divideWordByByte          ;
+        ld A,C
+        push AF                         ; pushes remainder on return stack
+        _drop
+        _pop H,L
         inc B
         checkZeroWord H,L
     _until z
@@ -63,34 +68,7 @@ negateNum:
     ld H, A
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; divide word by byte ***
-; params: HL = dividend, C = divisor
-; returns: HL = result, A = remainder
-; destroys: ?
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-divideWordByByte:
-
-    ld B, 16
-    xor A
-    _do
-        add HL, HL
-        rla
-        _if c
-            sub C
-            inc L
-        _else
-            cp C
-            _if nc
-                sub C
-                inc L
-            _endif
-        _endif
-    _djnz
-    ret
-
-divideWordByByte1:                  ; dividend divisor -- result remainder
+divideWordByByte:                  ; dividend divisor -- result remainder
     _pop0 H,L
     ld B, 16                        ; we only use the 8-bits in C as divisor
     xor A
