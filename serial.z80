@@ -6,8 +6,8 @@ IO_DATA         equ $81
 RTS_HIGH        equ $D6                ; 11010110
 RTS_LOW         equ $96                ; 10010110
 
-PORT_STATUS     equ $80
-PORT_DATA       equ $81
+PORT_STATUS     equ $04
+PORT_DATA       equ $03
 
 initSerial:
 
@@ -20,7 +20,7 @@ initSerial:
 
     .if SERIALMODE = 6850
         ld A,RTS_LOW
-        out (IO_CTRL),A                             
+        out (IO_CTRL),A
     .endif
 
     im 1
@@ -32,7 +32,7 @@ serialIn:
     push HL
     .if SERIALMODE = 6850
         in A,(IO_CTRL)
-        and $01             
+        and $01
         _if nz
             in A,(IO_DATA)
             call serialIn2
@@ -54,7 +54,7 @@ serialIn:
 serialIn2:
     push AF
     ld A,(serBufUsed)
-    cp SER_BUFSIZE    
+    cp SER_BUFSIZE
     _if z
         pop AF
         ret
@@ -127,12 +127,12 @@ getc:
     push HL
 
     .if TESTMODE
-    
+
         ld HL, (char_pointer)
         ld A, (HL)
         inc HL
         ld (char_pointer), HL
-    
+
     .else
         _do
             call serReady
@@ -150,7 +150,7 @@ getc:
         ld A,(serBufUsed)
         dec A
         ld (serBufUsed),A
-        
+
         .if SERIALMODE = 6850
             cp SER_EMPTYSIZE
             _if c
@@ -158,10 +158,10 @@ getc:
                 out (IO_CTRL),A
             _endif
         .endif
-        
+
         ld A,(HL)
         ei
     .endif
 
     pop HL
-    ret                         
+    ret
