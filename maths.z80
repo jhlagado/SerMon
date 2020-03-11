@@ -5,47 +5,24 @@ negateNum:                              ; num -- -num
     loadWord B,C, H,L
     ret
 
-divideWordByByte:                  ; dividend divisor -- result remainder
-    _pop0 H,L
-    ld B, 16                        ; we only use the 8-bits in C as divisor 
-    xor A
-    _do
-        add HL, HL
-        rla
-        _if c
-            sub C
-            inc L
-        _else
-            cp C
-            _if nc
-                sub C
-                inc L
-            _endif
-        _endif
-    _djnz
-    _push0 H,L                      ; push result
-    ld C,A                          ; tos = remainder
-    ld B,0
-    ret
-
-divideWordByWord:               ; dividend divisor -- quotient remainder            
-    _pop D,E                    ; DE = divisor, BC = dividend
+divideWord:                             ; dividend divisor -- quotient remainder
+    _pop D,E                        ; DE = divisor, BC = dividend
     ld HL,0
-    
+
     ld A,B
-    call divideWordByWord2
+    call divideWord2
     ld B,A
-    
+
     ld A,C
     ld C,B
-    call divideWordByWord2
+    call divideWord2
     ld B,C
     ld C,A
-    
-    _push H,L                   ; TOS = remainder
+
+    _push H,L                       ; TOS = remainder
     ret
 
-divideWordByWord2:
+divideWord2:
     ld B,8
     _do
         rla

@@ -23,7 +23,7 @@ formatNum:                              ; ptr num -- ptr len
         _dup
         _push0 H,L
         ld B,0                          ; mutate TOS to equal C
-        call divideWordByByte           
+        call divideWord
         ld A,C
         push AF                         ; pushes remainder on return stack
         _drop
@@ -49,9 +49,9 @@ formatNum:                              ; ptr num -- ptr len
     ld A,(HL)
     cp "-"
     _if z
-        inc BC                          ; if sign negative increase count             
+        inc BC                          ; if sign negative increase count
     _endif
-    
+
     ; ptr count
     pop IY
     ret
