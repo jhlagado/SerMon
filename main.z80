@@ -42,6 +42,7 @@ start:
 
 .include "format.z80"
 .include "input.z80"
+.include "maths.z80"
 .include "parse.z80"
 .include "print.z80"
 .include "serial.z80"
@@ -61,9 +62,9 @@ TESTS_START:
 .endif
 
 .if TESTMODE = 2
-    _pushValue -$100
-    call printNum
-    ; EXPECT 23, "word 'x'"
+
+    TEST_SET_TEXT "x"
+    call interpret
 
 .endif
     

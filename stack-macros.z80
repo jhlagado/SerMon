@@ -90,8 +90,13 @@
 .endm
 
 .macro _peek, regHI, regLO
-    ld regHI, B             ; move TOS reg pair into register pair
     ld regLO, C
+    ld regHI, B             ; move TOS reg pair into register pair
+.endm
+
+.macro _peekNext, regHI, regLO
+    ld regLO, (IX-2)
+    ld regHI, (IX-1)             ; move TOS reg pair into register pair
 .endm
 
 .macro _pop, regHI, regLO

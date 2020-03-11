@@ -6,16 +6,15 @@ formatNum:                              ; ptr num -- ptr len
     add IY,BC                           ; copy BC to IY
     _dup                                ; save BC for later
 
-    ld A,0
     bit 7, H                            ; Detect sign of HL.
     _if nz
         ld A, '-'                       ; Output '-' to string and negate HL.
         ld (IY+0), A
         inc IY
+        loadWord B,C, H,L
         call negateNum
-        ld A,1
+        loadWord H,L, B,C
     _endif
-    ex AF,AF'                           ; save sign in A prime
 
     ld BC,(VAR_BASE)                    ; C = BASE
     ld B, 0                             ; B will count character length of number
@@ -24,7 +23,7 @@ formatNum:                              ; ptr num -- ptr len
         _dup
         _push0 H,L
         ld B,0                          ; mutate TOS to equal C
-        call divideWordByByte          ;
+        call divideWordByByte           
         ld A,C
         push AF                         ; pushes remainder on return stack
         _drop
@@ -46,48 +45,14 @@ formatNum:                              ; ptr num -- ptr len
         inc IY
     _djnz
                                         ; B = 0, BC = count
-    ex AF,AF'                           ; if sign negative increase count
-    add A,C
-    ld C,A
-                                        ; ptr count
+    _peekNext H,L
+    ld A,(HL)
+    cp "-"
+    _if z
+        inc BC                          ; if sign negative increase count             
+    _endif
+    
+    ; ptr count
     pop IY
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; negate ***
-; params: HL = number
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-negateNum:
-    ; Negate HL (using two's complement)
-    xor A
-    sub L
-    ld L, A
-    ld A, 0     ; Note that xor A or SUB A would disturb CF
-    sbc A, H
-    ld H, A
-    ret
-
-divideWordByByte:                  ; dividend divisor -- result remainder
-    _pop0 H,L
-    ld B, 16                        ; we only use the 8-bits in C as divisor
-    xor A
-    _do
-        add HL, HL
-        rla
-        _if c
-            sub C
-            inc L
-        _else
-            cp C
-            _if nc
-                sub C
-                inc L
-            _endif
-        _endif
-    _djnz
-    _push0 H,L                      ; push result
-    ld C,A                          ; tos = remainder
-    ld B,0
     ret
 

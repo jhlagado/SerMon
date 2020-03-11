@@ -6,7 +6,6 @@
 
     TEST_SET_TEXT "x"
     call interpret
-    EXPECT 1, "word 'x'"
 
     _pushValue $AAAA
     _pushValue $BBBB
@@ -36,3 +35,23 @@
     EXPECT $BBBB, "nrot $BBBB"
     EXPECT $AAAA, "nrot $AAAA"
     EXPECT $CCCC, "nrot $CCCC"
+
+    _pushValue wordBuf2
+    _pushValue -123
+    call formatNum
+    EXPECT 4, "length of -123 = 4"
+    _pop H,L
+    loadWord B,C, 0,(HL)
+    EXPECT $2D, "first char = '-'"
+
+    _pushValue 40
+    _pushValue 4
+    call divideWordByWord
+    EXPECT 0, "remainder 0"
+    EXPECT 10, "40 / 4 = 10"
+
+    _pushValue 24
+    _pushValue 10
+    call divideWordByWord
+    EXPECT 4, "remainder 4"
+    EXPECT 2, "24 / 10 = 2"

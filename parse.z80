@@ -20,7 +20,7 @@ parseWord:                              ; delim -- c-addr
     _dup                                ; dup delim
     call skipDelims
     _pushValue $40                      ; max length
-    _pushValue wordBuf                  ; buffer
+    _pushValue wordBuf1                  ; buffer
     call wordRead
     ret
 
@@ -39,6 +39,13 @@ skipDelims:                             ; delim -- char
     _do
         call getKey                     ; get next key, returned in A
         _switch
+
+            bit 7, A                    ; check end of input
+            _if nz
+                ld (HL),0
+                ld A,0
+                _break
+            _endif
 
             cp $5C                      ; \ start of a comment?
             _case z                     ; if yes skip to end of line

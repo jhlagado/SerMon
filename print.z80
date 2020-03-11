@@ -27,18 +27,14 @@ printStr1:
         checkZeroWord B,C
     _until z
     _enddo
-    _drop                            ; clear TOS
+    _drop                           ; clear TOS
     ret
 
 printNum:
-    push HL
-    push DE
-    push BC
+    ld HL, wordBuf1
+    _push0 H,L                      ; ptr num
     call formatNum
     call printStr
     call printSpace
-    pop BC
-    pop DE
-    pop HL
     ret
 
