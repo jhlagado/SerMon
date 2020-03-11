@@ -46,12 +46,12 @@
 
     _pushValue 40
     _pushValue 4
-    call divideWordByWord
+    call divideWord
     EXPECT 0, "remainder 0"
     EXPECT 10, "40 / 4 = 10"
 
     _pushValue 24
     _pushValue 10
-    call divideWordByWord
+    call divideWord
     EXPECT 4, "remainder 4"
     EXPECT 2, "24 / 10 = 2"

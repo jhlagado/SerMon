@@ -3,7 +3,7 @@ repl:
     call interpret
     ret
 
-interpret: 
+interpret:
     _do
         _pushValue $20                  ; delim
     	call parseWord
@@ -40,9 +40,8 @@ skipDelims:                             ; delim -- char
         call getKey                     ; get next key, returned in A
         _switch
 
-            bit 7, A                    ; check end of input
+            bit 7, A                    ; check end of input, used by tests
             _if nz
-                ld (HL),0
                 ld A,0
                 _break
             _endif
@@ -79,9 +78,9 @@ wordRead:                               ; delim char len addr -- c-addr
     _pop H,L                            ; HL = addr
     ld E,C                              ; E = TOS(LO) = len (max length)
     _drop                               ; C = TOS(LO) = char
-    ld A,C                              ; A = char 
+    ld A,C                              ; A = char
     _drop                               ; C = TOS(LO) = delim
-    ld B,E                              ; B = (max) length 
+    ld B,E                              ; B = (max) length
     ld D,0                              ; D = len count
     or A
     _if nz

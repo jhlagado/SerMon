@@ -8,12 +8,12 @@
 
 ; drop the top of param stack
 .macro _drop                       ; x --
-    _pop0 B,C		        ; drop top of stack
+    _popNext B,C		        ; drop top of stack
 .endm
 
 ; duplicate the top of param stack
 .macro _dup                        ; x -- x x
-    _push0 B,C
+    _pushNext B,C
 .endm
 
 ; swap the top two items of param stack
@@ -34,13 +34,13 @@
 .macro _nrot                       ; x1 x2 x3 -- x3 x1 x2
     ex AF,AF'
     ld A,(IX-4)
-    ld (IX-4),C 
+    ld (IX-4),C
     ld C,(IX-2)
-    ld (IX-2),A 
+    ld (IX-2),A
     ld A,(IX-3)
-    ld (IX-3),B 
+    ld (IX-3),B
     ld B,(IX-1)
-    ld (IX-1),A 
+    ld (IX-1),A
     ex AF,AF'
 .endm
 
@@ -57,25 +57,25 @@
 .macro _rot                 ; x1 x2 x3 -- x2 x3 x1
     ex AF,AF'
     ld A,(IX-2)
-    ld (IX-2),C 
+    ld (IX-2),C
     ld C,(IX-4)
-    ld (IX-4),A 
+    ld (IX-4),A
     ld A,(IX-1)
-    ld (IX-1),B 
+    ld (IX-1),B
     ld B,(IX-3)
-    ld (IX-3),A 
+    ld (IX-3),A
     ex AF,AF'
 .endm
 
 ; Macros to deal with the param stack.
-.macro _push0, regHI, regLO
+.macro _pushNext, regHI, regLO
     ld (IX+0), regLO        ; PUSH register pair
     inc IX
     ld (IX+0), regHI
     inc IX
 .endm
 
-.macro _pop0, regHI, regLO
+.macro _popNext, regHI, regLO
     dec IX                  ; POP register pair
     ld regHI, (IX+0)
     dec IX
@@ -101,7 +101,7 @@
 
 .macro _pop, regHI, regLO
     _peek regHI,regLO
-    _pop0 B,C
+    _popNext B,C
 .endm
 
 .macro _pushValue, val

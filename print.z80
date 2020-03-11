@@ -17,8 +17,8 @@ printPStr:                          ; _ptr --
     inc HL
     jr printStr1
 printStr:                           ; ptr len --
-    _pop0 H,L
-printStr1:               
+    _popNext H,L
+printStr1:
     _do
         ld A,(HL)
         call putc
@@ -32,7 +32,7 @@ printStr1:
 
 printNum:
     ld HL, wordBuf1
-    _push0 H,L                      ; ptr num
+    _pushNext H,L                      ; ptr num
     call formatNum
     call printStr
     call printSpace

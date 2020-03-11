@@ -19,7 +19,7 @@ initInput:
 getline:
     push AF
     push HL
-    _push0 B,C
+    _pushNext B,C
     ld BC, TXT_PROMPT
     call printPStr
     pop HL

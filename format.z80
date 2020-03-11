@@ -21,7 +21,7 @@ formatNum:                              ; ptr num -- ptr len
 
     _do
         _dup
-        _push0 H,L
+        _pushNext H,L
         ld B,0                          ; mutate TOS to equal C
         call divideWord
         ld A,C
