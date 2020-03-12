@@ -7,8 +7,8 @@ SERIALMODE equ 6850
 .include "dict-macros.z80"
 .include "dloop-macros.z80"
 .include "macros.z80"
-.include "stack-macros.z80"
 .include "struct-macros.z80"
+.include "stack-macros.z80"
 .include "test-macros.z80"
 
 .org START_ROM
@@ -27,6 +27,8 @@ start:
     call initSerial
     ld HL, 10
     ld (VAR_BASE),HL
+    ld HL, (initialLatest)
+    ld (VAR_LATEST),HL
 
 .if TESTMODE = 0
 
@@ -48,6 +50,9 @@ start:
 .include "print.z80"
 .include "serial.z80"
 .include "strings.z80"
+
+initialLatest:
+    dw backLink
 
 org START_RAM
 
