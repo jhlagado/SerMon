@@ -1,0 +1,26 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; dictionary macros
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+backLink: .set 0                            ; assembler var, link to previous word
+
+.macro defword, name, flags, label
+HEADER_label:
+    .pstr name                              ; name string
+    DW backLink                             ; link to previous word
+backLink: .set HEADER_label
+    DB flags                                ; flags
+label:                                      ; body
+.endm
+
+.macro defconst, name, flags, label, value
+    defword name, flags, label
+    _pushNext B,C
+    ld BC, value
+    ret
+.endm
+
+.macro defvar, name, flags, label, variable
+    defconst name, flags, label, variable
+.endm
