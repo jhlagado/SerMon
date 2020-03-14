@@ -7,18 +7,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; drop the top of param stack
-.macro _drop                       ; x --
-    _popNext B,C		        ; drop top of stack
+.macro _drop                            ; x --
+    _popNext B,C		                ; drop top of stack
 .endm
 
 ; duplicate the top of param stack
-.macro _dup                        ; x -- x x
+.macro _dup                             ; x -- x x
     _pushNext B,C
 .endm
 
 ; swap the top two items of param stack
 ; destroys AF'
-.macro _swap                       ; x1 x2 -- x2 x1
+.macro _swap                            ; x1 x2 -- x2 x1
     ex AF,AF'
     ld A,(IX-2)
     ld (IX-2),C
@@ -31,7 +31,7 @@
 
 ; reverse rot top three items, top of param stack becomes third from top  stack
 ; destroys AF'
-.macro _nrot                       ; x1 x2 x3 -- x3 x1 x2
+.macro _nrot                            ; x1 x2 x3 -- x3 x1 x2
     ex AF,AF'
     ld A,(IX-4)
     ld (IX-4),C
@@ -46,7 +46,7 @@
 
 ; duplicate second from top of param stack
 
-.macro _over                       ;x1 x2 -- x1 x2 x1
+.macro _over                            ;x1 x2 -- x1 x2 x1
     _dup
     ld C,(IX-4)
     ld B,(IX-3)
@@ -54,7 +54,7 @@
 
 ; rot top three items, third from top ends up on top of param stack
 ; destroys AF'
-.macro _rot                 ; x1 x2 x3 -- x2 x3 x1
+.macro _rot                             ; x1 x2 x3 -- x2 x3 x1
     ex AF,AF'
     ld A,(IX-2)
     ld (IX-2),C
@@ -67,16 +67,36 @@
     ex AF,AF'
 .endm
 
+.macro _min                             ; x1 x2 -- x 
+    _pop H,L
+    loadWord D,E, H,L                   ; make a copy of x1
+    or A
+    sbc HL,BC
+    jr nc, L_%%M                              
+    loadWord B,C, D,E
+L_%%M:
+.endm
+
+.macro _max                             ; x1 x2 -- x 
+    _pop H,L
+    loadWord D,E, H,L                   ; make a copy of x1
+    or A
+    sbc HL,BC
+    jr c, L_%%M                              
+    loadWord B,C, D,E
+L_%%M:
+.endm
+
 ; Macros to deal with the param stack.
 .macro _pushNext, regHI, regLO
-    ld (IX+0), regLO        ; PUSH register pair
+    ld (IX+0), regLO                    ; PUSH register pair
     inc IX
     ld (IX+0), regHI
     inc IX
 .endm
 
 .macro _popNext, regHI, regLO
-    dec IX                  ; POP register pair
+    dec IX                              ; POP register pair
     ld regHI, (IX+0)
     dec IX
     ld regLO, (IX+0)
@@ -84,29 +104,29 @@
 
 ; Macros to deal with the param stack with TOS in BC
 .macro _push, regHI, regLO
-    _dup                    ; push TOS reg pair
-    ld B, regHI             ; move register pair into TOS reg pair
+    _dup                                ; push TOS 
+    ld B, regHI                         ; move register pair into TOS 
     ld C, regLO
 .endm
 
 .macro _peek, regHI, regLO
     ld regLO, C
-    ld regHI, B             ; move TOS reg pair into register pair
+    ld regHI, B                         ; move TOS reg pair into register pair
 .endm
 
 .macro _peekNext, regHI, regLO
     ld regLO, (IX-2)
-    ld regHI, (IX-1)             ; move TOS reg pair into register pair
+    ld regHI, (IX-1)                    ; move TOS reg pair into register pair
 .endm
 
 .macro _pop, regHI, regLO
-    _peek regHI,regLO
-    _popNext B,C
+    _peek regHI,regLO                   ; move TOS into into register pair
+    _popNext B,C                        ; pop TOS
 .endm
 
-.macro _pushValue, val
-    _dup
-    ld BC, val
+.macro _pushValue, value
+    _dup                                ; push TOS
+    ld BC, value                        ; set TOS to value
 .endm
 
 .macro _pushText, s1, len
@@ -126,4 +146,3 @@ tpt_text%%M:
         .pstr s1
     _endskip
 .endm
-

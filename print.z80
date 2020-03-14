@@ -1,22 +1,16 @@
-printCR:                            ; --
+defword "cr", 0, printCR           ; --
     ld A,"\r"
     call putc
     ld A,"\n"
     call putc
     ret
 
-printSpace:                         ; --
+defword "bl", 0, printSpace        ; --
     ld A," "
     call putc
     ret
 
-printPStr:                          ; _ptr --
-    loadWord H,L, B,C
-    ld C, (HL)
-    ld B, 0
-    inc HL
-    jr printStr1
-printStr:                           ; ptr len --
+defword "type", 0, printStr            ; ptr len --
     _popNext H,L
 printStr1:
     _do
@@ -30,9 +24,16 @@ printStr1:
     _drop                           ; clear TOS
     ret
 
-printNum:
+defword "print", 0, printPStr  ; _ptr --
+    loadWord H,L, B,C
+    ld C, (HL)
+    ld B, 0
+    inc HL
+    jr printStr1
+
+defword ".", 0, printNum
     ld HL, wordBuf1
-    _pushNext H,L                      ; ptr num
+    _pushNext H,L                   ; ptr num
     call formatNum
     call printStr
     call printSpace
