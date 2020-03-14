@@ -3,62 +3,48 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; defword "find",0,FIND                   ; ptr len -- ptrOrZero
+defword "find",0,FIND                   ; ptr len -- ptrOrZero
+    _dup                                ; ptr len len
+    ld BC, (VAR_LATEST)                 ; ptr len headptr
+    _do
+        checkZeroWord B,C               ; NULL pointer?  (end of the linked list)
+        _until z
+        _dup                            ; ptr len headptr headptr
+        inc BC                          ; skip over backLink field
+        inc BC
+        ld A,(BC)                       ; A = flags
+        and FLAG_HIDDEN                 ; A = hidden flag value
+        ld H,A                          ; save A
+        inc BC                          ; point to pascal string length field
+        ld A,(BC)                       ; A = length
+        add A,H                         ; A = length + hidden flag
+        inc BC                          ; ptr len headptr nameptr
+        ex AF,AF'                       ; preserve A in A-prime
+        _over2                          ; ptr len headptr nameptr ptr len 
+        ex AF,AF'                       ; restore A
+        cp C                            ; TOS = len. is length the same as A?
+        _if z
+            call compareStr             ; ptr len headptr result 
+            checkZeroWord B,C               ; if TOS == 0 then matched
+            _drop                       ; ptr len headptr
+            _until z
+        _else
+                                        ; ptr len headptr nameptr ptr len 
+            _drop                       ; ptr len headptr nameptr ptr
+            _drop                       ; ptr len headptr nameptr
+            _drop                       ; ptr len headptr 
+            loadWord H,L, B,C           ; HL = headptr
+            ld C,(HL)                   ; follow backLink
+            inc HL
+            ld B,(HL)                   ; ptr len headptr'
+        _endif
+    _enddo
+                            ; ptr len headptr
+    _dropNext               ; ptr headptr
+    _dropNext               ; TOS = headptr
+    ret
 
-;     _popNext H,L                        ; HL = ptr, BC = TOS = len
-    
-;     ld DE, (VAR_LATEST)                 ; search dictionary backwards from LATEST
-;     _do
-;         checkZeroWord D,E               ; NULL pointer?  (end of the linked list)
-;         _if z
-;             _break
-;         _endif
-
-;         ; compareStr the length expected and the length of the word.
-;         ; Note that if the MSK_HIDDEN flag is set on the word, then by a bit of trickery
-;         ; this won't pick the word (the length will appear to be wrong).
-
-;         push DE                         ; save ptr to header
-
-;         inc DE                          ; skip over first field
-;         inc DE
-;         ld A, (DE)                      ; a = flags
-;         and FLAG_HIDDEN | FLAG_LENGTH   ;  = name length
-
-;         cp C                            ; Length is the same?
-;         _if z
-;                                         ; compareStr the strings in detail.
-;             inc DE                      ; DE = Dictionary string we are checking against.
-
-;             push HL                     ; save HL, BC
-;             push BC
-;             call compareStr                ; compareStr the strings. BC = len
-;             pop BC
-;             pop HL
-
-;             or A                        ; if A == 0 then matched
-;             _if z
-;                 pop DE                  ; matched, restore DE and return
-;                 _break
-;             _endif
-
-;         _endif
-;         pop DE                          ; restore DE
-;         ld A,(DE)
-;         ex AF,AF'
-;         inc DE
-;         ld A,(DE)
-;         ld D,A
-;         ex AF,AF'
-;         ld E,A
-;     _enddo
-
-;     loadWord B,C, D,E                   ; move to TOS
-;     ret
-
-defword "compare", 0, compareStr        ; str1 len1 str2 len2 -- (-1|0|1) 
-    _rot                                ; str1 str2 len2 len1  
-    _min                                ; str1 str2 len
+defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1) 
     _popNext H,L
     _popNext D,E
     checkZeroWord B,C                   ; test for Count=0
@@ -81,4 +67,9 @@ defword "compare", 0, compareStr        ; str1 len1 str2 len2 -- (-1|0|1)
     _enddo
     ld BC,0                             ; count exhausted & no mismatch found
     ret
+
+defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1) 
+    _rot                                ; str1 str2 len2 len1  
+    _min                                ; str1 str2 len
+    jr compareStr
 

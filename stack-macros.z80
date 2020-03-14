@@ -6,9 +6,31 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; _alter order of two cells
+; destroys A
+.macro _alter2, reg1, reg2           ; x1 x2 -- x2 x1
+    ld A,reg1
+    ld reg1,reg2
+    ld reg2,A
+.endm
+
+; _alters order of three cells
+; destroys A
+.macro _alter3, reg1, reg2, reg3        ; x1 x2 -- x2 x1
+    ld A,reg1
+    ld reg1,reg2
+    ld reg2,reg3
+    ld reg3,A
+.endm
+
 ; drop the top of param stack
 .macro _drop                            ; x --
     _popNext B,C		                ; drop top of stack
+.endm
+
+; drop the next to top of param stack
+.macro _dropNext                        ; x --
+    _popNext H,L		                ; drop next to top of stack
 .endm
 
 ; duplicate the top of param stack
@@ -16,32 +38,10 @@
     _pushNext B,C
 .endm
 
-; swap the top two items of param stack
-; destroys AF'
-.macro _swap                            ; x1 x2 -- x2 x1
-    ex AF,AF'
-    ld A,(IX-2)
-    ld (IX-2),C
-    ld C,A
-    ld A,(IX-1)
-    ld (IX-1),B
-    ld B,A
-    ex AF,AF'
-.endm
-
-; reverse rot top three items, top of param stack becomes third from top  stack
-; destroys AF'
-.macro _nrot                            ; x1 x2 x3 -- x3 x1 x2
-    ex AF,AF'
-    ld A,(IX-4)
-    ld (IX-4),C
-    ld C,(IX-2)
-    ld (IX-2),A
-    ld A,(IX-3)
-    ld (IX-3),B
-    ld B,(IX-1)
-    ld (IX-1),A
-    ex AF,AF'
+; duplicate the top of param stack
+.macro _dup2                            ; xa xb -- xa xb xa xb
+    _over
+    _over
 .endm
 
 ; duplicate second from top of param stack
@@ -52,19 +52,97 @@
     ld B,(IX-3)
 .endm
 
+; x1a -10
+; x1b -8
+; x2a -6
+; x2b -4
+; x3a -2 E
+; x3b -0 C
+.macro _over2                           ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
+
+    _dup2
+
+    ld E,(IX-10)
+    ld D,(IX-9)
+    ld (IX-2),E
+    ld (IX-1),D
+
+    ld C,(IX-8)
+    ld B,(IX-7)
+.endm
+
+; swap the top two items of param stack
+; destroys AF'
+.macro _swap                            ; x1 x2 -- x2 x1
+
+    _alter2 (IX-2),C
+    _alter2 (IX-1),B
+
+.endm
+
+; swap the top two items of param stack
+; destroys AF'
+.macro _swap2                           ; x1a x1b x2a x2b -- x2a x2b x1a x1b
+
+    ld E, (IX-2)
+    ld D, (IX-1)
+    _alter2 (IX-6),E
+    _alter2 (IX-4),C
+    _alter2 (IX-5),D
+    _alter2 (IX-3),B
+    ld (IX-2),E
+    ld (IX-1),D
+
+.endm
+
 ; rot top three items, third from top ends up on top of param stack
 ; destroys AF'
 .macro _rot                             ; x1 x2 x3 -- x2 x3 x1
-    ex AF,AF'
-    ld A,(IX-2)
-    ld (IX-2),C
-    ld C,(IX-4)
-    ld (IX-4),A
-    ld A,(IX-1)
-    ld (IX-1),B
-    ld B,(IX-3)
-    ld (IX-3),A
-    ex AF,AF'
+
+    _alter3 (IX-2),C,(IX-4)
+    _alter3 (IX-1),B,(IX-3)
+
+.endm
+
+; rot top three items, third from top ends up on top of param stack
+; destroys AF',DE
+.macro _rot2                            ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b 
+
+    ld E, (IX-2)
+    ld D, (IX-1)
+    _alter3 (IX-6),E,(IX-10)
+    _alter3 (IX-5),D,(IX-9)
+    _alter3 (IX-4),C,(IX-8)
+    _alter3 (IX-3),B,(IX-7)
+    ld (IX-2),E
+    ld (IX-1),D
+
+.endm
+
+; reverse rot top three items, top of param stack becomes third from top  stack
+; destroys AF'
+.macro _nrot                            ; x1 x2 x3 -- x3 x1 x2
+
+    _alter3 (IX-4),C,(IX-2)
+    _alter3 (IX-3),B,(IX-1)
+
+.endm
+
+; rot top three items, third from top ends up on top of param stack
+; destroys AF'
+.macro _nrot2                           ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
+
+    ld E, (IX-2)
+    ld D, (IX-1)
+
+    _alter3 (IX-10),E,(IX-6)
+    _alter3 (IX-9),D,(IX-5)
+    _alter3 (IX-8),C,(IX-4)
+    _alter3 (IX-7),B,(IX-3)
+
+    ld (IX-2),E
+    ld (IX-1),D
+
 .endm
 
 .macro _min                             ; x1 x2 -- x 

@@ -20,7 +20,7 @@ parseWord:                              ; delim -- c-addr
     _dup                                ; dup delim
     call skipDelims
     _pushValue $40                      ; max length
-    _pushValue wordBuf1                  ; buffer
+    _pushValue wordBuf1                 ; buffer
     call wordRead
     ret
 

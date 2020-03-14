@@ -7,10 +7,10 @@ backLink: .set 0                            ; assembler var, link to previous wo
 
 .macro defword, name, flags, label
 HEADER_label:
-    .pstr name                              ; name string
     DW backLink                             ; link to previous word
 backLink: .set HEADER_label
     DB flags                                ; flags
+    .pstr name                              ; name string
 label:                                      ; body
 .endm
 

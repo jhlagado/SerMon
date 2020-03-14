@@ -7,6 +7,8 @@
     TEST_SET_TEXT "x"
     call interpret
 
+    ; stack words
+
     _pushValue $AAAA
     _pushValue $BBBB
     _swap
@@ -35,6 +37,66 @@
     EXPECT $BBBB, "nrot $BBBB"
     EXPECT $AAAA, "nrot $AAAA"
     EXPECT $CCCC, "nrot $CCCC"
+
+    ; 2 stack words
+
+    _pushValue 1001
+    _pushValue 1002
+    _pushValue 2001
+    _pushValue 2002
+    _swap2
+    EXPECT 1002, "swap 1002"
+    EXPECT 1001, "swap 1001"
+    EXPECT 2002, "swap 2002"
+    EXPECT 2001, "swap 2001"
+
+    _pushValue 1001
+    _pushValue 1002
+    _dup2
+    EXPECT 1002, "dup2 1002"
+    EXPECT 1001, "dup2 1001"
+    EXPECT 1002, "dup2 1002"
+    EXPECT 1001, "dup2 1001"
+
+    _pushValue 1001
+    _pushValue 1002
+    _pushValue 2001
+    _pushValue 2002
+    _over2
+    EXPECT 1002, "over2 1002"
+    EXPECT 1001, "over2 1001"
+    EXPECT 2002, "over2 2002"
+    EXPECT 2001, "over2 2001"
+    EXPECT 1002, "over2 1002"
+    EXPECT 1001, "over2 1001"
+
+    _pushValue 1001
+    _pushValue 1002
+    _pushValue 2001
+    _pushValue 2002
+    _pushValue 3001
+    _pushValue 3002
+    _rot2
+    EXPECT 1002, "rot2 1002"
+    EXPECT 1001, "rot2 1001"
+    EXPECT 3002, "rot2 3002"
+    EXPECT 3001, "rot2 3001"
+    EXPECT 2002, "rot2 2002"
+    EXPECT 2001, "rot2 2001"
+
+    _pushValue 1001
+    _pushValue 1002
+    _pushValue 2001
+    _pushValue 2002
+    _pushValue 3001
+    _pushValue 3002
+    _nrot2
+    EXPECT 2002, "nrot2 2002"
+    EXPECT 2001, "nrot2 2001"
+    EXPECT 1002, "nrot2 1002"
+    EXPECT 1001, "nrot2 1001"
+    EXPECT 3002, "nrot2 3002"
+    EXPECT 3001, "nrot2 3001"
 
     ; formatNum
 

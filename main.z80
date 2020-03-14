@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 2
+TESTMODE equ 0
 SERIALMODE equ 6850
 
 .include "constants.z80"
