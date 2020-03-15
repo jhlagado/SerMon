@@ -50,13 +50,14 @@
 
     _dup2
 
-    ld E,(IX-10)
-    ld D,(IX-9)
-    ld (IX-2),E
-    ld (IX-1),D
-
+    ld C,(IX-10)
+    ld (IX-2),C
+    ld B,(IX-9)
+    ld (IX-1),B
+    
     ld C,(IX-8)
     ld B,(IX-7)
+
 .endm
 
 ; swap the top two items of param stack

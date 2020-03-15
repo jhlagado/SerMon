@@ -19,9 +19,7 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         ld A,(BC)                       ; A = length
         inc BC                          ; ptr len headptr nameptr
         add A,H                         ; A = length + hidden flag
-        ld H,A                          ; preserve A in A-prime
         _over2                          ; ptr len headptr nameptr ptr len 
-        ld A,H                          ; restore A
         cp C                            ; TOS = len. is length the same as A?
         _if z
             call compareStr             ; ptr len headptr result 

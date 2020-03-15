@@ -70,6 +70,15 @@ TESTS_START:
 
 .if TESTMODE = 2
 
+    _pushPText "find"
+    call unpackStr
+    call find
+    EXPECT HEADER_find, "found: find"
+
+    _pushPText "printPStr"
+    call unpackStr
+    call find
+    EXPECT HEADER_printPStr, "found: printPStr"
 
 .endif
     
