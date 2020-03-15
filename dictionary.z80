@@ -13,63 +13,30 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         inc BC                          ; skip over backLink field
         inc BC
         ld A,(BC)                       ; A = flags
+        inc BC                          ; point to packed string length field
         and FLAG_HIDDEN                 ; A = hidden flag value
         ld H,A                          ; save A
-        inc BC                          ; point to pascal string length field
         ld A,(BC)                       ; A = length
-        add A,H                         ; A = length + hidden flag
         inc BC                          ; ptr len headptr nameptr
-        ex AF,AF'                       ; preserve A in A-prime
+        add A,H                         ; A = length + hidden flag
+        ld H,A                          ; preserve A in A-prime
         _over2                          ; ptr len headptr nameptr ptr len 
-        ex AF,AF'                       ; restore A
+        ld A,H                          ; restore A
         cp C                            ; TOS = len. is length the same as A?
         _if z
             call compareStr             ; ptr len headptr result 
-            checkZeroWord B,C               ; if TOS == 0 then matched
+            checkZeroWord B,C           ; if TOS == 0 then matched
             _drop                       ; ptr len headptr
             _until z
         _else
-                                        ; ptr len headptr nameptr ptr len 
-            _drop                       ; ptr len headptr nameptr ptr
-            _drop                       ; ptr len headptr nameptr
-            _drop                       ; ptr len headptr 
-            loadWord H,L, B,C           ; HL = headptr
-            ld C,(HL)                   ; follow backLink
-            inc HL
-            ld B,(HL)                   ; ptr len headptr'
+            _drop3                      ; ptr len headptr 
         _endif
+                                        ; ptr len headptr nameptr ptr len 
+        loadWord H,L, B,C               ; HL = headptr
+        readWord HL, B,C
     _enddo
                             ; ptr len headptr
     _dropNext               ; ptr headptr
     _dropNext               ; TOS = headptr
     ret
-
-defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1) 
-    _popNext H,L
-    _popNext D,E
-    checkZeroWord B,C                   ; test for Count=0
-    ret z
-    _do
-        ld A,(DE)
-        inc DE
-        cpi
-        _if nz                          ; char mismatch: exit
-            dec HL                      ; point at mismatch char
-            cp (HL)                     ; set carry if char1 < char2
-            _if c
-                ld BC, -1
-            _else
-                ld BC, 1
-            _endif
-            ret
-        _endif
-    _until po
-    _enddo
-    ld BC,0                             ; count exhausted & no mismatch found
-    ret
-
-defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1) 
-    _rot                                ; str1 str2 len2 len1  
-    _min                                ; str1 str2 len
-    jr compareStr
 

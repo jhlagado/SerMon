@@ -43,10 +43,6 @@ start:
 
 .endif
 
-defword "x", 0, x
-
-defword "y", 0, y
-
 .include "dictionary.z80"
 .include "format.z80"
 .include "input.z80"

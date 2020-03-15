@@ -6,7 +6,7 @@ negateNum:                              ; num -- -num
     ret
 
 divideWord:                             ; dividend divisor -- quotient remainder
-    _pop D,E                        ; DE = divisor, BC = dividend
+    _pop D,E                            ; DE = divisor, BC = dividend
     ld HL,0
 
     ld A,B
@@ -19,7 +19,7 @@ divideWord:                             ; dividend divisor -- quotient remainder
     ld B,C
     ld C,A
 
-    _push H,L                       ; TOS = remainder
+    _push H,L                           ; TOS = remainder
     ret
 
 divideWord2:

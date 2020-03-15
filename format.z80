@@ -1,4 +1,4 @@
-formatNum:                              ; ptr num -- ptr len
+defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     push IY
     _pop H,L                            ; HL = num, BC = TOS = ptr
 

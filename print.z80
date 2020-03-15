@@ -24,7 +24,7 @@ printStr1:
     _drop                           ; clear TOS
     ret
 
-defword "print", 0, printPStr  ; _ptr --
+defword "printPStr", 0, printPStr  ; _ptr --
     loadWord H,L, B,C
     ld C, (HL)
     ld B, 0

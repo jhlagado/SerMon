@@ -3,6 +3,23 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; _alter order of two cells
+; destroys A
+.macro _alter2, reg1, reg2           ; x1 x2 -- x2 x1
+    ld A,reg1
+    ld reg1,reg2
+    ld reg2,A
+.endm
+
+; _alters order of three cells
+; destroys A
+.macro _alter3, reg1, reg2, reg3        ; x1 x2 -- x2 x1
+    ld A,reg1
+    ld reg1,reg2
+    ld reg2,reg3
+    ld reg3,A
+.endm
+
 .macro loadWord, destHI, destLO, srcHI, srcLO    ; transfer from src reg pair to dest reg pair
     ld destLO, srcLO
     ld destHI, srcHI

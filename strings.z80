@@ -9,3 +9,41 @@ TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
     FAILED:         .pstr "Failed: \r\n"
 
 .endif
+
+defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1) 
+    _popNext H,L
+    _popNext D,E
+    checkZeroWord B,C                   ; test for Count=0
+    ret z
+    _do
+        ld A,(DE)
+        inc DE
+        cpi
+        _if nz                          ; char mismatch: exit
+            dec HL                      ; point at mismatch char
+            cp (HL)                     ; set carry if char1 < char2
+            _if c
+                ld BC, -1
+            _else
+                ld BC, 1
+            _endif
+            ret
+        _endif
+    _until po
+    _enddo
+    ld BC,0                             ; count exhausted & no mismatch found
+    ret
+
+defword "unpackStr", 0, unpackStr      ; pstr -- ptr len
+    ld A,(BC)                           ; a = len
+    inc BC                              ; TOS = ptr
+    _dup
+    ld C,A
+    ld B,0
+    ret
+
+; defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1) 
+;     _rot                                ; str1 str2 len2 len1  
+;     _min                                ; str1 str2 len
+;     jr compareStr
+

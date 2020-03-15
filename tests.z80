@@ -123,12 +123,14 @@
     EXPECT 2, "24 / 10 = 2"
     
     ; _min
+    
     _pushValue 1
     _pushValue 2
     _min
     EXPECT 1, "min(1,2) = 1"
 
     ; max
+    
     _pushValue 1
     _pushValue 2
     _max
@@ -142,7 +144,6 @@
     _endSkip
     
     _pushPText s1
-    _pushValue 6
     _pushPText s2
     _pushValue 7
     
@@ -151,7 +152,6 @@
     EXPECT -1, "s1 should be less than s2"
 
     _pushPText s2
-    _pushValue 7
     _pushPText s1
     _pushValue 6
     
@@ -160,7 +160,6 @@
     EXPECT 1, "s1 should be greater than s2"
 
     _pushPText s1
-    _pushValue 6
     _pushPText s1
     _pushValue 6
     
@@ -169,11 +168,21 @@
     EXPECT 0, "s1 should equal s1"
 
     _pushPText s1
-    _pushValue 0
     _pushPText s2
     _pushValue 0
     
     call compareStr
     EXPECT 0, "zero length, s1 should equal s1"
 
+    ; find
     
+    _pushPText "find"
+    call unpackStr
+    call find
+    EXPECT HEADER_find, "found: find"
+
+    _pushPText "printPStr"
+    call unpackStr
+    call find
+    EXPECT HEADER_printPStr, "found: printPStr"
+
