@@ -20,3 +20,6 @@ RET_STACK       equ     END_RAM             ; return stack, grows down
 
 FLAG_IMMED      equ     $01
 FLAG_HIDDEN     equ     $80
+
+FALSE           equ     0
+TRUE            equ     -1

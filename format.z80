@@ -1,93 +1,97 @@
+; defword "formatNum", 0, formatNum       ; ptr num -- ptr len
+;     push IY
+;     _pop H,L                            ; HL = num, BC = TOS = ptr
+
+;     ld IY,0
+;     add IY,BC                           ; copy BC to IY
+;     _dup                                ; save BC for later
+
+;     bit 7, H                            ; Detect sign of HL.
+;     _if nz
+;         ld A, '-'                       ; Output '-' to string and negate HL.
+;         ld (IY+0), A
+;         inc IY
+;         loadWord B,C, H,L
+;         call negateNum
+;         loadWord H,L, B,C
+;     _endif
+
+;     ld BC,(VAR_BASE)                    ; C = BASE
+;     ld B, 0                             ; B will count character length of number
+
+;     _do
+;         _dup
+;         _pushNext H,L
+;         ld B,0                          ; mutate TOS to equal C
+;         call divideWord
+;         ld A,C
+;         push AF                         ; pushes remainder on return stack
+;         _drop
+;         _pop H,L
+;         inc B
+;         checkZeroWord H,L
+;     _until z
+;     _enddo
+
+;     ld C,B                              ; copy B count in C
+;     _do
+;         pop AF                          ; pops digits off stack
+;         add A,$30                       ; convert digit to ASCII
+;         cp $3A
+;         _if nc
+;             add A,7
+;         _endif
+;         ld (IY+0), A
+;         inc IY
+;     _djnz
+;                                         ; B = 0, BC = count
+;     _peekNext H,L
+;     ld A,(HL)
+;     cp "-"
+;     _if z
+;         inc BC                          ; if sign negative increase count
+;     _endif
+
+;     ; ptr count
+;     pop IY
+;     ret
+
+
 defword "formatNum", 0, formatNum       ; ptr num -- ptr len
-    push IY
-    _pop H,L                            ; HL = num, BC = TOS = ptr
-
-    ld IY,0
-    add IY,BC                           ; copy BC to IY
-    _dup                                ; save BC for later
-
-    bit 7, H                            ; Detect sign of HL.
+    _peekNext H,L                       ; HL = ptr, BC = num                                          
+    bit 7, B                            ; Detect sign of HL.
     _if nz
+        call negateNum                  ; ptr num
         ld A, '-'                       ; Output '-' to string and negate HL.
-        ld (IY+0), A
-        inc IY
-        loadWord B,C, H,L
-        call negateNum
-        loadWord H,L, B,C
+        writeByte HL, A
     _endif
-
-    ld BC,(VAR_BASE)                    ; C = BASE
-    ld B, 0                             ; B will count character length of number
-
+    _pushValue (VAR_BASE)               ; ptr num base
+    ld D, 0                             ; D counter
     _do
-        _dup
-        _pushNext H,L
-        ld B,0                          ; mutate TOS to equal C
-        call divideWord
-        ld A,C
-        push AF                         ; pushes remainder on return stack
-        _drop
-        _pop H,L
-        inc B
-        checkZeroWord H,L
+        inc D
+        _dup2                           ; ptr num base num base
+        call divideWord                 ; ptr num base quot rem
+        _toRetStack                     ; ptr num base quot
+        _isZero                         ; ptr num base
     _until z
     _enddo
-
-    ld C,B                              ; copy B count in C
+    _drop2                              ; ptr
     _do
-        pop AF                          ; pops digits off stack
-        add A,$30                       ; convert digit to ASCII
+        _fromRetStack                   ; ptr digit
+        ld A,$30
+        add A,C                         ; convert TOS digit to ASCII
         cp $3A
         _if nc
             add A,7
         _endif
-        ld (IY+0), A
-        inc IY
-    _djnz
-                                        ; B = 0, BC = count
-    _peekNext H,L
-    ld A,(HL)
-    cp "-"
-    _if z
-        inc BC                          ; if sign negative increase count
-    _endif
-
-    ; ptr count
-    pop IY
-    ret
-
-
-defword "formatNum1", 0, formatNum1     ; ptr num -- ptr len
-    _peekNext H,L                                           
-    _pushNext H,L                       ; ptr ptr num 
-    call formatSign
-
-formatSign:                             ; ptr num -- ptr unum
-    bit 7, B                            ; Detect sign of HL.
-    _if nz
-        _popNext H,L                     
-        ld A, '-'                       ; Output '-' to string and negate HL.
-        ld (HL), A
-        inc HL
-        _pushNext H,L   
-        call negateNum                  ; ptr' num'
-    _endif
-    ret
-
-formatNum2:                             ; ptr num
-    _dup                                ; ptr num num    
-    ld BC,(VAR_BASE)                    ; ptr num base
-    ld DE, 0                            ; B will count character length of number
-    _do
-        _dup2                           ; ptr num base num base
-        call divideWord                 ; ptr num base quot rem
-        ld A,C
-        push AF                         ; pushes rem on return stack
-        _drop                           ; ptr num base quot
-        inc DE
-        checkZeroWord B,C
-        _drop                           ; ptr num base
+        writeByte HL, A
+        _drop                           ; ptr
+        dec D
     _until z
     _enddo
-    loadWord B,C, D,E                   ; ptr num count
+    or A                                ; ptr
+    sbc HL, BC                          ; hl = ptr' BC = ptr
+    _push H,L                           ; ptr len
     ret
+
+

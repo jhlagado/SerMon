@@ -213,3 +213,25 @@ tpt_text%%M:
         .pstr s1
     _endskip
 .endm
+
+.macro _toRetStack
+    push BC
+    _drop
+.endm
+
+.macro _fromRetStack
+    _dup
+    pop BC
+.endm
+
+.macro _isZero
+    ld A,C
+    cp B
+    _if z                               ; find better z80: z flag -> boolean
+        ld BC, TRUE
+    _else
+        ld BC, FALSE                       
+    _endif
+.endm
+
+

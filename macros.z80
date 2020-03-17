@@ -27,16 +27,20 @@
 
 ; works with HL, IX+d, IY+d
 .macro readWord, ptr, regHI, regLO
-    ld regLO, (ptr)
-    inc ptr
-    ld regHI, (ptr)
-    inc ptr
+    readByte ptr, regLO
+    readByte ptr, regHI
 .endm
 
 ; works with HL, IX+d, IY+d
 .macro writeWord, ptr, regHI, regLO
     writeByte ptr, regLO
     writeByte ptr, regHI
+.endm
+
+; works with HL, IX+d, IY+d
+.macro readByte, ptr, reg
+    ld reg, (ptr)
+    inc ptr
 .endm
 
 ; works with HL, IX+d, IY+d
