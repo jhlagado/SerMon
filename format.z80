@@ -1,97 +1,47 @@
-; defword "formatNum", 0, formatNum       ; ptr num -- ptr len
-;     push IY
-;     _pop H,L                            ; HL = num, BC = TOS = ptr
-
-;     ld IY,0
-;     add IY,BC                           ; copy BC to IY
-;     _dup                                ; save BC for later
-
-;     bit 7, H                            ; Detect sign of HL.
-;     _if nz
-;         ld A, '-'                       ; Output '-' to string and negate HL.
-;         ld (IY+0), A
-;         inc IY
-;         loadWord B,C, H,L
-;         call negateNum
-;         loadWord H,L, B,C
-;     _endif
-
-;     ld BC,(VAR_BASE)                    ; C = BASE
-;     ld B, 0                             ; B will count character length of number
-
-;     _do
-;         _dup
-;         _pushNext H,L
-;         ld B,0                          ; mutate TOS to equal C
-;         call divideWord
-;         ld A,C
-;         push AF                         ; pushes remainder on return stack
-;         _drop
-;         _pop H,L
-;         inc B
-;         checkZeroWord H,L
-;     _until z
-;     _enddo
-
-;     ld C,B                              ; copy B count in C
-;     _do
-;         pop AF                          ; pops digits off stack
-;         add A,$30                       ; convert digit to ASCII
-;         cp $3A
-;         _if nc
-;             add A,7
-;         _endif
-;         ld (IY+0), A
-;         inc IY
-;     _djnz
-;                                         ; B = 0, BC = count
-;     _peekNext H,L
-;     ld A,(HL)
-;     cp "-"
-;     _if z
-;         inc BC                          ; if sign negative increase count
-;     _endif
-
-;     ; ptr count
-;     pop IY
-;     ret
-
-
 defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _peekNext H,L                       ; HL = ptr, BC = num                                          
+    _pushNext H,L                       ; ptr ptr num
     bit 7, B                            ; Detect sign of HL.
     _if nz
-        call negateNum                  ; ptr num
+        call negateNum                  ; ptr ptr num1
         ld A, '-'                       ; Output '-' to string and negate HL.
+        _popNext H,L                    ; ptr num
         writeByte HL, A
+        _pushNext H,L                   ; ptr ptr' num1
     _endif
-    _pushValue (VAR_BASE)               ; ptr num base
+    _pushValue (VAR_BASE)               ; ptr ptr' num1 base
+    _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
         inc D
-        _dup2                           ; ptr num base num base
-        call divideWord                 ; ptr num base quot rem
-        _toRetStack                     ; ptr num base quot
-        _isZero                         ; ptr num base
+        _over                           ; ptr ptr' base num1 base
+        push DE
+        call divideWord                 ; ptr ptr' base num2 rem
+        pop DE
+        _toRetStack                     ; ptr ptr' base num2
+        _dup                            ; ptr ptr' base num2 num2
+        _isZero                         ; ptr ptr' base num2
     _until z
     _enddo
-    _drop2                              ; ptr
+    _drop2                              ; ptr ptr'
     _do
-        _fromRetStack                   ; ptr digit
+        _fromRetStack                   ; ptr ptr' digit
         ld A,$30
         add A,C                         ; convert TOS digit to ASCII
         cp $3A
         _if nc
             add A,7
         _endif
-        writeByte HL, A
-        _drop                           ; ptr
+        _drop                           ; ptr ptr'
+        writeByte BC, A
         dec D
     _until z
     _enddo
-    or A                                ; ptr
-    sbc HL, BC                          ; hl = ptr' BC = ptr
-    _push H,L                           ; ptr len
+    _pop H,L                            ; HL = ptr' BC = ptr                                                                 
+    _dup                                ; ptr ptr
+    or A                                
+    sbc HL, BC                          
+    loadWord B,C, H,L                   ; ptr len
     ret
 
 

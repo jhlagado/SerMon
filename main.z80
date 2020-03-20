@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 0
+TESTMODE equ 2
 SERIALMODE equ 6850
 
 .include "constants.z80"
@@ -70,16 +70,13 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _pushPText "find"
-    call unpackStr
-    call find
-    EXPECT HEADER_find, "found: find"
-
-    _pushPText "printPStr"
-    call unpackStr
-    call find
-    EXPECT HEADER_printPStr, "found: printPStr"
-
+    _pushValue wordBuf2
+    _pushValue -123
+    call formatNum
+    _dup
+    EXPECT 4, "-123 length 4"
+    call printCR
+    call printStr
 .endif
     
 .if TESTMODE

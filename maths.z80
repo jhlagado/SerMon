@@ -1,3 +1,4 @@
+; destroys HL
 negateNum:                              ; num -- -num
     ld HL,0
     or A
@@ -5,6 +6,7 @@ negateNum:                              ; num -- -num
     loadWord B,C, H,L
     ret
 
+;destroys DE, HL, A
 divideWord:                             ; dividend divisor -- quotient remainder
     _pop D,E                            ; DE = divisor, BC = dividend
     ld HL,0

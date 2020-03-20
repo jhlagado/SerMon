@@ -224,14 +224,10 @@ tpt_text%%M:
     pop BC
 .endm
 
-.macro _isZero
+.macro _isZero                          ; n -- b
     ld A,C
     cp B
-    _if z                               ; find better z80: z flag -> boolean
-        ld BC, TRUE
-    _else
-        ld BC, FALSE                       
-    _endif
+    _drop
 .endm
 
 

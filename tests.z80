@@ -186,3 +186,12 @@
     call find
     EXPECT HEADER_printPStr, "found: printPStr"
 
+    ; foramtNum
+
+    _pushValue wordBuf2
+    _pushValue -123
+    call formatNum
+    _dup
+    EXPECT 4, "-123 length 4"
+    call printCR
+    call printStr
