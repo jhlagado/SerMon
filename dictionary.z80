@@ -19,22 +19,22 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         ld A,(BC)                       ; A = length
         inc BC                          ; ptr len headptr nameptr
         add A,H                         ; A = length + hidden flag
-        _over2                          ; ptr len headptr nameptr ptr len 
+        _over2                          ; ptr len headptr nameptr ptr len
         cp C                            ; TOS = len. is length the same as A?
         _if z
-            call compareStr             ; ptr len headptr result 
+            call compareStr             ; ptr len headptr result
             checkZeroWord B,C           ; if TOS == 0 then matched
             _drop                       ; ptr len headptr
             _until z
         _else
-            _drop3                      ; ptr len headptr 
+            _drop3                      ; ptr len headptr
         _endif
-                                        ; ptr len headptr nameptr ptr len 
+                                        ; ptr len headptr nameptr ptr len
         loadWord H,L, B,C               ; HL = headptr
         readWord HL, B,C
     _enddo
                             ; ptr len headptr
-    _dropNext               ; ptr headptr
-    _dropNext               ; TOS = headptr
+    _nip               ; ptr headptr
+    _nip               ; TOS = headptr
     ret
 

@@ -1,13 +1,13 @@
 defword "formatNum", 0, formatNum       ; ptr num -- ptr len
-    _peekNext H,L                       ; HL = ptr, BC = num                                          
-    _pushNext H,L                       ; ptr ptr num
+    _overInto H,L                       ; HL = ptr, BC = num
+    _tuckFrom H,L                       ; ptr ptr num
     bit 7, B                            ; Detect sign of HL.
     _if nz
         call negateNum                  ; ptr ptr num1
         ld A, '-'                       ; Output '-' to string and negate HL.
-        _popNext H,L                    ; ptr num
+        _nipInto H,L                    ; ptr num
         writeByte HL, A
-        _pushNext H,L                   ; ptr ptr' num1
+        _tuckFrom H,L                   ; ptr ptr' num1
     _endif
     _pushValue (VAR_BASE)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
@@ -37,10 +37,10 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         dec D
     _until z
     _enddo
-    _pop H,L                            ; HL = ptr' BC = ptr                                                                 
+    _pop H,L                            ; HL = ptr' BC = ptr
     _dup                                ; ptr ptr
-    or A                                
-    sbc HL, BC                          
+    or A
+    sbc HL, BC
     loadWord B,C, H,L                   ; ptr len
     ret
 

@@ -11,7 +11,7 @@ defword "bl", 0, printSpace        ; --
     ret
 
 defword "type", 0, printStr            ; ptr len --
-    _popNext H,L
+    _nipInto H,L
 printStr1:
     _do
         ld A,(HL)
@@ -33,7 +33,7 @@ defword "printPStr", 0, printPStr  ; _ptr --
 
 defword ".", 0, printNum
     ld HL, wordBuf1
-    _pushNext H,L                   ; ptr num
+    _tuckFrom H,L                   ; ptr num
     call formatNum
     call printStr
     call printSpace

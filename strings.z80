@@ -10,9 +10,9 @@ TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
 
 .endif
 
-defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1) 
-    _popNext H,L
-    _popNext D,E
+defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1)
+    _nipInto H,L
+    _nipInto D,E
     checkZeroWord B,C                   ; test for Count=0
     ret z
     _do
@@ -42,8 +42,8 @@ defword "unpackStr", 0, unpackStr      ; pstr -- ptr len
     ld B,0
     ret
 
-; defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1) 
-;     _rot                                ; str1 str2 len2 len1  
+; defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1)
+;     _rot                                ; str1 str2 len2 len1
 ;     _min                                ; str1 str2 len
 ;     jr compareStr
 

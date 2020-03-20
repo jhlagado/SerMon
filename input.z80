@@ -19,7 +19,7 @@ initInput:
 getline:
     push AF
     push HL
-    _pushNext B,C
+    _tuckFrom B,C
     ld BC, TXT_PROMPT
     call printPStr
     pop HL

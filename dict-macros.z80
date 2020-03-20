@@ -16,7 +16,7 @@ label:                                      ; body
 
 .macro defconst, name, flags, label, value
     defword name, flags, label
-    _pushNext B,C
+    _dup
     ld BC, value
     ret
 .endm
