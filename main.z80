@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 2
+TESTMODE equ 0
 SERIALMODE equ 6850
 
 .include "constants.z80"
@@ -17,7 +17,7 @@ RST00:                                      ; Reset
     jp start
 
 .org $0038
-RST38:                                      ; rst 38 
+RST38:                                      ; rst 38
     jp serialIn
 
 start:
@@ -59,7 +59,7 @@ org START_RAM
 
 .include "variables.z80"
 
-START_USER:                                
+START_USER:
 TESTS_START:
 
 .if TESTMODE = 1
@@ -78,7 +78,7 @@ TESTS_START:
     call printCR
     call printStr
 .endif
-    
+
 .if TESTMODE
 
     _pushValue DONE

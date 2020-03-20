@@ -4,10 +4,10 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     bit 7, B                            ; Detect sign of HL.
     _if nz
         call negateNum                  ; ptr ptr num1
+        _swap                           ; ptr num1 ptr
         ld A, '-'                       ; Output '-' to string and negate HL.
-        _nipInto H,L                    ; ptr num
-        writeByte HL, A
-        _tuckFrom H,L                   ; ptr ptr' num1
+        writeByte BC, A
+        _swap                           ; ptr ptr' num1
     _endif
     _pushValue (VAR_BASE)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
@@ -43,5 +43,3 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     sbc HL, BC
     loadWord B,C, H,L                   ; ptr len
     ret
-
-
