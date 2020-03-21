@@ -6,9 +6,20 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; duplicate the top of param stack
+.macro _dup                             ; x -- x x
+    ld (IX+0), C                    ; PUSH register pair
+    ld (IX+1), B
+    inc IX
+    inc IX
+.endm
+
 ; drop the top of param stack
 .macro _drop                            ; x --
-    _nipInto B,C		                ; drop top of stack
+    dec IX                              ; POP register pair
+    dec IX
+    ld B, (IX+1)
+    ld C, (IX+0)
 .endm
 
 ; drop the next to top of param stack
@@ -30,11 +41,6 @@
 .macro _drop3                           ; x --
     _nip
     _drop2
-.endm
-
-; duplicate the top of param stack
-.macro _dup                             ; x -- x x
-    _tuckFrom B,C
 .endm
 
 ; duplicate the top of param stack
