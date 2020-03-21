@@ -4,19 +4,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; _alter order of two cells
-; destroys A
+; destroys DE
 .macro _alter2, reg1, reg2           ; x1 x2 -- x2 x1
-    ld A,reg1
-    ld reg1,reg2
-    ld reg2,A
+    ld D,reg1
+    ld E,reg2
+    ld reg1,E
+    ld reg2,D
 .endm
 
 ; _alters order of three cells
-; destroys A
+; destroys A, DE
 .macro _alter3, reg1, reg2, reg3        ; x1 x2 -- x2 x1
     ld A,reg1
-    ld reg1,reg2
-    ld reg2,reg3
+    ld D,reg2
+    ld E,reg3
+
+    ld reg1,D
+    ld reg2,E
     ld reg3,A
 .endm
 
