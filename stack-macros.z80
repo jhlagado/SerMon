@@ -6,24 +6,6 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-; duplicate the top of param stack
-.macro _dup                             ; x -- x x
-    ; ld (IX+0), C                    ; PUSH register pair
-    ; ld (IX+1), B
-    ; inc IX
-    ; inc IX
-    call dup
-.endm
-
-; drop the top of param stack
-.macro _drop                            ; x --
-    dec IX                              ; POP register pair
-    dec IX
-    ld B, (IX+1)
-    ld C, (IX+0)
-.endm
-
 ; drop the next to top of param stack
 .macro _nip                             ; x y -- y
     dec IX
@@ -37,7 +19,7 @@
 
 .macro _drop2                           ; x x --
     _nip
-    _drop
+    call drop
 .endm
 
 .macro _drop3                           ; x --
@@ -54,7 +36,7 @@
 ; duplicate second from top of param stack
 
 .macro _over                            ;x1 x2 -- x1 x2 x1
-    _dup
+    call dup
     ld C,(IX-4)
     ld B,(IX-3)
 .endm
@@ -135,7 +117,7 @@
 ; Macros to deal with the param stack with TOS in BC
 
 .macro _push, regHI, regLO              ; rp = x ; y -- y x
-    _dup                                ; push TOS
+    call dup                                ; push TOS
     ld B, regHI                         ; move register pair into TOS
     ld C, regLO
 .endm
@@ -147,7 +129,7 @@
 
 .macro _pop, regHI, regLO
     _peek regHI,regLO                   ; move TOS into into register pair
-    _nipInto B,C                        ; pop TOS
+    call drop
 .endm
 
 .macro _tuckFrom, regHI, regLO          ; rp = x; y -- x y
@@ -170,7 +152,7 @@
 .endm
 
 .macro _pushValue, value
-    _dup                                ; push TOS
+    call dup                                ; push TOS
     ld BC, value                        ; set TOS to value
 .endm
 
@@ -194,18 +176,18 @@ tpt_text%%M:
 
 .macro _toRetStack
     push BC
-    _drop
+    call drop
 .endm
 
 .macro _fromRetStack
-    _dup
+    call dup
     pop BC
 .endm
 
 .macro _isZero                          ; n -- b
     ld A,C
     cp B
-    _drop
+    call drop
 .endm
 
 .macro _min                             ; x1 x2 -- x

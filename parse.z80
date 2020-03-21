@@ -6,9 +6,9 @@ defword "repl", 0, repl
 interpret:
     _do
         _pushValue $20                  ; delim
-    	call parseWord                  ; pstr 
+    	call parseWord                  ; pstr
         call unpackStr                  ; pstr str len
-        checkZeroWord B,C               ; 
+        checkZeroWord B,C               ;
     _until z
         call printStr
         call printSpace
@@ -16,7 +16,7 @@ interpret:
     ret
 
 defword "parseWord", 0, parseWord       ; delim -- c-addr
-    _dup                                ; dup delim
+    call dup                                ; dup delim
     call skipDelims
     _pushValue $40                      ; max length
     _pushValue wordBuf1                 ; buffer
@@ -65,9 +65,9 @@ defword "skipDelims", 0, skipDelims     ; delim -- char
 wordRead:                               ; delim char len addr -- c-addr
     _pop H,L                            ; HL = addr
     ld E,C                              ; E = TOS(LO) = len (max length)
-    _drop                               ; C = TOS(LO) = char
+    call drop                               ; C = TOS(LO) = char
     ld A,C                              ; A = char
-    _drop                               ; C = TOS(LO) = delim
+    call drop                               ; C = TOS(LO) = delim
     ld B,E                              ; B = (max) length
     ld D,0                              ; D = len count
     or A

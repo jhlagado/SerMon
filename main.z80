@@ -73,7 +73,7 @@ TESTS_START:
     _pushValue wordBuf2
     _pushValue -123
     call formatNum
-    _dup
+    call dup
     EXPECT 4, "-123 length 4"
     call printCR
     call printStr

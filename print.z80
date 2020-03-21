@@ -21,7 +21,7 @@ printStr1:
         checkZeroWord B,C
     _until z
     _enddo
-    _drop                           ; clear TOS
+    call drop                           ; clear TOS
     ret
 
 defword "printPStr", 0, printPStr  ; _ptr --

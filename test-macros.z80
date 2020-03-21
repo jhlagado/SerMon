@@ -18,7 +18,7 @@ tst_text%%M:
 .endm
 
 .macro EXPECT, expect, failtxt
-    _dup
+    call dup
     call printNum
     loadWord H,L, B,C
     ld L, C

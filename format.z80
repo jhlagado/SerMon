@@ -19,7 +19,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         call divideWord                 ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
-        _dup                            ; ptr ptr' base num2 num2
+        call dup                            ; ptr ptr' base num2 num2
         _isZero                         ; ptr ptr' base num2
     _until z
     _enddo
@@ -32,13 +32,13 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        _drop                           ; ptr ptr'
+        call drop                           ; ptr ptr'
         writeByte BC, A
         dec D
     _until z
     _enddo
     _pop H,L                            ; HL = ptr' BC = ptr
-    _dup                                ; ptr ptr
+    call dup                                ; ptr ptr
     or A
     sbc HL, BC
     loadWord B,C, H,L                   ; ptr len
@@ -49,4 +49,11 @@ dup:
     ld (IX+1), B
     inc IX
     inc IX
+    ret
+
+drop:
+    dec IX                              ; POP register pair
+    dec IX
+    ld B, (IX+1)
+    ld C, (IX+0)
     ret

@@ -37,7 +37,7 @@ defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1)
 defword "unpackStr", 0, unpackStr      ; pstr -- ptr len
     ld A,(BC)                           ; a = len
     inc BC                              ; TOS = ptr
-    _dup
+    call dup
     ld C,A
     ld B,0
     ret

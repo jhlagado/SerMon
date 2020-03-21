@@ -4,12 +4,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 defword "find",0,FIND                   ; ptr len -- ptrOrZero
-    _dup                                ; ptr len len
+    call dup                                ; ptr len len
     ld BC, (VAR_LATEST)                 ; ptr len headptr
     _do
         checkZeroWord B,C               ; NULL pointer?  (end of the linked list)
         _until z
-        _dup                            ; ptr len headptr headptr
+        call dup                            ; ptr len headptr headptr
         inc BC                          ; skip over backLink field
         inc BC
         ld A,(BC)                       ; A = flags
@@ -24,7 +24,7 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         _if z
             call compareStr             ; ptr len headptr result
             checkZeroWord B,C           ; if TOS == 0 then matched
-            _drop                       ; ptr len headptr
+            call drop                       ; ptr len headptr
             _until z
         _else
             _drop3                      ; ptr len headptr
