@@ -68,26 +68,26 @@
 ; swap the top two items of param stack
 .macro _swap                            ; x1 x2 -- x2 x1
     push DE
-    _alter2 (IX-2),C
-    _alter2 (IX-1),B
+    _alter2 -2,C
+    _alter2 -1,B
     pop DE
 .endm
 
 ; swap the top two items of param stack
 .macro _swap2                           ; x1a x1b x2a x2b -- x2a x2b x1a x1b
     push DE
-    _alter2 (IX-1),(IX-5)
-    _alter2 (IX-2),(IX-6)
-    _alter2 (IX-4),C
-    _alter2 (IX-3),B
+    _alter2x -1,-5
+    _alter2x -2,-6
+    _alter2 -4,C
+    _alter2 -3,B
     pop DE
 .endm
 
 ; rot top three items, third from top ends up on top of param stack
 .macro _rot                             ; x1 x2 x3 -- x2 x3 x1
     push DE
-    _alter3 (IX-2),C,(IX-4)
-    _alter3 (IX-1),B,(IX-3)
+    _alter3 -2,C,-4
+    _alter3 -1,B,-3
     pop DE
 .endm
 
@@ -95,10 +95,10 @@
 ; destroys AF'
 .macro _rot2                            ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b
     push DE
-    _alter3 (IX-6),(IX-2),(IX-10)
-    _alter3 (IX-5),(IX-1),(IX-9)
-    _alter3 (IX-4),C,(IX-8)
-    _alter3 (IX-3),B,(IX-7)
+    _alter3x -6,-2,-10
+    _alter3x -5,-1,-9
+    _alter3 -4,C,-8
+    _alter3 -3,B,-7
     pop DE
 .endm
 
@@ -106,8 +106,8 @@
 ; destroys AF'
 .macro _nrot                            ; x1 x2 x3 -- x3 x1 x2
     push DE
-    _alter3 (IX-4),C,(IX-2)
-    _alter3 (IX-3),B,(IX-1)
+    _alter3 -4,C,-2
+    _alter3 -3,B,-1
     pop DE
 .endm
 
@@ -116,10 +116,10 @@
 .macro _nrot2                           ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
     push DE
 
-    _alter3 (IX-10),(IX-2),(IX-6)
-    _alter3 (IX-9),(IX-1),(IX-5)
-    _alter3 (IX-8),C,(IX-4)
-    _alter3 (IX-7),B,(IX-3)
+    _alter3x -10,-2,-6
+    _alter3x -9,-1,-5
+    _alter3 -8,C,-4
+    _alter3 -7,B,-3
 
     pop DE
 .endm

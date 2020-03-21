@@ -4,24 +4,40 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; _alter order of two cells
-; destroys DE
-.macro _alter2, reg1, reg2           ; x1 x2 -- x2 x1
-    ld D,reg1
-    ld E,reg2
-    ld reg1,E
-    ld reg2,D
+; destroys A
+.macro _alter2, ofs, reg                ; x1 x2 -- x2 x1
+    ld A,(IX+ofs)
+    ld (IX+ofs),reg
+    ld reg,A
+.endm
+
+.macro _alter2x, ofs1, ofs2             ; x1 x2 -- x2 x1
+    ld D,(IX+ofs1)
+    ld E,(IX+ofs2)
+    ld (IX+ofs1),E
+    ld (IX+ofs2),D
 .endm
 
 ; _alters order of three cells
 ; destroys A, DE
-.macro _alter3, reg1, reg2, reg3        ; x1 x2 -- x2 x1
-    ld A,reg1
-    ld D,reg2
-    ld E,reg3
+.macro _alter3, ofs1, reg, ofs3           ; x1 x2 x3 -- x2 x3 x1
+    ld A,(IX+ofs1)
+    ld D,reg
+    ld E,(IX+ofs3)
 
-    ld reg1,D
-    ld reg2,E
-    ld reg3,A
+    ld (IX+ofs1),D
+    ld reg,E
+    ld (IX+ofs3),A
+.endm
+
+.macro _alter3x, ofs1, ofs2, ofs3        ; x1 x2 x3 -- x2 x3 x1
+    ld A,(IX+ofs1)
+    ld D,(IX+ofs2)
+    ld E,(IX+ofs3)
+
+    ld (IX+ofs1),D
+    ld (IX+ofs2),E
+    ld (IX+ofs3),A
 .endm
 
 .macro loadWord, destHI, destLO, srcHI, srcLO    ; transfer from src reg pair to dest reg pair
