@@ -43,3 +43,10 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     sbc HL, BC
     loadWord B,C, H,L                   ; ptr len
     ret
+
+dup:
+    ld (IX+0), C                    ; PUSH register pair
+    ld (IX+1), B
+    inc IX
+    inc IX
+    ret

@@ -6,12 +6,14 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 ; duplicate the top of param stack
 .macro _dup                             ; x -- x x
-    ld (IX+0), C                    ; PUSH register pair
-    ld (IX+1), B
-    inc IX
-    inc IX
+    ; ld (IX+0), C                    ; PUSH register pair
+    ; ld (IX+1), B
+    ; inc IX
+    ; inc IX
+    call dup
 .endm
 
 ; drop the top of param stack
