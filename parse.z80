@@ -11,6 +11,7 @@ interpret:
     _until z
         call printStr
         call printSpace
+        call printSpace
     _endDo
     ret
 
@@ -59,7 +60,7 @@ defword "skipDelims", 0, skipDelims     ; delim -- char
 
         _endswitch
     _enddo
-    loadWord B,C, 0,A                   ; TOS = char
+    _load B,C, 0,A                   ; TOS = char
     ret
 
 wordRead:                               ; addr maxlen delim char -- c-addr
@@ -69,13 +70,13 @@ wordRead:                               ; addr maxlen delim char -- c-addr
     call drop                           ; TOS = maxlen
     ld D,C                              ; D = maxlen (formerly E)
     call drop                           ; TOS = addr
-    _peek H,L                           ; TOS = BC = addr, HL = addr
+    call dup                            ; addr addr
     or A
     _if nz
-        inc HL                          ; move to leave space for length byte
+        inc BC                          ; addr' leave space for length byte
         _do
-            ld (HL), A                  ; add character to return lineBuf
-            inc HL
+            ld (BC), A                  ; add character to return lineBuf
+            inc BC                      ; addr'
             call getKey                 ; get next key
             cp E                        ; = delim?
         _until z
@@ -85,6 +86,9 @@ wordRead:                               ; addr maxlen delim char -- c-addr
         _until z
         _enddo
     _endif
+    ld H,B
+    ld L,C                              ; HL = addr'
+    call drop                           ; addr
     or A
     sbc HL, BC                          ; addr1 - addr
     ld A,L                              ; low byte

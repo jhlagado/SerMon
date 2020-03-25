@@ -184,21 +184,21 @@ tpt_text%%M:
 
 .macro _min                             ; x1 x2 -- x
     _pop H,L
-    loadWord D,E, H,L                   ; make a copy of x1
+    _load D,E, H,L                   ; make a copy of x1
     or A
     sbc HL,BC
     jr nc, L_%%M
-    loadWord B,C, D,E
+    _load B,C, D,E
 L_%%M:
 .endm
 
 .macro _max                             ; x1 x2 -- x
     _pop H,L
-    loadWord D,E, H,L                   ; make a copy of x1
+    _load D,E, H,L                   ; make a copy of x1
     or A
     sbc HL,BC
     jr c, L_%%M
-    loadWord B,C, D,E
+    _load B,C, D,E
 L_%%M:
 .endm
 

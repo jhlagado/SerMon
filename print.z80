@@ -25,7 +25,7 @@ printStr1:
     ret
 
 defword "printPStr", 0, printPStr  ; _ptr --
-    loadWord H,L, B,C
+    _load H,L, B,C
     ld C, (HL)
     ld B, 0
     inc HL

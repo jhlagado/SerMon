@@ -7,6 +7,15 @@
     TEST_SET_TEXT "x"
     call interpret
 
+    TEST_SET_TEXT "xx yyy"
+    _pushValue wordBuf1                 ; buffer
+    _pushValue $40                      ; max length
+    _pushValue $20                      ; delim
+    _pushValue $33                      ; char
+    call wordRead
+    call unpackStr
+    EXPECT 3, "xxx length 3"
+
     ; stack words
 
     _pushValue $AAAA
@@ -105,7 +114,7 @@
     call formatNum
     EXPECT 4, "length of -123 = 4"
     _pop H,L
-    loadWord B,C, 0,(HL)
+    _load B,C, 0,(HL)
     EXPECT $2D, "first char = '-'"
 
     ; divideWord
@@ -186,7 +195,7 @@
     call find
     EXPECT HEADER_printPStr, "found: printPStr"
 
-    ; foramtNum
+    ; formatNum
 
     _pushValue wordBuf2
     _pushValue -123

@@ -30,8 +30,11 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
             _drop3                      ; ptr len headptr
         _endif
                                         ; ptr len headptr nameptr ptr len
-        loadWord H,L, B,C               ; HL = headptr
-        readWord HL, B,C
+        _load H,L, B,C               ; HL = headptr
+        ld C, (HL)
+        inc HL
+        ld B, (HL)
+        inc HL
     _enddo
                             ; ptr len headptr
     _nip               ; ptr headptr

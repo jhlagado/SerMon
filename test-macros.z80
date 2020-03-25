@@ -20,7 +20,7 @@ tst_text%%M:
 .macro EXPECT, expect, failtxt
     call dup
     call printNum
-    loadWord H,L, B,C
+    _load H,L, B,C
     ld L, C
     call drop
     CMP16 expect

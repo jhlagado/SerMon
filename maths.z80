@@ -3,7 +3,7 @@ negateNum:                              ; num -- -num
     ld HL,0
     or A
     sbc HL,BC
-    loadWord B,C, H,L
+    _load B,C, H,L
     ret
 
 ;destroys DE, HL, A
