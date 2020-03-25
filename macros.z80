@@ -47,8 +47,14 @@
 
 ; result: sets Z if zero
 ; destroys: A
-.macro checkZeroWord, regHI, regLO          ; check if reg pair is zero
+.macro _compareZero, regHI, regLO          ; check if reg pair is zero
     ld A, regLO
     or regHI
 .endm
 
+.macro _compare, val
+    ld DE, val
+    or A
+    sbc HL, DE
+    _compareZero H,L
+.endm

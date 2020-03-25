@@ -7,7 +7,7 @@ interpret:
     _do
     	call parseWord                  ; pstr
         call unpackStr                  ; pstr str len
-        checkZeroWord B,C               ;
+        _compareZero B,C               ;
     _until z
         call printStr
         call printSpace

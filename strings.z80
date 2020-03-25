@@ -13,7 +13,7 @@ TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
 defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1)
     _nipInto H,L
     _nipInto D,E
-    checkZeroWord B,C                   ; test for Count=0
+    _compareZero B,C                   ; test for Count=0
     ret z
     _do
         ld A,(DE)

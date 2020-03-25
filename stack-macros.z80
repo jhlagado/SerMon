@@ -177,8 +177,7 @@ tpt_text%%M:
 .endm
 
 .macro _isZero                          ; n -- b
-    ld A,C
-    cp B
+    _compareZero B,C
     call drop
 .endm
 

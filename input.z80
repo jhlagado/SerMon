@@ -30,7 +30,7 @@ getline:
             call getc
             cp $08
             _if z
-                checkZeroWord B,C
+                _compareZero B,C
                 _if nz
                     dec HL
                     dec BC
