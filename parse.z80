@@ -5,7 +5,6 @@ defword "repl", 0, repl
 
 interpret:
     _do
-        _pushValue $20                  ; delim
     	call parseWord                  ; pstr
         call unpackStr                  ; pstr str len
         checkZeroWord B,C               ;
@@ -15,11 +14,12 @@ interpret:
     _endDo
     ret
 
-defword "parseWord", 0, parseWord       ; delim -- c-addr
+defword "parseWord", 0, parseWord       ; -- c-addr
+    _pushValue wordBuf1                 ; buffer
+    _pushValue $40                      ; max length
+    _pushValue $20                      ; delim
     call dup                            ; dup delim
     call skipDelims
-    _pushValue $40                      ; max length
-    _pushValue wordBuf1                 ; buffer
     call wordRead
     ret
 
@@ -62,31 +62,34 @@ defword "skipDelims", 0, skipDelims     ; delim -- char
     loadWord B,C, 0,A                   ; TOS = char
     ret
 
-wordRead:                               ; delim char len addr -- c-addr
-    _pop H,L                            ; HL = addr
-    ld E,C                              ; E = TOS(LO) = len (max length)
-    call drop                               ; C = TOS(LO) = char
+wordRead:                               ; addr maxlen delim char -- c-addr
     ld A,C                              ; A = char
-    call drop                               ; C = TOS(LO) = delim
-    ld B,E                              ; B = (max) length
-    ld D,0                              ; D = len count
+    call drop                           ; TOS = delim
+    ld E,C                              ; E = delim (formerly C)
+    call drop                           ; TOS = maxlen
+    ld D,C                              ; D = maxlen (formerly E)
+    call drop                           ; TOS = addr
+    _peek H,L                           ; TOS = BC = addr, HL = addr
     or A
     _if nz
-        push HL                         ; save a copy of HL
         inc HL                          ; move to leave space for length byte
         _do
             ld (HL), A                  ; add character to return lineBuf
             inc HL
-            inc D
             call getKey                 ; get next key
-            cp C                        ; = delim?
+            cp E                        ; = delim?
         _until z
             cp " "                      ; < space? i.e. control chars
         _until c
-        _djnz
-        pop HL                          ; restore HL
+            dec D
+        _until z
+        _enddo
     _endif
-    ld (HL),D                           ; write length
-    loadWord B,C, H,L                   ; TOS = str ptr
+    or A
+    sbc HL, BC                          ; addr1 - addr
+    ld A,L                              ; low byte
+    dec A                               ; don't include length byte in length
+    ld (BC),A                           ; write length
+                                        ; TOS = str ptr
     ret
 
