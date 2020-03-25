@@ -5,9 +5,12 @@ defword "repl", 0, repl
 
 interpret:
     _do
+        _pushValue wordBuf1             ; buffer
+        _pushValue $40                  ; max length
+        _pushValue $20                  ; delim
     	call parseWord                  ; pstr
         call unpackStr                  ; pstr str len
-        _compareZero B,C               ;
+        _compareZero B,C
     _until z
         call printStr
         call printSpace
@@ -16,9 +19,6 @@ interpret:
     ret
 
 defword "parseWord", 0, parseWord       ; -- c-addr
-    _pushValue wordBuf1                 ; buffer
-    _pushValue $40                      ; max length
-    _pushValue $20                      ; delim
     call dup                            ; dup delim
     call skipDelims
     call wordRead
@@ -60,7 +60,7 @@ defword "skipDelims", 0, skipDelims     ; delim -- char
 
         _endswitch
     _enddo
-    _load B,C, 0,A                   ; TOS = char
+    _load B,C, 0,A                      ; TOS = char
     ret
 
 wordRead:                               ; addr maxlen delim char -- c-addr
@@ -73,26 +73,26 @@ wordRead:                               ; addr maxlen delim char -- c-addr
     call dup                            ; addr addr
     or A
     _if nz
-        inc BC                              ; addr' leave space for length byte
+        inc BC                          ; addr' leave space for length byte
         _do
-            ld (BC), A                      ; add character to return lineBuf
-            inc BC                          ; addr'
-            call getKey                     ; get next key
-            cp E                            ; = delim?
+            ld (BC), A                  ; add character to return lineBuf
+            inc BC                      ; addr'
+            call getKey                 ; get next key
+            cp E                        ; = delim?
         _until z
-            cp " "                          ; < space? i.e. control chars
+            cp " "                      ; < space? i.e. control chars
         _until c
             dec D
         _until z
         _enddo
         ld H,B
-        ld L,C                              ; HL = addr'
-        call drop                           ; addr
+        ld L,C                          ; HL = addr'
+        call drop                       ; addr
         or A
-        sbc HL, BC                          ; addr1 - addr
-        ld A,L                              ; low byte
-        dec A                               ; don't include length byte in length
+        sbc HL, BC                      ; addr1 - addr
+        ld A,L                          ; low byte
+        dec A                           ; don't include length byte in length
     _endif
-    ld (BC),A                               ; write length
-    ret                                     ; TOS = pstr
+    ld (BC),A                           ; write length
+    ret                                 ; TOS = pstr
 
