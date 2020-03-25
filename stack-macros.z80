@@ -29,16 +29,8 @@
 
 ; duplicate the top of param stack
 .macro _dup2                            ; xa xb -- xa xb xa xb
-    _over
-    _over
-.endm
-
-; duplicate second from top of param stack
-
-.macro _over                            ;x1 x2 -- x1 x2 x1
-    call dup
-    ld C,(IX-4)
-    ld B,(IX-3)
+    call over
+    call over
 .endm
 
 .macro _over2                           ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b

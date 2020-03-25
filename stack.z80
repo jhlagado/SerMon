@@ -1,0 +1,25 @@
+; duplicate top of param stack
+; x1 -- x1 x1
+dup:
+    ld (IX+0), C                    ; PUSH register pair
+    ld (IX+1), B
+    inc IX
+    inc IX
+    ret
+
+; remove top of param stack
+; x1 x2 -- x1 
+drop:
+    dec IX                              ; POP register pair
+    dec IX
+    ld B, (IX+1)
+    ld C, (IX+0)
+    ret
+
+; duplicate second from top of param stack
+; x1 x2 -- x1 x2 x1
+over:
+    call dup
+    ld C,(IX-4)
+    ld B,(IX-3)
+    ret

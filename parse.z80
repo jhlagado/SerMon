@@ -16,7 +16,7 @@ interpret:
     ret
 
 defword "parseWord", 0, parseWord       ; delim -- c-addr
-    call dup                                ; dup delim
+    call dup                            ; dup delim
     call skipDelims
     _pushValue $40                      ; max length
     _pushValue wordBuf1                 ; buffer

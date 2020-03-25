@@ -50,6 +50,7 @@ start:
 .include "parse.z80"
 .include "print.z80"
 .include "serial.z80"
+.include "stack.z80"
 .include "strings.z80"
 
 initialLatest:

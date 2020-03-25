@@ -17,7 +17,7 @@
 
     _pushValue $AAAA
     _pushValue $BBBB
-    _over
+    call over
     EXPECT $AAAA, "over $AAAA"
     EXPECT $BBBB, "over $BBBB"
     EXPECT $AAAA, "over $AAAA"
