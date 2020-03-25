@@ -94,5 +94,5 @@ wordRead:                               ; addr maxlen delim char -- c-addr
         dec A                               ; don't include length byte in length
     _endif
     ld (BC),A                               ; write length
-    return                                  ; TOS = pstr
+    ret                                     ; TOS = pstr
 
