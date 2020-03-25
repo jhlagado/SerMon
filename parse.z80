@@ -73,27 +73,26 @@ wordRead:                               ; addr maxlen delim char -- c-addr
     call dup                            ; addr addr
     or A
     _if nz
-        inc BC                          ; addr' leave space for length byte
+        inc BC                              ; addr' leave space for length byte
         _do
-            ld (BC), A                  ; add character to return lineBuf
-            inc BC                      ; addr'
-            call getKey                 ; get next key
-            cp E                        ; = delim?
+            ld (BC), A                      ; add character to return lineBuf
+            inc BC                          ; addr'
+            call getKey                     ; get next key
+            cp E                            ; = delim?
         _until z
-            cp " "                      ; < space? i.e. control chars
+            cp " "                          ; < space? i.e. control chars
         _until c
             dec D
         _until z
         _enddo
+        ld H,B
+        ld L,C                              ; HL = addr'
+        call drop                           ; addr
+        or A
+        sbc HL, BC                          ; addr1 - addr
+        ld A,L                              ; low byte
+        dec A                               ; don't include length byte in length
     _endif
-    ld H,B
-    ld L,C                              ; HL = addr'
-    call drop                           ; addr
-    or A
-    sbc HL, BC                          ; addr1 - addr
-    ld A,L                              ; low byte
-    dec A                               ; don't include length byte in length
-    ld (BC),A                           ; write length
-                                        ; TOS = str ptr
-    ret
+    ld (BC),A                               ; write length
+    return                                  ; TOS = pstr
 
