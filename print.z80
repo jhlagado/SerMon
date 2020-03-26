@@ -1,3 +1,9 @@
+TEXT_OK:    .pstr "OK"
+defword "ok", 0, OK
+    _pushValue TEXT_OK
+    call printPStr
+    ret
+
 defword "cr", 0, printCR           ; --
     ld A,"\r"
     call putc

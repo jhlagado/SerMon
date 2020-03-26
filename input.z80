@@ -16,11 +16,13 @@ initInput:
 ; returns: BC = length - up to 255
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+PROMPT:     .pstr "\r\n> "
+
 getline:
     push AF
     push HL
     _tuckFrom B,C
-    ld BC, TXT_PROMPT
+    ld BC, PROMPT
     call printPStr
     pop HL
     push HL

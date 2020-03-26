@@ -20,6 +20,8 @@ RST00:                                      ; Reset
 RST38:                                      ; rst 38
     jp serialIn
 
+INTRO:      .pstr "SerMon 2020\r\n\r\n"
+
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     ld IX, PARAM_STACK                      ; initialise the param stack.
@@ -32,7 +34,7 @@ start:
 
 .if TESTMODE = 0
 
-    ld BC, TXT_INTRO
+    ld BC, INTRO
     call printPStr
     call repl
     halt
@@ -46,6 +48,7 @@ start:
 .include "dictionary.z80"
 .include "format.z80"
 .include "input.z80"
+.include "interp.z80"
 .include "maths.z80"
 .include "parse.z80"
 .include "print.z80"
@@ -71,13 +74,8 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _pushValue wordBuf2
-    _pushValue -123
-    call formatNum
-    call dup
-    EXPECT 4, "-123 length 4"
-    call printCR
-    call printStr
+    TEST_SET_TEXT "ah"
+    call interpret                         
 .endif
 
 .if TESTMODE

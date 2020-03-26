@@ -1,23 +1,3 @@
-defword "repl", 0, repl
-    ld IX, PARAM_STACK                  ; reset param stack
-    call interpret
-    ret
-
-interpret:
-    _do
-        _pushValue wordBuf1             ; buffer
-        _pushValue $40                  ; max length
-        _pushValue $20                  ; delim
-    	call parseWord                  ; pstr
-        call unpackStr                  ; pstr str len
-        _compareZero B,C
-    _until z
-        call printStr
-        call printSpace
-        call printSpace
-    _endDo
-    ret
-
 defword "parseWord", 0, parseWord       ; -- c-addr
     call dup                            ; dup delim
     call skipDelims
@@ -63,20 +43,18 @@ defword "skipDelims", 0, skipDelims     ; delim -- char
     _load B,C, 0,A                      ; TOS = char
     ret
 
-wordRead:                               ; addr maxlen delim char -- c-addr
+wordRead:                               ; ptr maxlen delim char -- ptr len
     ld A,C                              ; A = char
     call drop                           ; TOS = delim
     ld E,C                              ; E = delim (formerly C)
     call drop                           ; TOS = maxlen
     ld D,C                              ; D = maxlen (formerly E)
-    call drop                           ; TOS = addr
-    call dup                            ; addr addr
+    call dropdup                        ; ptr ptr
     or A
     _if nz
-        inc BC                          ; addr' leave space for length byte
         _do
             ld (BC), A                  ; add character to return lineBuf
-            inc BC                      ; addr'
+            inc BC                      ; ptr'
             call getKey                 ; get next key
             cp E                        ; = delim?
         _until z
@@ -85,14 +63,12 @@ wordRead:                               ; addr maxlen delim char -- c-addr
             dec D
         _until z
         _enddo
-        ld H,B
-        ld L,C                          ; HL = addr'
-        call drop                       ; addr
+        _load H,L, B,C                  ; HL = ptr'
+        call dropdup                    ; ptr ptr
         or A
-        sbc HL, BC                      ; addr1 - addr
-        ld A,L                          ; low byte
-        dec A                           ; don't include length byte in length
+        sbc HL, BC                      ; ptr' - ptr
+        _load B,C, H,L                  ; ptr len
+    _else
+        ld BC,0                         ; ptr len (where len = 0)
     _endif
-    ld (BC),A                           ; write length
-    ret                                 ; TOS = pstr
-
+    ret

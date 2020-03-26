@@ -33,16 +33,16 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        call drop                           ; ptr ptr'
+        call drop                       ; ptr ptr'
         ld (BC),A
         inc BC
         dec D
     _until z
     _enddo
-    _pop H,L                            ; HL = ptr' BC = ptr
-    call dup                                ; ptr ptr
+    _load H,L, B,C                      ; HL = ptr'
+    call dropdup                        ; ptr ptr
     or A
     sbc HL, BC
-    _load B,C, H,L                   ; ptr len
+    _load B,C, H,L                      ; ptr len
     ret
 

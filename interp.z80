@@ -1,0 +1,45 @@
+defword "repl", 0, repl
+    ld IX, PARAM_STACK                  ; reset param stack
+    call interpret
+    ret
+
+NOT_FOUND:  .pstr "NOT FOUND!\r\n\r\n"
+
+interpret:
+    _do
+        _pushValue wordBuf1             ; buffer
+        _pushValue $40                  ; max length
+        _pushValue $20                  ; delim
+    	call parseWord                  ; pstr
+        _compareZero B,C
+    _until z
+        call find
+        call dup
+        _isZero
+        _if z
+            _pushValue NOT_FOUND
+            call printPStr
+        _else
+            call getBody
+            call execute
+        _endif
+    _endDo
+    ret
+
+getBody:                                ; ptr -- ptr'
+    inc BC                              ;
+    inc BC                              ; skip over backlink
+    inc BC                              ; skip over flags
+    ld A,(BC)                           ; A = len of routine's name
+    inc BC                              ; skip over len
+    add A,C
+    ld C,A
+    ld A,0
+    adc A,B
+    ld B,A
+    ret
+
+defword "execute", 0, execute
+    _load H,L, B,C
+    jp (HL)
+

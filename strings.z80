@@ -1,8 +1,3 @@
-TXT_NEWLINE:    .pstr "\r\n"
-TXT_PROMPT:     .pstr "\r\n> "
-
-TXT_INTRO:      .pstr "SerMon 2020\r\n\r\n"
-
 .if TESTMODE
 
     DONE:           .pstr "\r\nDone! \r\n"
@@ -33,17 +28,3 @@ defword "compareStr", 0, compareStr     ; str1 str2 len -- (-1|0|1)
     _enddo
     ld BC,0                             ; count exhausted & no mismatch found
     ret
-
-defword "unpackStr", 0, unpackStr      ; pstr -- ptr len
-    ld A,(BC)                           ; a = len
-    inc BC                              ; TOS = ptr
-    call dup
-    ld C,A
-    ld B,0
-    ret
-
-; defword "compare", 0, compare           ; str1 len1 str2 len2 -- (-1|0|1)
-;     _rot                                ; str1 str2 len2 len1
-;     _min                                ; str1 str2 len
-;     jr compareStr
-
