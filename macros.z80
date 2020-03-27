@@ -52,13 +52,6 @@
     or regHI
 .endm
 
-.macro _compare, val
-    ld DE, val
-    or A
-    sbc HL, DE
-    _compareZero H,L
-.endm
-
 .macro _unpackStr
     ld A,(BC)                           ; a = len
     inc BC                              ; TOS = ptr

@@ -8,7 +8,7 @@ dup:
     ret
 
 ; remove top of param stack
-; x1 x2 -- x1 
+; x1 x2 -- x1
 drop:
     dec IX                              ; POP register pair
     dec IX
@@ -17,12 +17,11 @@ drop:
     ret
 
 ; copy memory  to BC
-; x y -- x x; 
-dropdup:                                
+; x y -- x x;
+dropdup:
     ld B, (IX-1)
     ld C, (IX-2)
     ret
-
 
 ; duplicate second from top of param stack
 ; x1 x2 -- x1 x2 x1
@@ -30,4 +29,31 @@ over:
     call dup
     ld C,(IX-4)
     ld B,(IX-3)
+    ret
+
+nip:
+    dec IX
+    dec IX
+    ret
+
+swap:
+    push DE
+    _alter2 -2,C
+    _alter2 -1,B
+    pop DE
+    ret
+
+dup2:                            ; xa xb -- xa xb xa xb
+    call over
+    call over
+    ret
+
+drop2:                           ; x x --
+    _nip
+    call drop
+    ret
+
+isZero:                          ; n -- b
+    _compareZero B,C
+    call drop
     ret

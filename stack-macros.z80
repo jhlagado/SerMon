@@ -6,10 +6,25 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+.macro _dup                            ; xa xb -- xa xb xa xb
+    call dup
+.endm
+
+.macro _drop                           ; x --
+    call drop
+.endm
+
+.macro _dropdupe                           ; x --
+    call dropdupe
+.endm
+
+.macro _over                           ; x x --
+    call over
+.endm
+
 ; drop the next to top of param stack
 .macro _nip                             ; x y -- y
-    dec IX
-    dec IX
+    call nip
 .endm
 
 .macro _tuck                             ; x y -- y x y
@@ -18,8 +33,7 @@
 .endm
 
 .macro _drop2                           ; x x --
-    _nip
-    call drop
+    call drop2
 .endm
 
 .macro _drop3                           ; x --
@@ -29,8 +43,7 @@
 
 ; duplicate the top of param stack
 .macro _dup2                            ; xa xb -- xa xb xa xb
-    call over
-    call over
+    call dup2
 .endm
 
 .macro _over2                           ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
@@ -49,10 +62,7 @@
 
 ; swap the top two items of param stack
 .macro _swap                            ; x1 x2 -- x2 x1
-    push DE
-    _alter2 -2,C
-    _alter2 -1,B
-    pop DE
+    call swap
 .endm
 
 ; swap the top two items of param stack
@@ -177,8 +187,7 @@ tpt_text%%M:
 .endm
 
 .macro _isZero                          ; n -- b
-    _compareZero B,C
-    call drop
+    call isZero
 .endm
 
 .macro _min                             ; x1 x2 -- x

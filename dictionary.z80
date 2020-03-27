@@ -7,9 +7,10 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
     call dup                                ; ptr len len
     ld BC, (VAR_LATEST)                 ; ptr len headptr
     _do
-        _compareZero B,C               ; NULL pointer?  (end of the linked list)
+        _dup
+        _isZero                         ; NULL pointer?  (end of the linked list)
         _until z
-        call dup                            ; ptr len headptr headptr
+        call dup                        ; ptr len headptr headptr
         inc BC                          ; skip over backLink field
         inc BC
         ld A,(BC)                       ; A = flags

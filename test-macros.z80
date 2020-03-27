@@ -23,7 +23,10 @@ tst_text%%M:
     _load H,L, B,C
     ld L, C
     call drop
-    _compare expect
+    ld DE, expect
+    or A
+    sbc HL, DE
+    _compareZero H,L
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
     _pushValue FAILED

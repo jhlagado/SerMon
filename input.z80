@@ -32,7 +32,8 @@ getline:
             call getc
             cp $08
             _if z
-                _compareZero B,C
+                _dup
+                _isZero                         
                 _if nz
                     dec HL
                     dec BC

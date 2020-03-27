@@ -24,7 +24,8 @@ printStr1:
         call putc
         inc HL
         dec BC
-        _compareZero B,C
+        _dup
+        _isZero
     _until z
     _enddo
     call drop                           ; clear TOS
