@@ -10,24 +10,60 @@ interpret:
         _pushValue wordBuf1             ; buffer
         _pushValue $40                  ; max length
         _pushValue $20                  ; delim
-    	call parseWord                  ; pstr
-        _compareZero B,C
-    _until z
-        call find
-        call dup
-        _isZero
+    	call parseWord                  ; str len
+        call dup                        ; str len len
+        _isZero                         ; str len
         _if z
-            _pushValue NOT_FOUND
-            call printPStr
+            _drop2                      ; --
+            _break
         _else
-            call getBody
-            call execute
-        _endif
+            call dup                    ; str len len
+            ld BC, (nestLevel)          ; str len nesting
+            _isZero                     ; str len
+            _if z
+                call interpImmed        ; num?
+            _else
+                call interpCompile      ;
+            _endIf
+        _endIf
     _endDo
     ret
 
+interpImmed:                            ; str len -- num?
+    _dup2                               ; str len str len
+    call find                           ; str len ptrOrNull
+    call dup                            ; str len ptrOrNull ptrOrNull
+    _isZero                             ; str len ptrOrNull
+    _if z
+        call drop                       ; str len
+        call drop
+        call drop                       ; --
+
+        _pushValue NOT_FOUND             ; pstr
+
+        call printPStr                  ; --
+    _else
+        call getBody                    ; ptr
+        call execute                    ; ?
+    _endif
+    ret
+
+interpCompile:
+    _dup2
+    call find
+    call dup
+    _isZero
+    _if z
+        _pushValue NOT_FOUND
+        call printPStr
+    _else
+        call getBody
+        call execute
+    _endif
+    ret
+
 getBody:                                ; ptr -- ptr'
-    inc BC                              ;
+    inc BC                              ; 
     inc BC                              ; skip over backlink
     inc BC                              ; skip over flags
     ld A,(BC)                           ; A = len of routine's name

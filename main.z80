@@ -27,10 +27,12 @@ start:
     ld IX, PARAM_STACK                      ; initialise the param stack.
     call initInput
     call initSerial
-    ld HL, 10
-    ld (VAR_BASE),HL
-    ld HL, (initialLatest)
-    ld (VAR_LATEST),HL
+    ld BC, 0
+    ld (nestLevel),BC
+    ld BC, 10
+    ld (VAR_BASE),BC
+    ld BC, (initialLatest)
+    ld (VAR_LATEST),BC
 
 .if TESTMODE = 0
 
@@ -46,10 +48,10 @@ start:
 .endif
 
 .include "dictionary.z80"
-.include "format.z80"
 .include "input.z80"
 .include "interp.z80"
 .include "maths.z80"
+.include "number.z80"
 .include "parse.z80"
 .include "print.z80"
 .include "serial.z80"
@@ -74,16 +76,6 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _pushText "ok",2
-    call find
-    call dup
-    _isZero
-    _if z
-        _pushValue NOT_FOUND
-        call printPStr
-    _else
-        call getBody
-        call execute
 .endif
 
 .if TESTMODE

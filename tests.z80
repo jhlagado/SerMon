@@ -211,3 +211,50 @@
     EXPECT 4, "-123 length 4"
     call printCR
     call printStr
+    
+    ; unsigned Multiply
+    
+    _pushValue 16
+    _pushValue 9
+    call unsignedMultiply
+    call drop
+    expect 144, '16 x 9 = 144'
+    
+    ; toNumber
+    
+    _pushText "",0
+    call toNumber
+    expect 0, 'no error'
+    expect 0, 'zero'
+
+    _pushText "-",1
+    call toNumber
+    expect 1, 'error'
+    expect 0, 'zero'
+
+    _pushText "1",1
+    call toNumber
+    expect 0, 'no error'
+    expect 1, '1'
+
+    _pushText "10",2
+    call toNumber
+    expect 0, 'no error'
+    expect 10, '10'
+
+    _pushText "-10",3
+    call toNumber
+    expect 0, 'no error'
+    expect -10, '-10'
+
+    _pushText "100",3
+    call toNumber
+    expect 0, 'no error'
+    expect 100, '100'
+
+    _pushText "-123",4
+    call toNumber
+    expect 0, 'no error'
+    expect -123, '-123'
+
+

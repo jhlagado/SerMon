@@ -21,6 +21,7 @@ lineBuf:        ds LINE_BUFSIZE
 PARAM_STACK:    ds PARAM_STACK_SIZE
 wordBuf1:       ds 64
 wordBuf2:       ds 64
+nestLevel       dw 0
 
 VAR_BASE:       dw 0
 VAR_LATEST:     dw 0

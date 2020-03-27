@@ -1,10 +1,10 @@
-defword "parseWord", 0, parseWord       ; -- c-addr
+parseWord:                              ; -- ptr len
     call dup                            ; dup delim
     call skipDelims
     call wordRead
     ret
 
-defword "skipDelims", 0, skipDelims     ; delim -- char
+skipDelims:                             ; delim -- char
     _do
         call getKey                     ; get next key, returned in A
         _switch
