@@ -119,7 +119,7 @@
 ; Macros to deal with the param stack with TOS in BC
 
 .macro _push, regHI, regLO              ; rp = x ; y -- y x
-    call dup                                ; push TOS
+    _dup                                ; push TOS
     ld B, regHI                         ; move register pair into TOS
     ld C, regLO
 .endm
@@ -131,7 +131,7 @@
 
 .macro _pop, regHI, regLO
     _peek regHI,regLO                   ; move TOS into into register pair
-    call drop
+    _drop
 .endm
 
 .macro _nipInto, regHI, regLO           ; x y -- y ; rep = x
@@ -154,7 +154,7 @@
 .endm
 
 .macro _pushValue, value
-    call dup                                ; push TOS
+    _dup                                ; push TOS
     ld BC, value                        ; set TOS to value
 .endm
 
@@ -178,11 +178,11 @@ tpt_text%%M:
 
 .macro _toRetStack
     push BC
-    call drop
+    _drop
 .endm
 
 .macro _fromRetStack
-    call dup
+    _dup
     pop BC
 .endm
 

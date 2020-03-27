@@ -1,5 +1,5 @@
 parseWord:                              ; -- ptr len
-    call dup                            ; dup delim
+    _dup                            ; dup delim
     call skipDelims
     call wordRead
     ret
@@ -45,11 +45,11 @@ skipDelims:                             ; delim -- char
 
 wordRead:                               ; ptr maxlen delim char -- ptr len
     ld A,C                              ; A = char
-    call drop                           ; TOS = delim
+    _drop                           ; TOS = delim
     ld E,C                              ; E = delim (formerly C)
-    call drop                           ; TOS = maxlen
+    _drop                           ; TOS = maxlen
     ld D,C                              ; D = maxlen (formerly E)
-    call dropdup                        ; ptr ptr
+    _dropdup                        ; ptr ptr
     or A
     _if nz
         _do
@@ -64,7 +64,7 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
         _until z
         _enddo
         _load H,L, B,C                  ; HL = ptr'
-        call dropdup                    ; ptr ptr
+        _dropdup                    ; ptr ptr
         or A
         sbc HL, BC                      ; ptr' - ptr
         _load B,C, H,L                  ; ptr len

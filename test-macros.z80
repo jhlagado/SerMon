@@ -18,11 +18,11 @@ tst_text%%M:
 .endm
 
 .macro EXPECT, expect, failtxt
-    call dup
+    _dup
     call printNum
     _load H,L, B,C
     ld L, C
-    call drop
+    _drop
     ld DE, expect
     or A
     sbc HL, DE

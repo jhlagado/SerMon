@@ -41,7 +41,7 @@ divideWord2:
 ; destroys: AF, HL
 defword "umult", 0, unsignedMultiply    ; u1 u2 -- plo phi
     _load D,E, B,C                      ; u1 u2
-    call drop                           ; u1
+    _drop                           ; u1
     ld HL,0
     ld A,17                             ; loop counter
     or A                                ; clear carry
@@ -57,6 +57,6 @@ defword "umult", 0, unsignedMultiply    ; u1 u2 -- plo phi
     _until z
     _enddo
     _load B,C, D,E                      ; plo
-    call dup                            ; plo phi
+    _dup                            ; plo phi
     _load B,C, H,L
     ret

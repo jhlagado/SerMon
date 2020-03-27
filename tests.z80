@@ -33,7 +33,7 @@
 
     _pushValue $AAAA
     _pushValue $BBBB
-    call over
+    _over
     EXPECT $AAAA, "over $AAAA"
     EXPECT $BBBB, "over $BBBB"
     EXPECT $AAAA, "over $AAAA"
@@ -207,21 +207,21 @@
     _pushValue wordBuf2
     _pushValue -123
     call formatNum
-    call dup
+    _dup
     EXPECT 4, "-123 length 4"
     call printCR
     call printStr
-    
+
     ; unsigned Multiply
-    
+
     _pushValue 16
     _pushValue 9
     call unsignedMultiply
-    call drop
+    _drop
     expect 144, '16 x 9 = 144'
-    
+
     ; toNumber
-    
+
     _pushText "",0
     call toNumber
     expect 0, 'no error'

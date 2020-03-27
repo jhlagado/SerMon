@@ -15,12 +15,12 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     ld D, 0                             ; D counter
     _do
         inc D
-        call over                       ; ptr ptr' base num1 base
+        _over                       ; ptr ptr' base num1 base
         push DE
         call divideWord                 ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
-        call dup                            ; ptr ptr' base num2 num2
+        _dup                            ; ptr ptr' base num2 num2
         _isZero                         ; ptr ptr' base num2
     _until z
     _enddo
@@ -33,14 +33,14 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        call drop                       ; ptr ptr'
+        _drop                       ; ptr ptr'
         ld (BC),A
         inc BC
         dec D
     _until z
     _enddo
     _load H,L, B,C                      ; HL = ptr'
-    call dropdup                        ; ptr ptr
+    _dropdup                        ; ptr ptr
     or A
     sbc HL, BC
     _load B,C, H,L                      ; ptr len
@@ -56,12 +56,12 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 toNumber:                               ; str len -- num err
-    call dup                            ; str len len
+    _dup                            ; str len len
     _isZero                             ; if zero then return 0 0
     _if z                               ; str zero
         _nip                            ; zero
-        call dup                        ; zero zero
-        ret                             ; -- 0 0 
+        _dup                        ; zero zero
+        ret                             ; -- 0 0
     _endif
     _overInto H,L                       ; str len ; HL = str
     ld A,(HL)                           ; A = char
@@ -69,11 +69,11 @@ toNumber:                               ; str len -- num err
     _if z
         inc HL
         dec BC                          ; str len
-        call dup                        ; str len len
+        _dup                        ; str len len
         _isZero
         _if z                           ; str zero
             _nip                        ; zero
-            call dup                    ; zero zero
+            _dup                    ; zero zero
             ld BC,1
             ret                         ; -- 0 1
         _else
@@ -87,31 +87,31 @@ toNumber:                               ; str len -- num err
         cp 10                           ; <= '9'?
         _if nc
             sub 17                      ; < 'A'? (17 is 'A'-'0')
-    _until c            
+    _until c
             add A,10
         _endif
-        call dup                        ; str len num num
+        _dup                        ; str len num num
         ld BC, (VAR_BASE)               ; str len num base
         cp C                            ; > base
-        call drop                       ; str len num
+        _drop                       ; str len num
     _until nc
-        add A,C                         ; str len num (num += A)                      
+        add A,C                         ; str len num (num += A)
         ld C,A
         xor A
         adc A,B
         ld B,A
         _swap                           ; str num len
-        dec BC                          ; str num len (len--) 
-        call dup                        ; str num len len
-        _isZero                         ; str num len 
+        dec BC                          ; str num len (len--)
+        _dup                        ; str num len len
+        _isZero                         ; str num len
         _swap                           ; str len num
     _until z
-        call dup                        ; str len num num
+        _dup                        ; str len num num
         ld BC, (VAR_BASE)               ; str len num base
         push HL
         call unsignedMultiply           ; str len num num2 (num *= BASE)
         pop HL
-        call drop                       ; str len num
+        _drop                       ; str len num
         inc HL
         ld A,(HL)                       ; a = next char
     _enddo
@@ -119,10 +119,10 @@ toNumber:                               ; str len -- num err
     _swap                               ; num str
     ld A,(BC)
     cp "-"
-    call drop                               ; num
+    _drop                               ; num
     _if z
         call negateNum                  ; num
     _endif
-    call dup
+    _dup
     _pushValue 0                        ; num 0
     ret

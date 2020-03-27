@@ -26,7 +26,7 @@ dropdup:
 ; duplicate second from top of param stack
 ; x1 x2 -- x1 x2 x1
 over:
-    call dup
+    _dup
     ld C,(IX-4)
     ld B,(IX-3)
     ret
@@ -44,16 +44,16 @@ swap:
     ret
 
 dup2:                            ; xa xb -- xa xb xa xb
-    call over
-    call over
+    _over
+    _over
     ret
 
 drop2:                           ; x x --
     _nip
-    call drop
+    _drop
     ret
 
 isZero:                          ; n -- b
     _compareZero B,C
-    call drop
+    _drop
     ret

@@ -28,7 +28,7 @@ printStr1:
         _isZero
     _until z
     _enddo
-    call drop                           ; clear TOS
+    _drop                           ; clear TOS
     ret
 
 defword "printPStr", 0, printPStr  ; _ptr --

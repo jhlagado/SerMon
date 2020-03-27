@@ -55,7 +55,7 @@
 .macro _unpackStr
     ld A,(BC)                           ; a = len
     inc BC                              ; TOS = ptr
-    call dup
+    _dup
     ld C,A
     ld B,0
 .endm

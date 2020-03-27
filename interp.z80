@@ -11,13 +11,13 @@ interpret:
         _pushValue $40                  ; max length
         _pushValue $20                  ; delim
     	call parseWord                  ; str len
-        call dup                        ; str len len
+        _dup                        ; str len len
         _isZero                         ; str len
         _if z
             _drop2                      ; --
             _break
         _else
-            call dup                    ; str len len
+            _dup                    ; str len len
             ld BC, (nestLevel)          ; str len nesting
             _isZero                     ; str len
             _if z
@@ -32,12 +32,12 @@ interpret:
 interpImmed:                            ; str len -- num?
     _dup2                               ; str len str len
     call find                           ; str len ptrOrNull
-    call dup                            ; str len ptrOrNull ptrOrNull
+    _dup                            ; str len ptrOrNull ptrOrNull
     _isZero                             ; str len ptrOrNull
     _if z
-        call drop                       ; str len
-        call drop
-        call drop                       ; --
+        _drop                       ; str len
+        _drop
+        _drop                       ; --
 
         _pushValue NOT_FOUND             ; pstr
 
@@ -51,7 +51,7 @@ interpImmed:                            ; str len -- num?
 interpCompile:
     _dup2
     call find
-    call dup
+    _dup
     _isZero
     _if z
         _pushValue NOT_FOUND
@@ -63,7 +63,7 @@ interpCompile:
     ret
 
 getBody:                                ; ptr -- ptr'
-    inc BC                              ; 
+    inc BC                              ;
     inc BC                              ; skip over backlink
     inc BC                              ; skip over flags
     ld A,(BC)                           ; A = len of routine's name
