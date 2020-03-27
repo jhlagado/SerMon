@@ -20,7 +20,7 @@ RST00:                                      ; Reset
 RST38:                                      ; rst 38
     jp serialIn
 
-INTRO:      .pstr "SerMon 2020\r\n\r\n"
+INTRO:  .pstr "SerMon 2020\r\n\r\n"
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
@@ -74,8 +74,16 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    TEST_SET_TEXT "ah"
-    call interpret                         
+    _pushText "ok",2
+    call find
+    call dup
+    _isZero
+    _if z
+        _pushValue NOT_FOUND
+        call printPStr
+    _else
+        call getBody
+        call execute
 .endif
 
 .if TESTMODE

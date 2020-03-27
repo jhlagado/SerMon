@@ -124,18 +124,18 @@
     call drop
 .endm
 
-.macro _tuckFrom, regHI, regLO          ; rp = x; y -- x y
-    ld (IX+0), regLO                    ; PUSH register pair
-    ld (IX+1), regHI
-    inc IX
-    inc IX
-.endm
-
 .macro _nipInto, regHI, regLO           ; x y -- y ; rep = x
     dec IX                              ; POP register pair
     dec IX
     ld regHI, (IX+1)
     ld regLO, (IX+0)
+.endm
+
+.macro _tuckFrom, regHI, regLO          ; rp = x; y -- x y
+    ld (IX+0), regLO                    ; PUSH register pair
+    ld (IX+1), regHI
+    inc IX
+    inc IX
 .endm
 
 .macro _overInto, regHI, regLO          ; x y -- y  rp = x

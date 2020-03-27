@@ -11,35 +11,30 @@ divideWord:                             ; dividend divisor -- quotient remainder
     _pop D,E                            ; DE = divisor, BC = dividend
     ld HL,0
 
-    call dup
-    ld C,B                              ; dividend HI(dividend)
+    ld A,B
     call divideWord2
-    ld A,C
-    call drop
     ld B,A
 
-    call dup                            ; dividend LO(dividend)
-    call divideWord2
     ld A,C
-    call drop
+    ld C,B
+    call divideWord2
+    ld B,C
     ld C,A
 
     _push H,L                           ; TOS = remainder
     ret
 
-divideWord2:                            ; dividend -- remainder
-    ld A,C
+divideWord2:
     ld B,8
     _do
-        rla                             ; 9-bit rotate A into carry
+        rla
         adc HL,HL
         sbc HL,DE
         _if c
             add HL,DE
         _endif
     _djnz
-    rla                                 ; 9-bit rotate A into carry
-    cpl                                 ; invert all bits in A
-    ld C,A
+    rla
+    cpl
     ret
 
