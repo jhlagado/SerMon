@@ -14,8 +14,8 @@
     call drop
 .endm
 
-.macro _dropdupe                           ; x --
-    call dropdupe
+.macro _dropdup                           ; x --
+    call dropdup
 .endm
 
 .macro _over                           ; x x --
