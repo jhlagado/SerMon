@@ -25,14 +25,15 @@ INTRO:  .pstr "SerMon 2020\r\n\r\n"
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     ld IX, PARAM_STACK                      ; initialise the param stack.
-    call initInput
-    call initSerial
+    ld (VAR_S0),IX
     ld BC, 0
     ld (nestLevel),BC
     ld BC, 10
     ld (VAR_BASE),BC
     ld BC, (initialLatest)
     ld (VAR_LATEST),BC
+    call initInput
+    call initSerial
 
 .if TESTMODE = 0
 
@@ -75,6 +76,17 @@ TESTS_START:
 .endif
 
 .if TESTMODE = 2
+
+_pushValue 23
+; call interpImmed
+; call depth
+; expect 1, "depth"
+
+_pushText ".",1
+; _printDepth
+call interpImmed
+; call depth
+; expect 0, "depth"
 
 .endif
 

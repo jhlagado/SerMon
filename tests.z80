@@ -7,13 +7,17 @@
     ; TEST_SET_TEXT "x"
     ; call interpret
 
+    call depth
+    expect 0, " depth"
     TEST_SET_TEXT ""
     _pushValue wordBuf1                 ; buffer
     _pushValue $40                      ; max length
     _pushValue $20                      ; delim
     _pushValue 0                        ; char
     call wordRead
-    EXPECT 0, " length 0"
+    expect 0, " length 0"
+    call depth
+    expect 5, " depth"
 
     TEST_SET_TEXT "xx yyy"
     _pushValue wordBuf1                 ; buffer
@@ -21,38 +25,38 @@
     _pushValue $20                      ; delim
     _pushValue $33                      ; char
     call wordRead
-    EXPECT 3, "xxx length 3"
+    expect 3, "xxx length 3"
 
     ; stack words
 
     _pushValue $AAAA
     _pushValue $BBBB
     _swap
-    EXPECT $AAAA, "swap $AAAA"
-    EXPECT $BBBB, "swap $BBBB"
+    expect $AAAA, "swap $AAAA"
+    expect $BBBB, "swap $BBBB"
 
     _pushValue $AAAA
     _pushValue $BBBB
     _over
-    EXPECT $AAAA, "over $AAAA"
-    EXPECT $BBBB, "over $BBBB"
-    EXPECT $AAAA, "over $AAAA"
+    expect $AAAA, "over $AAAA"
+    expect $BBBB, "over $BBBB"
+    expect $AAAA, "over $AAAA"
 
     _pushValue $AAAA
     _pushValue $BBBB
     _pushValue $CCCC
     _rot
-    EXPECT $AAAA, "rot $AAAA"
-    EXPECT $CCCC, "rot $CCCC"
-    EXPECT $BBBB, "rot $BBBB"
+    expect $AAAA, "rot $AAAA"
+    expect $CCCC, "rot $CCCC"
+    expect $BBBB, "rot $BBBB"
 
     _pushValue $AAAA
     _pushValue $BBBB
     _pushValue $CCCC
     _nrot
-    EXPECT $BBBB, "nrot $BBBB"
-    EXPECT $AAAA, "nrot $AAAA"
-    EXPECT $CCCC, "nrot $CCCC"
+    expect $BBBB, "nrot $BBBB"
+    expect $AAAA, "nrot $AAAA"
+    expect $CCCC, "nrot $CCCC"
 
     ; 2 stack words
 
@@ -61,30 +65,30 @@
     _pushValue 2001
     _pushValue 2002
     _swap2
-    EXPECT 1002, "swap 1002"
-    EXPECT 1001, "swap 1001"
-    EXPECT 2002, "swap 2002"
-    EXPECT 2001, "swap 2001"
+    expect 1002, "swap 1002"
+    expect 1001, "swap 1001"
+    expect 2002, "swap 2002"
+    expect 2001, "swap 2001"
 
     _pushValue 1001
     _pushValue 1002
     _dup2
-    EXPECT 1002, "dup2 1002"
-    EXPECT 1001, "dup2 1001"
-    EXPECT 1002, "dup2 1002"
-    EXPECT 1001, "dup2 1001"
+    expect 1002, "dup2 1002"
+    expect 1001, "dup2 1001"
+    expect 1002, "dup2 1002"
+    expect 1001, "dup2 1001"
 
     _pushValue 1001
     _pushValue 1002
     _pushValue 2001
     _pushValue 2002
     _over2
-    EXPECT 1002, "over2 1002"
-    EXPECT 1001, "over2 1001"
-    EXPECT 2002, "over2 2002"
-    EXPECT 2001, "over2 2001"
-    EXPECT 1002, "over2 1002"
-    EXPECT 1001, "over2 1001"
+    expect 1002, "over2 1002"
+    expect 1001, "over2 1001"
+    expect 2002, "over2 2002"
+    expect 2001, "over2 2001"
+    expect 1002, "over2 1002"
+    expect 1001, "over2 1001"
 
     _pushValue 1001
     _pushValue 1002
@@ -93,12 +97,12 @@
     _pushValue 3001
     _pushValue 3002
     _rot2
-    EXPECT 1002, "rot2 1002"
-    EXPECT 1001, "rot2 1001"
-    EXPECT 3002, "rot2 3002"
-    EXPECT 3001, "rot2 3001"
-    EXPECT 2002, "rot2 2002"
-    EXPECT 2001, "rot2 2001"
+    expect 1002, "rot2 1002"
+    expect 1001, "rot2 1001"
+    expect 3002, "rot2 3002"
+    expect 3001, "rot2 3001"
+    expect 2002, "rot2 2002"
+    expect 2001, "rot2 2001"
 
     _pushValue 1001
     _pushValue 1002
@@ -107,50 +111,50 @@
     _pushValue 3001
     _pushValue 3002
     _nrot2
-    EXPECT 2002, "nrot2 2002"
-    EXPECT 2001, "nrot2 2001"
-    EXPECT 1002, "nrot2 1002"
-    EXPECT 1001, "nrot2 1001"
-    EXPECT 3002, "nrot2 3002"
-    EXPECT 3001, "nrot2 3001"
+    expect 2002, "nrot2 2002"
+    expect 2001, "nrot2 2001"
+    expect 1002, "nrot2 1002"
+    expect 1001, "nrot2 1001"
+    expect 3002, "nrot2 3002"
+    expect 3001, "nrot2 3001"
 
     ; formatNum
 
     _pushValue wordBuf2
     _pushValue -123
     call formatNum
-    EXPECT 4, "length of -123 = 4"
+    expect 4, "length of -123 = 4"
     _pop H,L
     _load B,C, 0,(HL)
-    EXPECT $2D, "first char = '-'"
+    expect $2D, "first char = '-'"
 
     ; divideWord
 
     _pushValue 40
     _pushValue 4
     call divideWord
-    EXPECT 0, "remainder 0"
-    EXPECT 10, "40 / 4 = 10"
+    expect 0, "remainder 0"
+    expect 10, "40 / 4 = 10"
 
     _pushValue 24
     _pushValue 10
     call divideWord
-    EXPECT 4, "remainder 4"
-    EXPECT 2, "24 / 10 = 2"
+    expect 4, "remainder 4"
+    expect 2, "24 / 10 = 2"
 
     ; _min
 
     _pushValue 1
     _pushValue 2
     _min
-    EXPECT 1, "min(1,2) = 1"
+    expect 1, "min(1,2) = 1"
 
     ; max
 
     _pushValue 1
     _pushValue 2
     _max
-    EXPECT 2, "max(1,2) = 2"
+    expect 2, "max(1,2) = 2"
 
     ; compareStr
 
@@ -165,7 +169,7 @@
 
     call compareStr
 
-    EXPECT -1, "s1 should be less than s2"
+    expect -1, "s1 should be less than s2"
 
     _pushPText s2
     _pushPText s1
@@ -173,7 +177,7 @@
 
     call compareStr
 
-    EXPECT 1, "s1 should be greater than s2"
+    expect 1, "s1 should be greater than s2"
 
     _pushPText s1
     _pushPText s1
@@ -181,26 +185,26 @@
 
     call compareStr
 
-    EXPECT 0, "s1 should equal s1"
+    expect 0, "s1 should equal s1"
 
     _pushPText s1
     _pushPText s2
     _pushValue 0
 
     call compareStr
-    EXPECT 0, "zero length, s1 should equal s1"
+    expect 0, "zero length, s1 should equal s1"
 
     ; find
 
     _pushPText "find"
     _unpackStr
     call find
-    EXPECT HEADER_find, "found: find"
+    expect HEADER_find, "found: find"
 
     _pushPText "printPStr"
     _unpackStr
     call find
-    EXPECT HEADER_printPStr, "found: printPStr"
+    expect HEADER_printPStr, "found: printPStr"
 
     ; formatNum
 
@@ -208,7 +212,7 @@
     _pushValue -123
     call formatNum
     _dup
-    EXPECT 4, "-123 length 4"
+    expect 4, "-123 length 4"
     call printCR
     call printStr
 

@@ -7,17 +7,17 @@ NOT_FOUND:  .pstr "NOT FOUND!\r\n\r\n"
 
 interpret:
     _do
-        _pushValue wordBuf1             ; buffer
-        _pushValue $40                  ; max length
-        _pushValue $20                  ; delim
+        _pushValue wordBuf1             ; str
+        _pushValue $40                  ; str maxlen
+        _pushValue $20                  ; str maxlen delim
     	call parseWord                  ; str len
-        _dup                        ; str len len
+        _dup                            ; str len len
         _isZero                         ; str len
         _if z
             _drop2                      ; --
             _break
         _else
-            _dup                    ; str len len
+            _dup                        ; str len len
             ld BC, (nestLevel)          ; str len nesting
             _isZero                     ; str len
             _if z
@@ -32,18 +32,21 @@ interpret:
 interpImmed:                            ; str len -- num?
     _dup2                               ; str len str len
     call find                           ; str len ptrOrNull
-    _dup                            ; str len ptrOrNull ptrOrNull
+    _dup                                ; str len ptrOrNull ptrOrNull
     _isZero                             ; str len ptrOrNull
     _if z
-        _drop                       ; str len
-        _drop
-        _drop                       ; --
-
-        _pushValue NOT_FOUND             ; pstr
-
-        call printPStr                  ; --
+        _drop                           ; str len
+        call toNumber                   ; num err
+        _isZero
+        _if nz
+            _drop                       ; --
+            _pushValue NOT_FOUND        ; pstr
+            call printPStr              ; --
+        _endIf                          ; else leave num on stack
     _else
-        call getBody                    ; ptr
+        _nip                            ; str ptr
+        _nip                            ; ptr
+        call getBody                    ; ptr'
         call execute                    ; ?
     _endif
     ret
@@ -77,5 +80,6 @@ getBody:                                ; ptr -- ptr'
 
 defword "execute", 0, execute
     _load H,L, B,C
+    _drop
     jp (HL)
 

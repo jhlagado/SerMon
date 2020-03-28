@@ -1,7 +1,7 @@
 ; duplicate top of param stack
 ; x1 -- x1 x1
 dup:
-    ld (IX+0), C                    ; PUSH register pair
+    ld (IX+0), C                            ; PUSH register pair
     ld (IX+1), B
     inc IX
     inc IX
@@ -10,7 +10,7 @@ dup:
 ; remove top of param stack
 ; x1 x2 -- x1
 drop:
-    dec IX                              ; POP register pair
+    dec IX                                  ; POP register pair
     dec IX
     ld B, (IX+1)
     ld C, (IX+0)
@@ -43,17 +43,30 @@ swap:
     pop DE
     ret
 
-dup2:                            ; xa xb -- xa xb xa xb
+dup2:                                       ; xa xb -- xa xb xa xb
     _over
     _over
     ret
 
-drop2:                           ; x x --
+drop2:                                      ; x x --
     _nip
     _drop
     ret
 
-isZero:                          ; n -- b
+isZero:                                     ; n -- b
     _compareZero B,C
     _drop
     ret
+
+; depth of param stack    
+defword "depth", 0, depth                   ; -- n
+    push IX
+    pop HL
+    _dup
+    ld BC,(VAR_S0)
+    or A
+    sbc HL,BC
+    _load B,C, H,L
+    _div2
+    ret
+

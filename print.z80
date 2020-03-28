@@ -38,9 +38,9 @@ defword "printPStr", 0, printPStr  ; _ptr --
     inc HL
     jr printStr1
 
-defword ".", 0, printNum
+defword ".", 0, printNum                    ; num --
     ld HL, wordBuf1
-    _tuckFrom H,L                   ; ptr num
+    _tuckFrom H,L                           ; ptr num
     call formatNum
     call printStr
     call printSpace

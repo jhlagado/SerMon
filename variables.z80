@@ -25,6 +25,7 @@ nestLevel       dw 0
 
 VAR_BASE:       dw 0
 VAR_LATEST:     dw 0
+VAR_S0:         dw 0                            ; start address of PARAM_STACK
 
 .if TESTMODE
 

@@ -17,15 +17,16 @@ tst_text%%M:
     _endskip
 .endm
 
-.macro EXPECT, expect, failtxt
+.macro expect, expectVal, failTxt
+    _dup
+    call printNum
+    _pushValue expectVal
     _dup
     call printNum
     _load H,L, B,C
-    ld L, C
     _drop
-    ld DE, expect
     or A
-    sbc HL, DE
+    sbc HL,BC
     _compareZero H,L
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
@@ -36,7 +37,14 @@ tst_text%%M:
     halt
     _skip
 te_fail%%M:
-        .pstr failtxt
+        .pstr failTxt
     _endskip
 tf_done%%M:
 .endm
+
+.macro _printDepth
+    call depth
+    call printNum
+    halt
+.endm
+

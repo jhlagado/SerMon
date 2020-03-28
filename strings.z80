@@ -1,7 +1,7 @@
 .if TESTMODE
 
     DONE:           .pstr "\r\nDone! \r\n"
-    FAILED:         .pstr "Failed: \r\n"
+    FAILED:         .pstr "Failed: "
 
 .endif
 
