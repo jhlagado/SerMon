@@ -77,16 +77,15 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-_pushValue 23
-; call interpImmed
-; call depth
-; expect 1, "depth"
+_pushText "23",2
+call interpImmed
+call depth
+expect 1, "depth"
 
 _pushText ".",1
-; _printDepth
 call interpImmed
-; call depth
-; expect 0, "depth"
+call depth
+expect 0, "depth"
 
 .endif
 

@@ -27,6 +27,7 @@ tst_text%%M:
     _drop
     or A
     sbc HL,BC
+    _drop
     _compareZero H,L
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
@@ -40,6 +41,7 @@ te_fail%%M:
         .pstr failTxt
     _endskip
 tf_done%%M:
+    call printCR
 .endm
 
 .macro _printDepth
