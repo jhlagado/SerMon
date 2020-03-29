@@ -40,11 +40,6 @@
     ld (IX+ofs3),A
 .endm
 
-.macro _load, destHI, destLO, srcHI, srcLO    ; transfer from src reg pair to dest reg pair
-    ld destLO, srcLO
-    ld destHI, srcHI
-.endm
-
 ; result: sets Z if zero
 ; destroys: A
 .macro _compareZero, regHI, regLO          ; check if reg pair is zero

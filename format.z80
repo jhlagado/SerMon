@@ -17,7 +17,7 @@ formatNum:                              ; ptr num -- ptr len
         inc D
         _over                           ; ptr ptr' base num1 base
         push DE
-        call divide                 ; ptr ptr' base num2 rem
+        call divide                     ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2
@@ -33,16 +33,16 @@ formatNum:                              ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        _drop                       ; ptr ptr'
+        _drop                           ; ptr ptr'
         ld (BC),A
         inc BC
         dec D
     _until z
     _enddo
-    _load H,L, B,C                      ; HL = ptr'
-    _dropdup                        ; ptr ptr
+    _peek H,L                      ; HL = ptr'
+    _dropdup                            ; ptr ptr
     or A
     sbc HL, BC
-    _load B,C, H,L                      ; ptr len
+    _poke  H,L                      ; ptr len
     ret
 

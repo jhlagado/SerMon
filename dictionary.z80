@@ -8,8 +8,7 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
     ld BC, (latestDef)                 ; ptr len headptr
     _do
         _dup
-        _isZero                         ; NULL pointer?  (end of the linked list)
-        _until z
+        _untilZero                         ; NULL pointer?  (end of the linked list)
         _dup                        ; ptr len headptr headptr
         inc BC                          ; skip over backLink field
         inc BC
@@ -24,14 +23,12 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         cp C                            ; TOS = len. is length the same as A?
         _if z
             call compareStr             ; ptr len headptr result
-            _isZero B,C                 ; if TOS == 0 then matched
-                                        ; ptr len headptr
-            _until z
+            _untilZero                  ; if TOS == 0 then matched
         _else
             _drop3                      ; ptr len headptr
         _endif
                                         ; ptr len headptr nameptr ptr len
-        _load H,L, B,C               ; HL = headptr
+        _peek H,L                  ; HL = headptr
         ld C, (HL)
         inc HL
         ld B, (HL)

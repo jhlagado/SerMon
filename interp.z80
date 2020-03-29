@@ -3,7 +3,7 @@ repl:
     call interpret
     ret
 
-NOT_FOUND:  .pstr "NOT FOUND!\r\n\r\n"
+NOT_FOUND:  .pstr "NOT FOUND!\r\n"
 
 interpret:
     _do
@@ -37,8 +37,7 @@ interpImmed:                            ; str len -- num?
     _if z
         _drop                           ; str len
         call toNumber                   ; num err
-        _isZero
-        _if nz
+        _ifNotZero
             _drop                       ; --
             _pushValue NOT_FOUND        ; pstr
             call printPStr              ; --
@@ -52,21 +51,10 @@ interpImmed:                            ; str len -- num?
     ret
 
 interpCompile:
-    _dup2
-    call find
-    _dup
-    _isZero
-    _if z
-        _pushValue NOT_FOUND
-        call printPStr
-    _else
-        call getBody
-        call execute
-    _endif
     ret
 
 execute:
-    _load H,L, B,C
+    _peek H,L
     _drop
     jp (HL)
 

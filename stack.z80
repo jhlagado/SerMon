@@ -12,23 +12,20 @@ dup:
 drop:
     dec IX                                  ; POP register pair
     dec IX
-    ld B, (IX+1)
-    ld C, (IX+0)
+    _poke (IX+1),(IX+0)
     ret
 
 ; copy memory  to BC
 ; x y -- x x;
 dropdup:
-    ld B, (IX-1)
-    ld C, (IX-2)
+    _poke (IX-1),(IX-2)
     ret
 
 ; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
 over:
-    _dup
-    ld C,(IX-4)
-    ld B,(IX-3)
+    call dup
+    _poke (IX-3),(IX-4)
     ret
 
 nip:
@@ -44,29 +41,29 @@ swap:
     ret
 
 dup2:                                       ; xa xb -- xa xb xa xb
-    _over
-    _over
+    call over
+    call over
     ret
 
 drop2:                                      ; x x --
-    _nip
-    _drop
+    call nip
+    call drop
     ret
 
 isZero:                                     ; n -- b
     _compareZero B,C
-    _drop
+    call drop
     ret
 
 ; depth of data stack
 defword "depth", 0, depth                   ; -- n
     push IX
     pop HL
-    _dup
+    call dup
     ld BC,dataStack
     or A
     sbc HL,BC
-    _load B,C, H,L
+    _poke  H,L
     _div2
     ret
 

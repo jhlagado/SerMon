@@ -3,7 +3,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _tuckFrom H,L                       ; ptr ptr num
     bit 7, B                            ; Detect sign of HL.
     _if nz
-        call negate                  ; ptr ptr num1
+        call negate                     ; ptr ptr num1
         _swap                           ; ptr num1 ptr
         ld A, '-'                       ; Output '-' to string and negate HL.
         ld (BC),A
@@ -15,9 +15,9 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     ld D, 0                             ; D counter
     _do
         inc D
-        _over                       ; ptr ptr' base num1 base
+        _over                           ; ptr ptr' base num1 base
         push DE
-        call divide                 ; ptr ptr' base num2 rem
+        call divide                     ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2
@@ -33,17 +33,17 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        _drop                       ; ptr ptr'
+        _drop                           ; ptr ptr'
         ld (BC),A
         inc BC
         dec D
     _until z
     _enddo
-    _load H,L, B,C                      ; HL = ptr'
-    _dropdup                        ; ptr ptr
+    _peek H,L                      ; HL = ptr'
+    _dropdup                            ; ptr ptr
     or A
     sbc HL, BC
-    _load B,C, H,L                      ; ptr len
+    _poke  H,L                      ; ptr len
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -75,26 +75,26 @@ toNumber:                               ; str len -- num err
             _nip                        ; zero
             _dup                        ; zero zero
             ld BC,1
-            ret                         ; -- 0 1
+            ret                         ; 0 1
         _else
             ld A,(HL)                   ; str len ; A = char
         _endIf
     _endIf
     _pushValue 0                        ; str len num(0)
     _do
-        sub '0'                         ; < '0'?
-        _until c                        ; invalid char, end of number
-        cp 10                           ; <= '9'?
-        _if nc
-            sub 17                      ; < 'A'? (17 is 'A'-'0')
-    _until c
-            add A,10
-        _endif
-        _dup                            ; str len num num
-        ld BC, (numberBase)               ; str len num base
-        cp C                            ; > base
-        _drop                           ; str len num
-    _until nc
+        _dup
+        ld C,A                          ; str len num char
+        call charToNibble               ; str len num nib
+        _dup                            ; str len num nib nib
+        call inBaseRange                ; str len num nib bool
+        _ifZero                         ; str len num nib
+            _drop3                      ; str
+            ld BC,0                     ; 0
+            _pushValue 1                ; 0 1
+            ret
+        _endIf
+        ld A,C
+        _drop
         add A,C                         ; str len num (num += A)
         ld C,A
         xor A
@@ -124,4 +124,46 @@ toNumber:                               ; str len -- num err
         call negate                  ; num
     _endif
     _pushValue 0                        ; num 0
+    ret
+
+charToNibble:                           ; char -- num ; err = -1
+    ld A,C
+    ld B,0
+    sub '0'                             ; < '0'?
+    _if nc                              ; invalid char, end of number
+        cp 10                           ; <= '9'?
+        _if c
+            ld C,A
+            or A                        ; clear carry flag
+        _else
+            sub 17                      ; < 'A'? (17 is 'A'-'0')
+            _if nc
+                add A,10
+                ld C,A
+            _endif
+        _endif
+    _endif
+    _if c
+        ld BC,-1
+    _endIf
+    ret
+
+inBaseRange:                            ; is in range 0 - BASE
+    bit 7,B
+    _if nz
+        ld BC,0
+    _else
+        ld A,C
+        ld BC, (numberBase)
+        cp C
+        call carryToBool
+    _endIf
+    ret
+
+carryToBool:
+    _if nc
+        ld BC,0
+    _else
+        ld BC,-1
+    _endif
     ret

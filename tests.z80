@@ -4,9 +4,6 @@
 ;; these tests will evaluate when TESTMODE = 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ; TEST_SET_TEXT "x"
-    ; call interpret
-
     call depth
     expect 0, " depth"
     TEST_SET_TEXT ""
@@ -15,9 +12,10 @@
     _pushValue $20                      ; delim
     _pushValue 0                        ; char
     call wordRead
-    expect 0, " length 0"
     call depth
-    expect 5, " depth"
+    expect 2, " depth"
+    expect 0, " length 0"
+    expect wordBuf1, " wordBuf1"
 
     TEST_SET_TEXT "xx yyy"
     _pushValue wordBuf1                 ; buffer
@@ -125,7 +123,7 @@
     call formatNum
     expect 4, "length of -123 = 4"
     _pop H,L
-    _load B,C, 0,(HL)
+    _poke 0,(HL)
     expect $2D, "first char = '-'"
 
     ; divide
@@ -201,10 +199,10 @@
     call find
     expect HEADER_find, "found: find"
 
-    _pushPText "printPStr"
+    _pushPText "ok"
     _unpackStr
     call find
-    expect HEADER_printPStr, "found: printPStr"
+    expect HEADER_ok, "found: ok"
 
     ; formatNum
 
@@ -225,6 +223,11 @@
     expect 144, '16 x 9 = 144'
 
     ; toNumber
+
+    _pushText "x",1
+    call toNumber
+    expect 1, 'error'
+    expect 0, 'zero'
 
     _pushText "",0
     call toNumber
@@ -260,5 +263,50 @@
     call toNumber
     expect 0, 'no error'
     expect -123, '-123'
+
+    ; charToNibble
+
+    _pushValue $30
+    call charToNibble
+    expect 0, '0'
+
+    _pushValue $39
+    call charToNibble
+    expect 9, '9'
+
+    _pushValue $41
+    call charToNibble
+    expect 10, '10'
+
+    _pushValue $46
+    call charToNibble
+    expect 15, '15'
+
+    _pushValue $29
+    call charToNibble
+    expect -1, '< 0'
+
+    _pushValue $40
+    call charToNibble
+    expect -1, '>9'
+
+    ; inBaseRange
+
+    _pushValue 0
+    call inBaseRange
+    expect TRUE, '0 in base 10'
+
+    _pushValue 9
+    call inBaseRange
+    expect TRUE, '9 in base 10'
+
+    _pushValue -1
+    call inBaseRange
+    expect FALSE, '-1 not in base 10'
+
+    _pushValue 10
+    call inBaseRange
+    expect FALSE, '10 not in base 10'
+
 
 

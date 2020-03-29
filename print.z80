@@ -27,9 +27,9 @@ printStr1:
     ret
 
 printPStr:                                  ; _ptr --
-    _load H,L, B,C
-    ld C, (HL)
+    _peek H,L
     ld B, 0
+    ld C, (HL)
     inc HL
     jr printStr1
 

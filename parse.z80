@@ -40,7 +40,7 @@ skipDelims:                             ; delim -- char
 
         _endswitch
     _enddo
-    _load B,C, 0,A                      ; TOS = char
+    _poke 0,A                           ; TOS = char
     ret
 
 wordRead:                               ; ptr maxlen delim char -- ptr len
@@ -63,11 +63,11 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
             dec D
         _until z
         _enddo
-        _load H,L, B,C                  ; HL = ptr'
+        _peek H,L                       ; HL = ptr'
         _dropdup                        ; ptr ptr
         or A
         sbc HL, BC                      ; ptr' - ptr
-        _load B,C, H,L                  ; ptr len
+        _poke  H,L                      ; ptr len
     _else
         ld BC,0                         ; ptr len (where len = 0)
     _endif

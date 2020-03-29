@@ -76,15 +76,10 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-_pushText "23",2
-call interpImmed
-call depth
-expect 1, "depth"
-
-_pushText ".",1
-call interpImmed
-call depth
-expect 0, "depth"
+    _pushText "x",1
+    call toNumber
+    expect 1, 'error'
+    expect 0, 'zero'
 
 .endif
 
