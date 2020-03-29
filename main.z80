@@ -24,14 +24,14 @@ INTRO:  .pstr "SerMon 2020\r\n\r\n"
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
-    ld IX, PARAM_STACK                      ; initialise the param stack.
-    ld (VAR_S0),IX
+    ld IX, dataStack                      ; initialise the param stack.
+    ld (dataStackStart),IX
     ld BC, 0
     ld (nestLevel),BC
     ld BC, 10
-    ld (VAR_BASE),BC
+    ld (numberBase),BC
     ld BC, (initialLatest)
-    ld (VAR_LATEST),BC
+    ld (latestDef),BC
     call initInput
     call initSerial
 

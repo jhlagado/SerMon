@@ -1,5 +1,5 @@
 ; destroys HL
-defword "negate", 0, negateNum          ; num -- -num
+negate:                              ; num -- -num
     ld HL,0
     or A
     sbc HL,BC
@@ -7,24 +7,24 @@ defword "negate", 0, negateNum          ; num -- -num
     ret
 
 ;destroys DE, HL, A
-defword "div", 0, divideWord            ; dividend divisor -- quotient remainder
+divide:                             ; dividend divisor -- quotient remainder
     _pop D,E                            ; DE = divisor, BC = dividend
     ld HL,0
 
     ld A,B
-    call divideWord2
+    call divide2
     ld B,A
 
     ld A,C
     ld C,B
-    call divideWord2
+    call divide2
     ld B,C
     ld C,A
 
     _push H,L                           ; TOS = remainder
     ret
 
-divideWord2:
+divide2:
     ld B,8
     _do
         rla
@@ -39,9 +39,9 @@ divideWord2:
     ret
 
 ; destroys: AF, HL
-defword "umult", 0, unsignedMultiply    ; u1 u2 -- plo phi
+uMultiply:                       ; u1 u2 -- plo phi
     _load D,E, B,C                      ; u1 u2
-    _drop                           ; u1
+    _drop                               ; u1
     ld HL,0
     ld A,17                             ; loop counter
     or A                                ; clear carry
@@ -57,6 +57,6 @@ defword "umult", 0, unsignedMultiply    ; u1 u2 -- plo phi
     _until z
     _enddo
     _load B,C, D,E                      ; plo
-    _dup                            ; plo phi
+    _dup                                ; plo phi
     _load B,C, H,L
     ret

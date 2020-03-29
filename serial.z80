@@ -128,10 +128,10 @@ getc:
 
     .if TESTMODE
 
-        ld HL, (char_pointer)
+        ld HL, (charPtr)
         ld A, (HL)
         inc HL
-        ld (char_pointer), HL
+        ld (charPtr), HL
 
     .else
         _do

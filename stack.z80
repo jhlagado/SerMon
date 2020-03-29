@@ -58,12 +58,12 @@ isZero:                                     ; n -- b
     _drop
     ret
 
-; depth of param stack    
+; depth of param stack
 defword "depth", 0, depth                   ; -- n
     push IX
     pop HL
     _dup
-    ld BC,(VAR_S0)
+    ld BC,(dataStackStart)
     or A
     sbc HL,BC
     _load B,C, H,L

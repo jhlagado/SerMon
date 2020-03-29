@@ -3,21 +3,21 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _tuckFrom H,L                       ; ptr ptr num
     bit 7, B                            ; Detect sign of HL.
     _if nz
-        call negateNum                  ; ptr ptr num1
+        call negate                  ; ptr ptr num1
         _swap                           ; ptr num1 ptr
         ld A, '-'                       ; Output '-' to string and negate HL.
         ld (BC),A
         inc BC
         _swap                           ; ptr ptr' num1
     _endif
-    _pushValue (VAR_BASE)               ; ptr ptr' num1 base
+    _pushValue (numberBase)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
         inc D
         _over                       ; ptr ptr' base num1 base
         push DE
-        call divideWord                 ; ptr ptr' base num2 rem
+        call divide                 ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2
@@ -48,7 +48,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; toNumber -  converts string to number in the ***
-; base strored in VAR_BASE
+; base strored in numberBase
 ;
 ; params: HL = string address, BC = string length
 ; returns: DE = parsed number, BC = 0: success, not 0, uparsed chars
@@ -91,7 +91,7 @@ toNumber:                               ; str len -- num err
             add A,10
         _endif
         _dup                            ; str len num num
-        ld BC, (VAR_BASE)               ; str len num base
+        ld BC, (numberBase)               ; str len num base
         cp C                            ; > base
         _drop                           ; str len num
     _until nc
@@ -107,9 +107,9 @@ toNumber:                               ; str len -- num err
         _swap                           ; str len num
     _until z
         _dup                            ; str len num num
-        ld BC, (VAR_BASE)               ; str len num base
+        ld BC, (numberBase)               ; str len num base
         push HL
-        call unsignedMultiply           ; str len num num2 (num *= BASE)
+        call uMultiply           ; str len num num2 (num *= BASE)
         pop HL
         _drop                           ; str len num
         inc HL
@@ -121,7 +121,7 @@ toNumber:                               ; str len -- num err
     cp "-"
     _drop                               ; num
     _if z
-        call negateNum                  ; num
+        call negate                  ; num
     _endif
     _pushValue 0                        ; num 0
     ret

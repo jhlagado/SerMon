@@ -4,34 +4,34 @@
 ;; storage locations declared in RAM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-serInPtr:       dw 0
-serRdPtr:       dw 0
-serBufUsed:     dw 0
-serBuf:         ds SER_BUFSIZE
+dataStack:        ds PARAM_STACK_SIZE
+dataStackStart:    dw 0                            ; start address of dataStack
+serInPtr:           dw 0
+serRdPtr:           dw 0
+serBufUsed:         dw 0
+serBuf:             ds SER_BUFSIZE
 
-lineBufStart    dw 0
-lineBufSize     dw 0
-currkey:        dw 0
-lineBufTop:     dw 0
-lineBuf:        ds LINE_BUFSIZE
+lineBufStart        dw 0
+lineBufSize         dw 0
+currkey:            dw 0
+lineBufTop:         dw 0
+lineBuf:            ds LINE_BUFSIZE
 
 ; A static lineBuf TOKEN fills.  Subsequent calls
 ; overwrite this lineBuf.  Maximum word length is 32 chars.
 
-PARAM_STACK:    ds PARAM_STACK_SIZE
-wordBuf1:       ds 64
-wordBuf2:       ds 64
-nestLevel       dw 0
+wordBuf1:           ds 64
+wordBuf2:           ds 64
+nestLevel           dw 0
 
-VAR_BASE:       dw 0
-VAR_LATEST:     dw 0
-VAR_S0:         dw 0                            ; start address of PARAM_STACK
+numberBase:         dw 0
+latestDef:          dw 0
 
 .if TESTMODE
 
     ; used for mocking getc
 
-    char_pointer:   dw 0
+    charPtr:   dw 0
 
 .endif
 

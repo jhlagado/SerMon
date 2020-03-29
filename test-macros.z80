@@ -9,7 +9,7 @@
     ld (lineBufTop),HL
     ld (currkey),HL
     ld HL, tst_text%%M
-    ld (char_pointer), HL
+    ld (charPtr), HL
 
     _skip
 tst_text%%M:

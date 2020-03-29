@@ -1,23 +1,23 @@
-defword "formatNum", 0, formatNum       ; ptr num -- ptr len
+formatNum:                              ; ptr num -- ptr len
     _overInto H,L                       ; HL = ptr, BC = num
     _tuckFrom H,L                       ; ptr ptr num
     bit 7, B                            ; Detect sign of HL.
     _if nz
-        call negateNum                  ; ptr ptr num1
+        call negate                  ; ptr ptr num1
         _swap                           ; ptr num1 ptr
         ld A, '-'                       ; Output '-' to string and negate HL.
         ld (BC),A
         inc BC
         _swap                           ; ptr ptr' num1
     _endif
-    _pushValue (VAR_BASE)               ; ptr ptr' num1 base
+    _pushValue (numberBase)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
         inc D
-        _over                       ; ptr ptr' base num1 base
+        _over                           ; ptr ptr' base num1 base
         push DE
-        call divideWord                 ; ptr ptr' base num2 rem
+        call divide                 ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2

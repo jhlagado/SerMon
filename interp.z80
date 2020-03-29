@@ -1,5 +1,5 @@
-defword "repl", 0, repl
-    ld IX, PARAM_STACK                  ; reset param stack
+repl:
+    ld IX, dataStack                  ; reset param stack
     call interpret
     ret
 
@@ -65,20 +65,7 @@ interpCompile:
     _endif
     ret
 
-getBody:                                ; ptr -- ptr'
-    inc BC                              ;
-    inc BC                              ; skip over backlink
-    inc BC                              ; skip over flags
-    ld A,(BC)                           ; A = len of routine's name
-    inc BC                              ; skip over len
-    add A,C
-    ld C,A
-    ld A,0
-    adc A,B
-    ld B,A
-    ret
-
-defword "execute", 0, execute
+execute:
     _load H,L, B,C
     _drop
     jp (HL)

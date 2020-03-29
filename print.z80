@@ -4,19 +4,14 @@ defword "ok", 0, OK
     call printPStr
     ret
 
-defword "cr", 0, printCR           ; --
+printCR:                                ; --
     ld A,"\r"
     call putc
     ld A,"\n"
     call putc
     ret
 
-defword "bl", 0, printSpace        ; --
-    ld A," "
-    call putc
-    ret
-
-defword "type", 0, printStr            ; ptr len --
+printStr:                               ; ptr len --
     _nipInto H,L
 printStr1:
     _do
@@ -28,10 +23,10 @@ printStr1:
         _isZero
     _until z
     _enddo
-    _drop                           ; clear TOS
+    _drop                                   ; clear TOS
     ret
 
-defword "printPStr", 0, printPStr  ; _ptr --
+printPStr:                                  ; _ptr --
     _load H,L, B,C
     ld C, (HL)
     ld B, 0

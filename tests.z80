@@ -128,17 +128,17 @@
     _load B,C, 0,(HL)
     expect $2D, "first char = '-'"
 
-    ; divideWord
+    ; divide
 
     _pushValue 40
     _pushValue 4
-    call divideWord
+    call divide
     expect 0, "remainder 0"
     expect 10, "40 / 4 = 10"
 
     _pushValue 24
     _pushValue 10
-    call divideWord
+    call divide
     expect 4, "remainder 4"
     expect 2, "24 / 10 = 2"
 
@@ -220,7 +220,7 @@
 
     _pushValue 16
     _pushValue 9
-    call unsignedMultiply
+    call uMultiply
     _drop
     expect 144, '16 x 9 = 144'
 
