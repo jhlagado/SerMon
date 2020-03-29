@@ -1,4 +1,4 @@
-; duplicate top of param stack
+; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
     ld (IX+0), C                            ; PUSH register pair
@@ -7,7 +7,7 @@ dup:
     inc IX
     ret
 
-; remove top of param stack
+; remove top of data stack
 ; x1 x2 -- x1
 drop:
     dec IX                                  ; POP register pair
@@ -23,7 +23,7 @@ dropdup:
     ld C, (IX-2)
     ret
 
-; duplicate second from top of param stack
+; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
 over:
     _dup
@@ -58,7 +58,7 @@ isZero:                                     ; n -- b
     _drop
     ret
 
-; depth of param stack
+; depth of data stack
 defword "depth", 0, depth                   ; -- n
     push IX
     pop HL

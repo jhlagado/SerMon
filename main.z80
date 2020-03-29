@@ -24,7 +24,7 @@ INTRO:  .pstr "SerMon 2020\r\n\r\n"
 
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
-    ld IX, dataStack                      ; initialise the param stack.
+    ld IX, dataStack                        ; initialise the data stack.
     ld (dataStackStart),IX
     ld BC, 0
     ld (nestLevel),BC

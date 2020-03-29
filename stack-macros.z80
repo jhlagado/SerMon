@@ -1,6 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;; param stack
+;; data stack
 ;;
 ;; the top of the stack (TOS) is stored in register BC for efficiency
 ;;
@@ -22,7 +22,7 @@
     call over
 .endm
 
-; drop the next to top of param stack
+; drop the next to top of data stack
 .macro _nip                                 ; x y -- y
     call nip
 .endm
@@ -41,7 +41,7 @@
     _drop2
 .endm
 
-; duplicate the top of param stack
+; duplicate the top of data stack
 .macro _dup2                                ; xa xb -- xa xb xa xb
     call dup2
 .endm
@@ -60,12 +60,12 @@
 
 .endm
 
-; swap the top two items of param stack
+; swap the top two items of data stack
 .macro _swap                                ; x1 x2 -- x2 x1
     call swap
 .endm
 
-; swap the top two items of param stack
+; swap the top two items of data stack
 .macro _swap2                               ; x1a x1b x2a x2b -- x2a x2b x1a x1b
     push DE
     _alter2x -1,-5
@@ -75,7 +75,7 @@
     pop DE
 .endm
 
-; rot top three items, third from top ends up on top of param stack
+; rot top three items, third from top ends up on top of data stack
 .macro _rot                                 ; x1 x2 x3 -- x2 x3 x1
     push DE
     _alter3 -2,C,-4
@@ -83,7 +83,7 @@
     pop DE
 .endm
 
-; rot top three items, third from top ends up on top of param stack
+; rot top three items, third from top ends up on top of data stack
 ; destroys AF'
 .macro _rot2                                ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b
     push DE
@@ -94,7 +94,7 @@
     pop DE
 .endm
 
-; reverse rot top three items, top of param stack becomes third from top  stack
+; reverse rot top three items, top of data stack becomes third from top  stack
 ; destroys AF'
 .macro _nrot                                ; x1 x2 x3 -- x3 x1 x2
     push DE
@@ -103,7 +103,7 @@
     pop DE
 .endm
 
-; rot top three items, third from top ends up on top of param stack
+; rot top three items, third from top ends up on top of data stack
 ; destroys AF',DE
 .macro _nrot2                               ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
     push DE
@@ -116,7 +116,7 @@
     pop DE
 .endm
 
-; Macros to deal with the param stack with TOS in BC
+; Macros to deal with the data stack with TOS in BC
 
 .macro _push, regHI, regLO                  ; rp = x ; y -- y x
     _dup                                    ; push TOS
@@ -211,8 +211,8 @@ L_%%M:
 .endm
 
 ; divide by 2
-.macro _div2                                 ; n -- n 
+.macro _div2                                 ; n -- n
     srl B
-    rr C 
+    rr C
 .endm
 

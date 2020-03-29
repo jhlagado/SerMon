@@ -1,5 +1,5 @@
 repl:
-    ld IX, dataStack                  ; reset param stack
+    ld IX, dataStack                  ; reset data stack
     call interpret
     ret
 
