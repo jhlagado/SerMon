@@ -63,7 +63,7 @@ defword "depth", 0, depth                   ; -- n
     push IX
     pop HL
     _dup
-    ld BC,(dataStackStart)
+    ld BC,dataStack
     or A
     sbc HL,BC
     _load B,C, H,L
