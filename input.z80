@@ -39,7 +39,8 @@ getline:
                     dec BC
                     ld a, $08
                     call putc
-                    call printSpace
+                    ld A," "
+                    call putc
                     ld A, $08
                     call putc
                 _endif

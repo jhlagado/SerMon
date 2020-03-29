@@ -4,8 +4,8 @@
 ;; storage locations declared in RAM
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-dataStack:        ds PARAM_STACK_SIZE
-dataStackStart:    dw 0                            ; start address of dataStack
+dataStack:          ds PARAM_STACK_SIZE
+dataStackStart:     dw 0                            ; start address of dataStack
 serInPtr:           dw 0
 serRdPtr:           dw 0
 serBufUsed:         dw 0

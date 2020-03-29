@@ -38,6 +38,7 @@ defword ".", 0, printNum                    ; num --
     _tuckFrom H,L                           ; ptr num
     call formatNum
     call printStr
-    call printSpace
+    ld A," "
+    call putc
     ret
 
