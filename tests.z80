@@ -7,10 +7,10 @@
     call depth
     expect 0, " depth"
     TEST_SET_TEXT ""
-    _pushValue wordBuf1                 ; buffer
-    _pushValue $40                      ; max length
-    _pushValue $20                      ; delim
-    _pushValue 0                        ; char
+    _push wordBuf1                 ; buffer
+    _push $40                      ; max length
+    _push $20                      ; delim
+    _push 0                        ; char
     call wordRead
     call depth
     expect 2, " depth"
@@ -18,39 +18,39 @@
     expect wordBuf1, " wordBuf1"
 
     TEST_SET_TEXT "xx yyy"
-    _pushValue wordBuf1                 ; buffer
-    _pushValue $40                      ; max length
-    _pushValue $20                      ; delim
-    _pushValue $33                      ; char
+    _push wordBuf1                 ; buffer
+    _push $40                      ; max length
+    _push $20                      ; delim
+    _push $33                      ; char
     call wordRead
     expect 3, "xxx length 3"
 
     ; stack words
 
-    _pushValue $AAAA
-    _pushValue $BBBB
+    _push $AAAA
+    _push $BBBB
     _swap
     expect $AAAA, "swap $AAAA"
     expect $BBBB, "swap $BBBB"
 
-    _pushValue $AAAA
-    _pushValue $BBBB
+    _push $AAAA
+    _push $BBBB
     _over
     expect $AAAA, "over $AAAA"
     expect $BBBB, "over $BBBB"
     expect $AAAA, "over $AAAA"
 
-    _pushValue $AAAA
-    _pushValue $BBBB
-    _pushValue $CCCC
+    _push $AAAA
+    _push $BBBB
+    _push $CCCC
     _rot
     expect $AAAA, "rot $AAAA"
     expect $CCCC, "rot $CCCC"
     expect $BBBB, "rot $BBBB"
 
-    _pushValue $AAAA
-    _pushValue $BBBB
-    _pushValue $CCCC
+    _push $AAAA
+    _push $BBBB
+    _push $CCCC
     _nrot
     expect $BBBB, "nrot $BBBB"
     expect $AAAA, "nrot $AAAA"
@@ -58,28 +58,28 @@
 
     ; 2 stack words
 
-    _pushValue 1001
-    _pushValue 1002
-    _pushValue 2001
-    _pushValue 2002
+    _push 1001
+    _push 1002
+    _push 2001
+    _push 2002
     _swap2
     expect 1002, "swap 1002"
     expect 1001, "swap 1001"
     expect 2002, "swap 2002"
     expect 2001, "swap 2001"
 
-    _pushValue 1001
-    _pushValue 1002
+    _push 1001
+    _push 1002
     _dup2
     expect 1002, "dup2 1002"
     expect 1001, "dup2 1001"
     expect 1002, "dup2 1002"
     expect 1001, "dup2 1001"
 
-    _pushValue 1001
-    _pushValue 1002
-    _pushValue 2001
-    _pushValue 2002
+    _push 1001
+    _push 1002
+    _push 2001
+    _push 2002
     _over2
     expect 1002, "over2 1002"
     expect 1001, "over2 1001"
@@ -88,12 +88,12 @@
     expect 1002, "over2 1002"
     expect 1001, "over2 1001"
 
-    _pushValue 1001
-    _pushValue 1002
-    _pushValue 2001
-    _pushValue 2002
-    _pushValue 3001
-    _pushValue 3002
+    _push 1001
+    _push 1002
+    _push 2001
+    _push 2002
+    _push 3001
+    _push 3002
     _rot2
     expect 1002, "rot2 1002"
     expect 1001, "rot2 1001"
@@ -102,12 +102,12 @@
     expect 2002, "rot2 2002"
     expect 2001, "rot2 2001"
 
-    _pushValue 1001
-    _pushValue 1002
-    _pushValue 2001
-    _pushValue 2002
-    _pushValue 3001
-    _pushValue 3002
+    _push 1001
+    _push 1002
+    _push 2001
+    _push 2002
+    _push 3001
+    _push 3002
     _nrot2
     expect 2002, "nrot2 2002"
     expect 2001, "nrot2 2001"
@@ -118,8 +118,8 @@
 
     ; formatNum
 
-    _pushValue wordBuf2
-    _pushValue -123
+    _push wordBuf2
+    _push -123
     call formatNum
     expect 4, "length of -123 = 4"
     _pop H,L
@@ -128,29 +128,29 @@
 
     ; divide
 
-    _pushValue 40
-    _pushValue 4
+    _push 40
+    _push 4
     call divide
     expect 0, "remainder 0"
     expect 10, "40 / 4 = 10"
 
-    _pushValue 24
-    _pushValue 10
+    _push 24
+    _push 10
     call divide
     expect 4, "remainder 4"
     expect 2, "24 / 10 = 2"
 
     ; _min
 
-    _pushValue 1
-    _pushValue 2
+    _push 1
+    _push 2
     _min
     expect 1, "min(1,2) = 1"
 
     ; max
 
-    _pushValue 1
-    _pushValue 2
+    _push 1
+    _push 2
     _max
     expect 2, "max(1,2) = 2"
 
@@ -161,53 +161,53 @@
         s2: .cstr "String2"
     _endSkip
 
-    _pushPText s1
-    _pushPText s2
-    _pushValue 7
+    _pushPStr s1
+    _pushPStr s2
+    _push 7
 
     call compareStr
 
     expect -1, "s1 should be less than s2"
 
-    _pushPText s2
-    _pushPText s1
-    _pushValue 6
+    _pushPStr s2
+    _pushPStr s1
+    _push 6
 
     call compareStr
 
     expect 1, "s1 should be greater than s2"
 
-    _pushPText s1
-    _pushPText s1
-    _pushValue 6
+    _pushPStr s1
+    _pushPStr s1
+    _push 6
 
     call compareStr
 
     expect 0, "s1 should equal s1"
 
-    _pushPText s1
-    _pushPText s2
-    _pushValue 0
+    _pushPStr s1
+    _pushPStr s2
+    _push 0
 
     call compareStr
     expect 0, "zero length, s1 should equal s1"
 
     ; find
 
-    _pushPText "find"
+    _pushPStr "find"
     _unpackStr
     call find
     expect HEADER_find, "found: find"
 
-    _pushPText "ok"
+    _pushPStr "ok"
     _unpackStr
     call find
     expect HEADER_ok, "found: ok"
 
     ; formatNum
 
-    _pushValue wordBuf2
-    _pushValue -123
+    _push wordBuf2
+    _push -123
     call formatNum
     _dup
     expect 4, "-123 length 4"
@@ -216,95 +216,95 @@
 
     ; unsigned Multiply
 
-    _pushValue 16
-    _pushValue 9
+    _push 16
+    _push 9
     call uMultiply
     _drop
     expect 144, '16 x 9 = 144'
 
     ; toNumber
 
-    _pushText "x",1
+    _pushStr "x",1
     call toNumber
     expect 1, 'error'
     expect 0, 'zero'
 
-    _pushText "",0
+    _pushStr "",0
     call toNumber
     expect 0, 'no error'
     expect 0, 'zero'
 
-    _pushText "-",1
+    _pushStr "-",1
     call toNumber
     expect 1, 'error'
     expect 0, 'zero'
 
-    _pushText "1",1
+    _pushStr "1",1
     call toNumber
     expect 0, 'no error'
     expect 1, '1'
 
-    _pushText "10",2
+    _pushStr "10",2
     call toNumber
     expect 0, 'no error'
     expect 10, '10'
 
-    _pushText "-10",3
+    _pushStr "-10",3
     call toNumber
     expect 0, 'no error'
     expect -10, '-10'
 
-    _pushText "100",3
+    _pushStr "100",3
     call toNumber
     expect 0, 'no error'
     expect 100, '100'
 
-    _pushText "-123",4
+    _pushStr "-123",4
     call toNumber
     expect 0, 'no error'
     expect -123, '-123'
 
     ; charToNibble
 
-    _pushValue $30
+    _push $30
     call charToNibble
     expect 0, '0'
 
-    _pushValue $39
+    _push $39
     call charToNibble
     expect 9, '9'
 
-    _pushValue $41
+    _push $41
     call charToNibble
     expect 10, '10'
 
-    _pushValue $46
+    _push $46
     call charToNibble
     expect 15, '15'
 
-    _pushValue $29
+    _push $29
     call charToNibble
     expect -1, '< 0'
 
-    _pushValue $40
+    _push $40
     call charToNibble
     expect -1, '>9'
 
     ; inBaseRange
 
-    _pushValue 0
+    _push 0
     call inBaseRange
     expect TRUE, '0 in base 10'
 
-    _pushValue 9
+    _push 9
     call inBaseRange
     expect TRUE, '9 in base 10'
 
-    _pushValue -1
+    _push -1
     call inBaseRange
     expect FALSE, '-1 not in base 10'
 
-    _pushValue 10
+    _push 10
     call inBaseRange
     expect FALSE, '10 not in base 10'
 

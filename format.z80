@@ -11,7 +11,7 @@ formatNum:                              ; ptr num -- ptr len
         inc BC
         _swap                           ; ptr ptr' num1
     _endif
-    _pushValue (numberBase)               ; ptr ptr' num1 base
+    _push (numberBase)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do

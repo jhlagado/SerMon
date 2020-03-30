@@ -16,13 +16,11 @@ initInput:
 ; returns: BC = length - up to 255
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-PROMPT:     .pstr "\r\n> "
-
 getline:
     push AF
     push HL
     _tuckFrom B,C
-    ld BC, PROMPT
+    _pushPStr "\r\n> "
     call printPStr
     pop HL
     push HL
@@ -33,7 +31,7 @@ getline:
             cp $08
             _if z
                 _dup
-                _ifNotZero                         
+                _ifNotZero
                     dec HL
                     dec BC
                     ld a, $08

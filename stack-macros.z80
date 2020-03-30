@@ -141,22 +141,22 @@
     ld regHI, (IX-1)                        ; move TOS reg pair into register pair
 .endm
 
-.macro _pushValue, value
+.macro _push, value
     _dup                                    ; push TOS
     ld BC, value                            ; set TOS to value
 .endm
 
-.macro _pushText, str, len
-    _pushValue tpt_text%%M
-    _pushValue len
+.macro _pushStr, str, len
+    _push tpt_text%%M
+    _push len
     _skip
 tpt_text%%M:
         db str
     _endskip
 .endm
 
-.macro _pushPText, s1
-    _pushValue tpt_text%%M
+.macro _pushPStr, s1
+    _push tpt_text%%M
     ld BC, tpt_text%%M
     _skip
 tpt_text%%M:

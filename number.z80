@@ -10,7 +10,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         inc BC
         _swap                           ; ptr ptr' num1
     _endif
-    _pushValue (numberBase)               ; ptr ptr' num1 base
+    _push (numberBase)               ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
@@ -77,7 +77,7 @@ toNumber:                               ; str len -- num err
             ld A,(HL)                   ; str len ; A = char
         _endIf
     _endIf
-    _pushValue 0                        ; str len num(0)
+    _push 0                        ; str len num(0)
     _do
         _dup
         ld C,A                          ; str len num char
@@ -87,7 +87,7 @@ toNumber:                               ; str len -- num err
         _ifZero                         ; str len num nib
             _drop3                      ; str
             ld BC,0                     ; 0
-            _pushValue 1                ; 0 1
+            _push 1                ; 0 1
             ret
         _endIf
         ld A,C
@@ -120,7 +120,7 @@ toNumber:                               ; str len -- num err
     _if z
         call negate                  ; num
     _endif
-    _pushValue 0                        ; num 0
+    _push 0                        ; num 0
     ret
 
 charToNibble:                           ; char -- num ; err = -1

@@ -1,7 +1,5 @@
-TEXT_OK:    .pstr "OK"
-
 defword "ok", 0, OK
-    _pushValue TEXT_OK
+    _pushPStr "OK"
     call printPStr
     ret
 

@@ -20,8 +20,6 @@ RST00:                                      ; Reset
 RST38:                                      ; rst 38
     jp serialIn
 
-INTRO:  .pstr "SerMon 2020\r\n\r\n"
-
 start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     ld IX, dataStack                        ; initialise the data stack.
@@ -36,7 +34,7 @@ start:
 
 .if TESTMODE = 0
 
-    ld BC, INTRO
+    _pushPStr "SerMon 2020\r\n\r\n"
     call printPStr
     call repl
     halt
@@ -76,7 +74,7 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _pushText "x",1
+    _pushStr "x",1
     call toNumber
     expect 1, 'error'
     expect 0, 'zero'
@@ -85,7 +83,7 @@ TESTS_START:
 
 .if TESTMODE
 
-    _pushValue DONE
+    _pushPStr "\r\nDone! \r\n"
     call printPStr
     halt
 

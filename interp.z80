@@ -3,13 +3,11 @@ repl:
     call interpret
     ret
 
-NOT_FOUND:  .pstr "NOT FOUND!\r\n"
-
 interpret:
     _do
-        _pushValue wordBuf1             ; str
-        _pushValue $40                  ; str maxlen
-        _pushValue $20                  ; str maxlen delim
+        _push wordBuf1             ; str
+        _push $40                  ; str maxlen
+        _push $20                  ; str maxlen delim
     	call parseWord                  ; str len
         _dup                            ; str len len
         _ifZero                         ; str len
@@ -36,7 +34,7 @@ interpImmed:                            ; str len -- num?
         call toNumber                   ; num err
         _ifNotZero
             _drop                       ; --
-            _pushValue NOT_FOUND        ; pstr
+            _pushPStr "NOT FOUND!\r\n"
             call printPStr              ; --
         _endIf                          ; else leave num on stack
     _else
