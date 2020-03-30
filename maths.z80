@@ -1,5 +1,5 @@
 ; destroys HL
-negate:                              ; num -- -num
+negate:                                 ; num -- -num
     ld HL,0
     or A
     sbc HL,BC
@@ -7,8 +7,9 @@ negate:                              ; num -- -num
     ret
 
 ;destroys DE, HL, A
-divide:                             ; dividend divisor -- quotient remainder
-    _pop D,E                            ; DE = divisor, BC = dividend
+divide:                                 ; dividend divisor -- quotient remainder
+    _peek D,E                           ; DE = divisor, BC = dividend
+    _drop
     ld HL,0
 
     ld A,B
@@ -21,7 +22,8 @@ divide:                             ; dividend divisor -- quotient remainder
     ld B,C
     ld C,A
 
-    _push H,L                           ; TOS = remainder
+    _dup
+    _poke H,L                           ; TOS = remainder
     ret
 
 divide2:
@@ -39,8 +41,8 @@ divide2:
     ret
 
 ; destroys: AF, HL
-uMultiply:                       ; u1 u2 -- plo phi
-    _peek D,E                      ; u1 u2
+uMultiply:                              ; u1 u2 -- plo phi
+    _peek D,E                           ; u1 u2
     _drop                               ; u1
     ld HL,0
     ld A,17                             ; loop counter
@@ -56,7 +58,7 @@ uMultiply:                       ; u1 u2 -- plo phi
         dec A
     _until z
     _enddo
-    _poke  D,E                      ; plo
+    _poke  D,E                          ; plo
     _dup                                ; plo phi
     _poke  H,L
     ret

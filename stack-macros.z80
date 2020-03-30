@@ -28,7 +28,8 @@
 .endm
 
 .macro _tuck                                ; x y -- y x y
-    _pop H,L
+    _peek H,L
+    _drop
     _tuckFrom H,L
 .endm
 
@@ -111,12 +112,6 @@
 
 ; Macros to deal with the data stack with TOS in BC
 
-.macro _push, regHI, regLO                  ; rp = x ; y -- y x
-    _dup                                    ; push TOS
-    ld B, regHI                             ; move register pair into TOS
-    ld C, regLO
-.endm
-
 .macro _peek, regHI, regLO                  ; x -- x ; rp = x
     ld regLO, C
     ld regHI, B                             ; move TOS reg pair into register pair
@@ -125,11 +120,6 @@
 .macro _poke, regHI, regLO                  ; rp = x ; y -- x
     ld C, regLO
     ld B, regHI                             ; move TOS reg pair into register pair
-.endm
-
-.macro _pop, regHI, regLO
-    _peek regHI,regLO                       ; move TOS into into register pair
-    _drop
 .endm
 
 .macro _nipInto, regHI, regLO               ; x y -- y ; rep = x
@@ -185,9 +175,9 @@ tpt_text%%M:
 .endm
 
 .macro _min                                 ; x1 x2 -- x
-    _pop H,L
-    ld D,H
-    ld E,L                                  ; make a copy of x2
+    _peek H,L
+    _peek D,E                               ; make a copy of x2
+    _drop
     or A
     sbc HL,BC
     jr nc, L_%%M
@@ -196,9 +186,9 @@ L_%%M:
 .endm
 
 .macro _max                                 ; x1 x2 -- x
-    _pop H,L
-    ld D,H
-    ld E,L                                  ; make a copy of x2
+    _peek H,L
+    _peek D,E                               ; make a copy of x2
+    _drop
     or A
     sbc HL,BC
     jr c, L_%%M

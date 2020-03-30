@@ -5,6 +5,7 @@
 
 .endif
 
+; destroys: A, DE, HL
 compareStr:                             ; str1 str2 len -- (-1|0|1)
     _nipInto H,L
     _nipInto D,E

@@ -1,9 +1,11 @@
 TEXT_OK:    .pstr "OK"
+
 defword "ok", 0, OK
     _pushValue TEXT_OK
     call printPStr
     ret
 
+; destroys: A
 printCR:                                ; --
     ld A,"\r"
     call putc
@@ -11,6 +13,7 @@ printCR:                                ; --
     call putc
     ret
 
+; destroys: A, HL
 printStr:                               ; ptr len --
     _nipInto H,L
 printStr1:
@@ -20,19 +23,19 @@ printStr1:
         inc HL
         dec BC
         _dup
-        _isZero
-    _until z
+    _untilZero
     _enddo
     _drop                                   ; clear TOS
     ret
 
+; destroys: HL
 printPStr:                                  ; _ptr --
     _peek H,L
-    ld B, 0
-    ld C, (HL)
+    _poke 0,(HL)
     inc HL
     jr printStr1
 
+; destroys: A, HL
 defword ".", 0, printNum                    ; num --
     ld HL, wordBuf1
     _tuckFrom H,L                           ; ptr num

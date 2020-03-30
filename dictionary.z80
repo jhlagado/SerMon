@@ -3,13 +3,14 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; destroys: A, HL
 defword "find",0,FIND                   ; ptr len -- ptrOrZero
     _dup                                ; ptr len len
-    ld BC, (latestDef)                 ; ptr len headptr
+    ld BC, (latestDef)                  ; ptr len headptr
     _do
         _dup
-        _untilZero                         ; NULL pointer?  (end of the linked list)
-        _dup                        ; ptr len headptr headptr
+        _untilZero                      ; NULL pointer?  (end of the linked list)
+        _dup                            ; ptr len headptr headptr
         inc BC                          ; skip over backLink field
         inc BC
         ld A,(BC)                       ; A = flags
@@ -28,17 +29,18 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
             _drop3                      ; ptr len headptr
         _endif
                                         ; ptr len headptr nameptr ptr len
-        _peek H,L                  ; HL = headptr
+        _peek H,L                       ; HL = headptr
         ld C, (HL)
         inc HL
         ld B, (HL)
         inc HL
     _enddo
-                            ; ptr len headptr
-    _nip               ; ptr headptr
-    _nip               ; TOS = headptr
+                                        ; ptr len headptr
+    _nip                                ; ptr headptr
+    _nip                                ; TOS = headptr
     ret
 
+; destroys: A
 getBody:                                ; ptr -- ptr'
     inc BC                              ;
     inc BC                              ; skip over backlink

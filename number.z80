@@ -21,8 +21,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2
-        _isZero                         ; ptr ptr' base num2
-    _until z
+    _untilZero
     _enddo
     _drop2                              ; ptr ptr'
     _do
@@ -57,8 +56,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
 
 toNumber:                               ; str len -- num err
     _dup                                ; str len len
-    _isZero                             ; if zero then return 0 0
-    _if z                               ; str zero
+    _ifZero                             ; if zero then return 0 0
         _nip                            ; zero
         _dup                            ; zero zero
         ret                             ; -- 0 0
@@ -70,8 +68,7 @@ toNumber:                               ; str len -- num err
         inc HL
         dec BC                          ; str len
         _dup                            ; str len len
-        _isZero
-        _if z                           ; str zero
+        _ifZero
             _nip                        ; zero
             _dup                        ; zero zero
             ld BC,1

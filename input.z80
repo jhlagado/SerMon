@@ -33,8 +33,7 @@ getline:
             cp $08
             _if z
                 _dup
-                _isZero                         
-                _if nz
+                _ifNotZero                         
                     dec HL
                     dec BC
                     ld a, $08

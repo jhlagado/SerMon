@@ -12,15 +12,13 @@ interpret:
         _pushValue $20                  ; str maxlen delim
     	call parseWord                  ; str len
         _dup                            ; str len len
-        _isZero                         ; str len
-        _if z
+        _ifZero                         ; str len
             _drop2                      ; --
             _break
         _else
             _dup                        ; str len len
             ld BC, (nestLevel)          ; str len nesting
-            _isZero                     ; str len
-            _if z
+            _ifZero                     ; str len
                 call interpImmed        ; num?
             _else
                 call interpCompile      ;
@@ -33,8 +31,7 @@ interpImmed:                            ; str len -- num?
     _dup2                               ; str len str len
     call find                           ; str len ptrOrNull
     _dup                                ; str len ptrOrNull ptrOrNull
-    _isZero                             ; str len ptrOrNull
-    _if z
+    _ifZero                             ; str len ptrOrNull
         _drop                           ; str len
         call toNumber                   ; num err
         _ifNotZero
@@ -53,6 +50,7 @@ interpImmed:                            ; str len -- num?
 interpCompile:
     ret
 
+; destroys: HL
 execute:
     _peek H,L
     _drop

@@ -56,6 +56,7 @@ isZero:                                     ; n -- b
     ret
 
 ; depth of data stack
+; destroys: A, HL
 defword "depth", 0, depth                   ; -- n
     push IX
     pop HL
