@@ -9,35 +9,28 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
     ld BC, (latestDef)                  ; ptr len headptr
     _do
         _dup
-        _untilZero                      ; NULL pointer?  (end of the linked list)
+    _untilZero                          ; NULL pointer?  (end of the linked list)
         _dup                            ; ptr len headptr headptr
-        inc BC                          ; skip over backLink field
-        inc BC
+        inc BC                          
+        inc BC                          ; ptr len headptr flagsPtr 
         ld A,(BC)                       ; A = flags
-        inc BC                          ; point to packed string length field
-        and FLAG_HIDDEN                 ; A = hidden flag value
-        ld H,A                          ; save A
-        ld A,(BC)                       ; A = length
-        inc BC                          ; ptr len headptr nameptr
-        add A,H                         ; A = length + hidden flag
-        _over2                          ; ptr len headptr nameptr ptr len
-        cp C                            ; TOS = len. is length the same as A?
-        _if z
-            call compareStr             ; ptr len headptr result
-            _untilZero                  ; if TOS == 0 then matched
+        bit 7,A                         ; test HIDDEN flag
+        _if nz
+            _drop                       ; ptr len headptr
         _else
-            _drop3                      ; ptr len headptr
+            inc BC                      ; ptr len headptr namePtr   ; length
+            inc BC                      ; ptr len headptr namePtr'  ; first char
+            _over2                      ; ptr len headptr namePtr' ptr len
+            call compareStr             ; ptr len headptr match     ;match == 0
+    _untilZero                          ; ptr len headptr 
         _endif
-                                        ; ptr len headptr nameptr ptr len
-        _peek H,L                       ; HL = headptr
-        ld C, (HL)
+        _peek H,L
+        ld C,(HL)
         inc HL
-        ld B, (HL)
-        inc HL
+        ld B,(HL)                       ; ptr len headptr'
     _enddo
-                                        ; ptr len headptr
-    _nip                                ; ptr headptr
-    _nip                                ; TOS = headptr
+    _nip                                
+    _nip                                ; headptr
     ret
 
 ; destroys: A

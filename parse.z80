@@ -43,18 +43,21 @@ skipDelims:                             ; delim -- char
     _poke 0,A                           ; TOS = char
     ret
 
+; destroys: A, DE, HL
 wordRead:                               ; ptr maxlen delim char -- ptr len
-    ld A,C                              ; A = char
-    _drop                               ; TOS = delim
-    ld E,C                              ; E = delim (formerly C)
-    _drop                               ; TOS = maxlen
-    ld D,C                              ; D = maxlen (formerly E)
-    _dropdup                            ; ptr ptr
-    or A
-    _if nz
+    ld A,C                              ; 
+    _drop                               ; ptr maxlen delim  ; A = char
+    ld E,C                              ; 
+    _drop                               ; ptr maxlen        ; E = delim
+    ld D,C                              ; 
+    _dropdup                            ; ptr ptr           ; D = maxlen
+    or A                                ; A = 0 ?
+    _if z
+        ld BC,0                         ; ptr len           ; where len = 0
+    _else
         _do
-            ld (BC), A                  ; add character to return lineBuf
-            inc BC                      ; ptr'
+            ld (BC),A                   ; write char to lineBuf
+            inc BC                      ; ptr ptr'
             call getKey                 ; get next key
             cp E                        ; = delim?
         _until z
@@ -68,7 +71,5 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
         or A
         sbc HL, BC                      ; ptr' - ptr
         _poke  H,L                      ; ptr len
-    _else
-        ld BC,0                         ; ptr len (where len = 0)
     _endif
     ret

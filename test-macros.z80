@@ -31,7 +31,7 @@ tst_text%%M:
     _compareZero H,L
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
-    _pushPStr "Failed: "
+    _push FAILED
     call printPStr
     _push  te_fail%%M
     call printPStr

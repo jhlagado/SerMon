@@ -74,10 +74,13 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _pushStr "x",1
-    call toNumber
-    expect 1, 'error'
-    expect 0, 'zero'
+    TEST_SET_TEXT "xx yyy"
+    _push wordBuf1                 ; buffer
+    _push $40                      ; max length
+    _push $20                      ; delim
+    _push $33                      ; char
+    call wordRead
+    expect 3, "xxx length 3"
 
 .endif
 
@@ -86,6 +89,9 @@ TESTS_START:
     _pushPStr "\r\nDone! \r\n"
     call printPStr
     halt
+
+FAILED: 
+    .pstr "Failed: "
 
 .endif
 

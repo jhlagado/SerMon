@@ -122,7 +122,8 @@
     _push -123
     call formatNum
     expect 4, "length of -123 = 4"
-    _pop H,L
+    _peek H,L
+    _drop
     _poke 0,(HL)
     expect $2D, "first char = '-'"
 
@@ -194,10 +195,10 @@
 
     ; find
 
-    _pushPStr "find"
+    _pushPStr "#$%"
     _unpackStr
     call find
-    expect HEADER_find, "found: find"
+    expect 0, "not found: #$%"
 
     _pushPStr "ok"
     _unpackStr

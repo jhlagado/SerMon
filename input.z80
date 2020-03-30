@@ -19,7 +19,6 @@ initInput:
 getline:
     push AF
     push HL
-    _tuckFrom B,C
     _pushPStr "\r\n> "
     call printPStr
     pop HL
