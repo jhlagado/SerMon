@@ -34,10 +34,8 @@ nip:
     ret
 
 swap:
-    push DE
     _alter2 -2,C
     _alter2 -1,B
-    pop DE
     ret
 
 dup2:                                       ; xa xb -- xa xb xa xb

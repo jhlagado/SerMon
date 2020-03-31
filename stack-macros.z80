@@ -202,6 +202,14 @@ L_%%M:
     rr C
 .endm
 
+;destroys HL
+.macro _fetch
+    _peek H,L
+    ld C,(HL)
+    inc HL
+    ld B,(HL)                       ; ptr len headptr'
+.endm
+
 .macro _isZero                              ; n -- b
     call isZero
 .endm
@@ -233,5 +241,6 @@ L_%%M:
     jp nz, DLOOP_TOP - 3  ; jump to jump to enddo
     DLOOP_FWD               ; needed?
 .endm
+
 
 
