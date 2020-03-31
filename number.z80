@@ -1,38 +1,38 @@
 defword "formatNum", 0, formatNum       ; ptr num -- ptr len
-    _over                               ; ptr num ptr
-    _swap                               ; ptr ptr num
+    call over                               ; ptr num ptr
+    call swap                               ; ptr ptr num
     _isNegative                         ; Detect sign of num
     _if nz
         call negate                     ; ptr ptr num1
-        _swap                           ; ptr num1 ptr ptr
+        call swap                           ; ptr num1 ptr ptr
         _pushChar '-'                   ; ptr num1 ptr '-'
-        _over                           ; ptr num1 ptr '-' ptr
-        _storeChar                      ; ptr num1 ptr
+        call over                           ; ptr num1 ptr '-' ptr
+        call storeChar                      ; ptr num1 ptr
         inc BC                          ; ptr num1 ptr'
-        _swap                           ; ptr ptr' num1
+        call swap                           ; ptr ptr' num1
     _endif
     _push (numberBase)                  ; ptr ptr' num1 base
-    _swap                               ; ptr ptr' base num1
+    call swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
         inc D
-        _over                           ; ptr ptr' base num1 base
+        call over                           ; ptr ptr' base num1 base
         call divide                     ; ptr ptr' base num2 rem
         _toRetStack                     ; ptr ptr' base num2
-        _dup                            ; ptr ptr' base num2 num2
+        call dup                            ; ptr ptr' base num2 num2
     _untilZero
     _enddo
-    _drop2                              ; ptr ptr'
+    call drop2                              ; ptr ptr'
     _do
         _fromRetStack                   ; ptr ptr' digit
         call toAscii                    ; ptr ptr' ascii
-        _over                           ; ptr ptr' ascii ptr'
-        _storeChar                      ; ptr ptr'
+        call over                           ; ptr ptr' ascii ptr'
+        call storeChar                      ; ptr ptr'
         inc BC                          ; ptr ptr''
         dec D
     _until z
     _enddo
-    _over                               ; ptr ptr'' ptr
+    call over                               ; ptr ptr'' ptr
     call minus                          ; ptr len
     ret
 
@@ -47,10 +47,10 @@ toAscii:                                ; n -- a
     ret
 
 toNumber:                               ; str len -- num err
-    _dup                                ; str len len
+    call dup                                ; str len len
     _ifZero                             ; if zero then return 0 0
-        _nip                            ; zero
-        _dup                            ; zero zero
+        call nip                            ; zero
+        call dup                            ; zero zero
         ret                             ; -- 0 0
     _endif
     _overInto H,L                       ; str len ; HL = str
@@ -59,10 +59,10 @@ toNumber:                               ; str len -- num err
     _if z
         inc HL
         dec BC                          ; str len
-        _dup                            ; str len len
+        call dup                            ; str len len
         _ifZero
-            _nip                        ; zero
-            _dup                        ; zero zero
+            call nip                        ; zero
+            call dup                        ; zero zero
             ld BC,1
             ret                         ; 0 1
         _else
@@ -71,35 +71,35 @@ toNumber:                               ; str len -- num err
     _endIf
     _push 0                             ; str len num(0)
     _do
-        _dup
+        call dup
         ld C,A                          ; str len num char
         call charToNibble               ; str len num nib
-        _dup                            ; str len num nib nib
+        call dup                            ; str len num nib nib
         call inBaseRange                ; str len num nib bool
         _ifZero                         ; str len num nib
-            _drop3                      ; str
+            call drop3                      ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1
             ret
         _endIf
         call plus                       ; str len num (num += A)
-        _swap                           ; str num len
+        call swap                           ; str num len
         dec BC                          ; str num len (len--)
-        _dup                            ; str num len len
-        _isZero                         ; str num len
-        _swap                           ; str len num
+        call dup                            ; str num len len
+        call isZero                         ; str num len
+        call swap                           ; str len num
     _until z
         _push (numberBase)              ; str len num base
         call uMultiply                  ; str len num num2 (num *= BASE)
-        _drop                           ; str len num
+        call drop                           ; str len num
         inc HL
         ld A,(HL)                       ; a = next char
     _enddo
-    _nip                                ; str num
-    _swap                               ; num str
+    call nip                                ; str num
+    call swap                               ; num str
     ld A,(BC)
     cp "-"
-    _drop                               ; num
+    call drop                               ; num
     _if z
         call negate                     ; num
     _endif

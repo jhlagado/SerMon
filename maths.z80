@@ -10,7 +10,7 @@ negate:                                 ; num -- -num
 divide:                                 ; dividend divisor -- quotient remainder
     push DE
     _peek D,E                           ; DE = divisor, BC = dividend
-    _drop
+    call drop
     ld HL,0
 
     ld A,B
@@ -23,7 +23,7 @@ divide:                                 ; dividend divisor -- quotient remainder
     ld B,C
     ld C,A
 
-    _dup
+    call dup
     _poke H,L                           ; TOS = remainder
     pop DE
     ret
@@ -46,7 +46,7 @@ divide2:
 uMultiply:                              ; u1 u2 -- plo phi
     push HL
     _peek D,E                           ; u1 u2
-    _drop                               ; u1
+    call drop                               ; u1
     ld HL,0
     ld A,17                             ; loop counter
     or A                                ; clear carry
@@ -62,24 +62,24 @@ uMultiply:                              ; u1 u2 -- plo phi
     _until z
     _enddo
     _poke  D,E                          ; plo
-    _dup                                ; plo phi
+    call dup                                ; plo phi
     _poke  H,L
     pop HL
     ret
-    
+
 ; destroys AF'
 plus:                                   ; x y -- z
     LD A,B
     ex AF,AF'
     LD A,C
-    _drop
+    call drop
     add A,C
     ld C,A
     ex AF,AF'
     adc A,B
     ld B,A
     ret
-    
+
 ; destroys HL
 minus:                                   ; x y -- z
     _nipInto H,L
@@ -87,7 +87,7 @@ minus:                                   ; x y -- z
     sbc HL,BC
     _poke H,L
     ret
-    
+
 carryToBool:
     ld BC,0
     _if c

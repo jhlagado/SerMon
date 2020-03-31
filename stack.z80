@@ -55,8 +55,8 @@ isZero:                                         ; n -- ?  ; this is wrong, shoul
 
 isLessThan:                                     ; x y -- b
     _nipInto H,L                                ; y
-    or A 
-    sbc HL,BC  
+    or A
+    sbc HL,BC
     ld BC, 0                                    ; 0
     _if pe
         _if p
@@ -82,33 +82,29 @@ defword "depth", 0, depth                       ; -- n
     _div2
     ret
 
-; destroys: AF'
+; destroys: HL
 fetch:                                          ; ptr -- n
-    ld A,(BC)
-    ex AF,AF'
-    inc BC
-    ld A,(BC)
-    ld B,A
-    ex AF,AF'
-    ld C,A
+    _peek H,L
+    ld C,(HL)
+    inc HL
+    ld B,(HL)
     ret
 
-; destroys: AF'
+; destroys: HL
 store:                                          ; n ptr --
     _peek H,L
-    call drop                                   ; n
+    call drop
     ld (HL),C
     inc HL
     ld (HL),B
     call drop
     ret
-    
+
 ; destroys: HL
 storeChar:                                      ; c ptr --
     _peek H,L
-    call drop                                   ; c
+    call drop
     ld (HL),C
     call drop
-    ret    
-    
-    
+    ret
+

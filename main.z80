@@ -79,7 +79,7 @@ TESTS_START:
     call formatNum
     expect 4, "length of -123 = 4"
     _peek H,L
-    _drop
+    call drop
     _poke 0,(HL)
     expect $2D, "first char = '-'"
 
@@ -91,7 +91,7 @@ TESTS_START:
     call printPStr
     halt
 
-FAILED: 
+FAILED:
     .pstr "Failed: "
 
 .endif

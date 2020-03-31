@@ -29,13 +29,13 @@
 
     _push $AAAA
     _push $BBBB
-    _swap
+    call swap
     expect $AAAA, "swap $AAAA"
     expect $BBBB, "swap $BBBB"
 
     _push $AAAA
     _push $BBBB
-    _over
+    call over
     expect $AAAA, "over $AAAA"
     expect $BBBB, "over $BBBB"
     expect $AAAA, "over $AAAA"
@@ -70,7 +70,7 @@
 
     _push 1001
     _push 1002
-    _dup2
+    call dup2
     expect 1002, "dup2 1002"
     expect 1001, "dup2 1001"
     expect 1002, "dup2 1002"
@@ -201,14 +201,14 @@
     call formatNum
     expect 4, "length of -123 = 4"
     _peek H,L
-    _drop
+    call drop
     _poke 0,(HL)
     expect $2D, "first char = '-'"
 
     _push wordBuf2
     _push -123
     call formatNum
-    _dup
+    call dup
     expect 4, "-123 length 4"
     call printCR
     call printStr
@@ -218,7 +218,7 @@
     _push 16
     _push 9
     call uMultiply
-    _drop
+    call drop
     expect 144, '16 x 9 = 144'
 
     ; toNumber

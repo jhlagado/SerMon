@@ -6,57 +6,22 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-.macro _dup                                 ; xa xb -- xa xb xa xb
-    call dup
-.endm
-
-.macro _drop                                ; x --
-    call drop
-.endm
-
-.macro _dropdup                             ; x --
-    call dropdup
-.endm
-
-.macro _over                                ; x x --
-    call over
-.endm
-
-; drop the next to top of data stack
-.macro _nip                                 ; x y -- y
-    call nip
-.endm
-
 .macro _tuck                                ; x y -- y x y
     _peek H,L
-    _drop
+    call drop
     _tuckFrom H,L
 .endm
 
-.macro _drop2                               ; x x --
+.macro call drop3                               ; x --
+    call nip
     call drop2
 .endm
 
-.macro _drop3                               ; x --
-    _nip
-    _drop2
-.endm
-
-; duplicate the top of data stack
-.macro _dup2                                ; xa xb -- xa xb xa xb
-    call dup2
-.endm
-
 .macro _over2                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
-    _dup2
+    call dup2
     _poke (IX-9),(IX-10)
     _peek (IX-1),(IX-2)
     _poke (IX-7),(IX-8)
-.endm
-
-; swap the top two items of data stack
-.macro _swap                                ; x1 x2 -- x2 x1
-    call swap
 .endm
 
 ; swap the top two items of data stack
@@ -142,17 +107,17 @@
 .endm
 
 .macro _push, src                           ; put src (value or memory) location on top of param stack
-    _dup
+    call dup
     ld BC, src
 .endm
 
 .macro _pop, dest                           ; put top of param stack into dest
     ld dest, BC
-    _drop
+    call drop
 .endm
 
 .macro _pushChar, char
-    _dup
+    call dup
     ld B,0
     ld C,char
 .endm
@@ -177,18 +142,18 @@ tpt_text%%M:
 
 .macro _toRetStack
     push BC
-    _drop
+    call drop
 .endm
 
 .macro _fromRetStack
-    _dup
+    call dup
     pop BC
 .endm
 
 .macro _min                                 ; x1 x2 -- x
     _peek H,L
     _peek D,E                               ; make a copy of x2
-    _drop
+    call drop
     or A
     sbc HL,BC
     jr nc, L_%%M
@@ -199,7 +164,7 @@ L_%%M:
 .macro _max                                 ; x1 x2 -- x
     _peek H,L
     _peek D,E                               ; make a copy of x2
-    _drop
+    call drop
     or A
     sbc HL,BC
     jr c, L_%%M
@@ -211,10 +176,6 @@ L_%%M:
 .macro _div2                                 ; n -- n
     srl B
     rr C
-.endm
-
-.macro _isZero                              ; n -- b
-    call isZero
 .endm
 
 .macro _ifZero
@@ -247,31 +208,5 @@ L_%%M:
 
 .macro _isNegative
     bit 7,A
-.endm
-
-;destroys HL
-.macro _fetch
-    _peek H,L
-    ld C,(HL)
-    inc HL
-    ld B,(HL)                       
-.endm
-
-;destroys HL
-.macro _store                               ; n ptr --
-    _peek H,L
-    _drop
-    ld (HL),C
-    inc HL
-    ld (HL),B                       
-    _drop
-.endm
-
-;destroys HL
-.macro _storeChar                           ; n ptr --
-    _peek H,L
-    _drop
-    ld (HL),C
-    _drop
 .endm
 

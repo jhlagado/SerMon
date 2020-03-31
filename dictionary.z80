@@ -6,26 +6,26 @@
 defword "find",0,FIND                   ; ptr len -- ptrOrZero
     _push (latestDef)                   ; ptr len headptr
     _do
-        _dup
+        call dup
     _untilZero                          ; NULL pointer?  (end of the linked list)
-        _dup                            ; ptr len headptr headptr
-        inc BC                          
-        inc BC                          ; ptr len headptr flagsPtr 
+        call dup                            ; ptr len headptr headptr
+        inc BC
+        inc BC                          ; ptr len headptr flagsPtr
         ld A,(BC)                       ; A = flags
         bit 7,A                         ; test HIDDEN flag
         _if nz
-            _drop                       ; ptr len headptr
+            call drop                       ; ptr len headptr
         _else
             inc BC                      ; ptr len headptr namePtr   ; length
             inc BC                      ; ptr len headptr namePtr'  ; first char
             _over2                      ; ptr len headptr namePtr' ptr len
             call compareStr             ; ptr len headptr match     ;match == 0
-    _untilZero                          ; ptr len headptr 
+    _untilZero                          ; ptr len headptr
         _endif
-        _fetch                          ; ptr len headptr'
+        call fetch                          ; ptr len headptr'
     _enddo
-    _nip                                
-    _nip                                ; headptr
+    call nip
+    call nip                                ; headptr
     ret
 
 ; destroys: A

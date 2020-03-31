@@ -5,26 +5,26 @@ formatNum:                              ; ptr num -- ptr len
     bit 7, B                            ; Detect sign of HL.
     _if nz
         call negate                     ; ptr ptr num1
-        _swap                           ; ptr num1 ptr
+        call swap                           ; ptr num1 ptr
         ld A, '-'                       ; Output '-' to string and negate HL.
         ld (BC),A
         inc BC
-        _swap                           ; ptr ptr' num1
+        call swap                           ; ptr ptr' num1
     _endif
     _push (numberBase)               ; ptr ptr' num1 base
-    _swap                               ; ptr ptr' base num1
+    call swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
         inc D
-        _over                           ; ptr ptr' base num1 base
+        call over                           ; ptr ptr' base num1 base
         push DE
         call divide                     ; ptr ptr' base num2 rem
         pop DE
         _toRetStack                     ; ptr ptr' base num2
-        _dup                            ; ptr ptr' base num2 num2
+        call dup                            ; ptr ptr' base num2 num2
     _untilZero
     _enddo
-    _drop2                              ; ptr ptr'
+    call drop2                              ; ptr ptr'
     _do
         _fromRetStack                   ; ptr ptr' digit
         ld A,$30
@@ -33,14 +33,14 @@ formatNum:                              ; ptr num -- ptr len
         _if nc
             add A,7
         _endif
-        _drop                           ; ptr ptr'
+        call drop                           ; ptr ptr'
         ld (BC),A
         inc BC
         dec D
     _until z
     _enddo
     _peek H,L                           ; HL = ptr'
-    _dropdup                            ; ptr ptr
+    call dropdup                            ; ptr ptr
     or A
     sbc HL, BC
     _poke  H,L                          ; ptr len

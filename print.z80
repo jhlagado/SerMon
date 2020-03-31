@@ -20,10 +20,10 @@ printStr1:
         call putc
         inc HL
         dec BC
-        _dup
+        call dup
     _untilZero
     _enddo
-    _drop                                   ; clear TOS
+    call drop                                   ; clear TOS
     ret
 
 ; destroys: HL

@@ -9,9 +9,9 @@ interpret:
         _push $40                  ; str maxlen
         _push $20                  ; str maxlen delim
     	call parseWord                  ; str len
-        _dup                            ; str len len
+        call dup                            ; str len len
         _ifZero                         ; str len
-            _drop2                      ; --
+            call drop2                      ; --
             _break
         _else
             _push (nestLevel)           ; str len nesting
@@ -25,20 +25,20 @@ interpret:
     ret
 
 interpImmed:                            ; str len -- num?
-    _dup2                               ; str len str len
+    call dup2                               ; str len str len
     call find                           ; str len ptrOrNull
-    _dup                                ; str len ptrOrNull ptrOrNull
+    call dup                                ; str len ptrOrNull ptrOrNull
     _ifZero                             ; str len ptrOrNull
-        _drop                           ; str len
+        call drop                           ; str len
         call toNumber                   ; num err
         _ifNotZero
-            _drop                       ; --
+            call drop                       ; --
             _pushPStr "NOT FOUND!\r\n"
             call printPStr              ; --
         _endIf                          ; else leave num on stack
     _else
-        _nip                            ; str ptr
-        _nip                            ; ptr
+        call nip                            ; str ptr
+        call nip                            ; ptr
         call getBody                    ; ptr'
         call execute                    ; ?
     _endif
@@ -50,6 +50,6 @@ interpCompile:
 ; destroys: HL
 execute:
     _peek H,L
-    _drop
+    call drop
     jp (HL)
 

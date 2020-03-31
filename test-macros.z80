@@ -18,16 +18,16 @@ tst_text%%M:
 .endm
 
 .macro expect, expectVal, failTxt
-    _dup
+    call dup
     call printNum
     _push expectVal
-    _dup
+    call dup
     call printNum
     _peek H,L
-    _drop
+    call drop
     or A
     sbc HL,BC
-    _drop
+    call drop
     _compareZero H,L
     jp z, tf_done%%M            ; asm80 macro nesting issue
                                 ; prevents using _if macro here
