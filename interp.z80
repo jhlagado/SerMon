@@ -47,9 +47,6 @@ interpImmed:                            ; str len -- num?
 interpCompile:
     ret
 
-; destroys: HL
 execute:
-    _peek H,L
-    call drop
-    jp (HL)
-
+    _toRetStack
+    ret

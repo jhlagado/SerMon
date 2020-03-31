@@ -25,7 +25,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     call drop2                              ; ptr ptr'
     _do
         _fromRetStack                   ; ptr ptr' digit
-        call toAscii                    ; ptr ptr' ascii
+        call digitToChar                    ; ptr ptr' ascii
         call over                           ; ptr ptr' ascii ptr'
         call storeChar                      ; ptr ptr'
         inc BC                          ; ptr ptr''
@@ -34,16 +34,6 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _enddo
     call over                               ; ptr ptr'' ptr
     call minus                          ; ptr len
-    ret
-
-toAscii:                                ; n -- a
-    ld A,$30
-    add A,C                             ; convert TOS digit to ASCII
-    cp $3A
-    _if nc
-        add A,7
-    _endif
-    ld C,A
     ret
 
 toNumber:                               ; str len -- num err
@@ -73,9 +63,9 @@ toNumber:                               ; str len -- num err
     _do
         call dup
         ld C,A                          ; str len num char
-        call charToNibble               ; str len num nib
+        call charToDigit               ; str len num nib
         call dup                            ; str len num nib nib
-        call inBaseRange                ; str len num nib bool
+        call isValidDigit                ; str len num nib bool
         _ifZero                         ; str len num nib
             call nip                    ; str len nib
             call nip                    ; str nib
@@ -108,7 +98,17 @@ toNumber:                               ; str len -- num err
     _push 0                             ; num 0
     ret
 
-charToNibble:                           ; char -- num ; err = -1
+digitToChar:                                ; n -- a
+    ld A,$30
+    add A,C                             ; convert TOS digit to ASCII
+    cp $3A
+    _if nc
+        add A,7
+    _endif
+    ld C,A
+    ret
+
+charToDigit:                           ; char -- num ; err = -1
     ld A,C
     ld B,0
     sub '0'                             ; < '0'?
@@ -130,7 +130,7 @@ charToNibble:                           ; char -- num ; err = -1
     _endIf
     ret
 
-inBaseRange:                            ; is in range 0 - BASE
+isValidDigit:                            ; is in range 0 - BASE
     bit 7,B
     _if nz
         ld BC,0

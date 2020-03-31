@@ -53,21 +53,21 @@ isZero:                                         ; n -- ?  ; this is wrong, shoul
     call drop
     ret
 
-isLessThan:                                     ; x y -- b
-    _nipInto H,L                                ; y
-    or A
-    sbc HL,BC
-    ld BC, 0                                    ; 0
-    _if pe
-        _if p
-            dec BC                              ;   if -ve, result true
-        _endif
-    _else
-        _if m
-            dec BC                              ;   if -ve, result true
-        _endif
-    _endif
-    ret
+; isLessThan:                                     ; x y -- b
+;     _nipInto H,L                                ; y
+;     or A
+;     sbc HL,BC
+;     ld BC, 0                                    ; 0
+;     _if pe
+;         _if p
+;             dec BC                              ;   if -ve, result true
+;         _endif
+;     _else
+;         _if m
+;             dec BC                              ;   if -ve, result true
+;         _endif
+;     _endif
+;     ret
 
 ; depth of data stack
 ; destroys: A, HL
