@@ -28,7 +28,6 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
     call nip                                ; headptr
     ret
 
-; destroys: A
 getBody:                                ; ptr -- ptr'
     inc BC                              ;
     inc BC                              ; skip over backlink

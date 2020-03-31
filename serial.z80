@@ -9,7 +9,7 @@ RTS_LOW         equ $96                ; 10010110
 PORT_STATUS     equ $04
 PORT_DATA       equ $03
 
-; destroys: A, HL
+; destroys: HL
 initSerial:
     ld HL,0
     ld (serbufused),HL
@@ -51,7 +51,7 @@ serialIn:
     ei
     ret
 
-; destroys: A, HL
+; destroys: HL
 serialIn2:
     push AF
     ld A,(serBufUsed)
@@ -113,7 +113,6 @@ putc:
 ; flags: NZ if input ready
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; destroys: A
 serReady:
     ld A,(serBufUsed)
     cp $0
@@ -125,7 +124,6 @@ serReady:
 ; returns: A = input char
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; destroys: A
 getc:
     push HL
 

@@ -3,7 +3,6 @@ defword "ok", 0, OK
     call printPStr
     ret
 
-; destroys: A
 printCR:                                ; --
     ld A,"\r"
     call putc
@@ -11,7 +10,7 @@ printCR:                                ; --
     call putc
     ret
 
-; destroys: A, HL
+; destroys: HL
 printStr:                               ; ptr len --
     _nipInto H,L
 printStr1:
@@ -33,7 +32,7 @@ printPStr:                                  ; _ptr --
     inc HL
     jr printStr1
 
-; destroys: A, HL
+; destroys: HL
 defword ".", 0, printNum                    ; num --
     ld HL, wordBuf1
     _tuckFrom H,L                           ; ptr num

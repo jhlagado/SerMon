@@ -43,7 +43,7 @@ skipDelims:                             ; delim -- char
     _poke 0,A                           ; TOS = char
     ret
 
-; destroys: A, DE, HL
+; destroys: DE, HL
 wordRead:                               ; ptr maxlen delim char -- ptr len
     ld A,C                              ;
     call drop                           ; ptr maxlen delim  ; A = char

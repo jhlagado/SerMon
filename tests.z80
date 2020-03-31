@@ -263,48 +263,48 @@
     expect 0, 'no error'
     expect -123, '-123'
 
-    ; charToNibble
+    ; charToDigit
 
     _push $30
-    call charToNibble
+    call charToDigit
     expect 0, '0'
 
     _push $39
-    call charToNibble
+    call charToDigit
     expect 9, '9'
 
     _push $41
-    call charToNibble
+    call charToDigit
     expect 10, '10'
 
     _push $46
-    call charToNibble
+    call charToDigit
     expect 15, '15'
 
     _push $29
-    call charToNibble
+    call charToDigit
     expect -1, '< 0'
 
     _push $40
-    call charToNibble
+    call charToDigit
     expect -1, '>9'
 
-    ; inBaseRange
+    ; isValidDigit
 
     _push 0
-    call inBaseRange
+    call isValidDigit
     expect TRUE, '0 in base 10'
 
     _push 9
-    call inBaseRange
+    call isValidDigit
     expect TRUE, '9 in base 10'
 
     _push -1
-    call inBaseRange
+    call isValidDigit
     expect FALSE, '-1 not in base 10'
 
     _push 10
-    call inBaseRange
+    call isValidDigit
     expect FALSE, '10 not in base 10'
 
 
