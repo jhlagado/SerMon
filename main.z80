@@ -74,13 +74,14 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    TEST_SET_TEXT "xx yyy"
-    _push wordBuf1                 ; buffer
-    _push $40                      ; max length
-    _push $20                      ; delim
-    _push $33                      ; char
-    call wordRead
-    expect 3, "xxx length 3"
+    _push wordBuf2
+    _push -123
+    call formatNum
+    expect 4, "length of -123 = 4"
+    _peek H,L
+    _drop
+    _poke 0,(HL)
+    expect $2D, "first char = '-'"
 
 .endif
 

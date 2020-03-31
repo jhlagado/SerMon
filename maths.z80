@@ -66,7 +66,7 @@ uMultiply:                              ; u1 u2 -- plo phi
     _poke  H,L
     pop HL
     ret
-
+    
 ; destroys AF'
 plus:                                   ; x y -- z
     LD A,B
@@ -78,5 +78,20 @@ plus:                                   ; x y -- z
     ex AF,AF'
     adc A,B
     ld B,A
+    ret
+    
+; destroys HL
+minus:                                   ; x y -- z
+    _nipInto H,L
+    or A
+    sbc HL,BC
+    _poke H,L
+    ret
+    
+carryToBool:
+    ld BC,0
+    _if c
+        dec BC
+    _endif
     ret
 

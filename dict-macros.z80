@@ -24,3 +24,17 @@ label:                                      ; body
 ; .macro defvar, name, flags, label, variable
 ;     defconst name, flags, label, variable
 ; .endm
+
+; fun1: .set 0
+; .macro fun, label, vargs, vvars
+;     fun1: .set vargs
+    
+;     label_args: .set fun1
+;         db fun1
+;     ; HEADER_label_args: .set z_label_args
+; .endm
+
+; .macro endFun, label
+; .endm
+
+; fun x, 30, 2

@@ -14,8 +14,7 @@ interpret:
             _drop2                      ; --
             _break
         _else
-            _dup                        ; str len len
-            ld BC, (nestLevel)          ; str len nesting
+            _push (nestLevel)           ; str len nesting
             _ifZero                     ; str len
                 call interpImmed        ; num?
             _else

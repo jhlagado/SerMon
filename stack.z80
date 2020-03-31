@@ -1,7 +1,7 @@
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
-    ld (IX+0), C                            ; PUSH register pair
+    ld (IX+0), C                                ; PUSH register pair
     ld (IX+1), B
     inc IX
     inc IX
@@ -10,7 +10,7 @@ dup:
 ; remove top of data stack
 ; x1 x2 -- x1
 drop:
-    dec IX                                  ; POP register pair
+    dec IX                                      ; POP register pair
     dec IX
     _poke (IX+1),(IX+0)
     ret
@@ -38,24 +38,40 @@ swap:
     _alter2 -1,B
     ret
 
-dup2:                                       ; xa xb -- xa xb xa xb
+dup2:                                           ; xa xb -- xa xb xa xb
     call over
     call over
     ret
 
-drop2:                                      ; x x --
+drop2:                                          ; x x --
     call nip
     call drop
     ret
 
-isZero:                                     ; n -- b
+isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
     _compareZero B,C
     call drop
     ret
 
+isLessThan:                                     ; x y -- b
+    _nipInto H,L                                ; y
+    or A 
+    sbc HL,BC  
+    ld BC, 0                                    ; 0
+    _if pe
+        _if p
+            dec BC                              ;   if -ve, result true
+        _endif
+    _else
+        _if m
+            dec BC                              ;   if -ve, result true
+        _endif
+    _endif
+    ret
+
 ; depth of data stack
 ; destroys: A, HL
-defword "depth", 0, depth                   ; -- n
+defword "depth", 0, depth                       ; -- n
     push IX
     pop HL
     call dup
@@ -66,3 +82,33 @@ defword "depth", 0, depth                   ; -- n
     _div2
     ret
 
+; destroys: AF'
+fetch:                                          ; ptr -- n
+    ld A,(BC)
+    ex AF,AF'
+    inc BC
+    ld A,(BC)
+    ld B,A
+    ex AF,AF'
+    ld C,A
+    ret
+
+; destroys: AF'
+store:                                          ; n ptr --
+    _peek H,L
+    call drop                                   ; n
+    ld (HL),C
+    inc HL
+    ld (HL),B
+    call drop
+    ret
+    
+; destroys: HL
+storeChar:                                      ; c ptr --
+    _peek H,L
+    call drop                                   ; c
+    ld (HL),C
+    call drop
+    ret    
+    
+    

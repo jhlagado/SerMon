@@ -1,16 +1,17 @@
 defword "formatNum", 0, formatNum       ; ptr num -- ptr len
-    _overInto H,L                       ; HL = ptr, BC = num
-    _tuckFrom H,L                       ; ptr ptr num
-    bit 7, B                            ; Detect sign of HL.
+    _over                               ; ptr num ptr
+    _swap                               ; ptr ptr num
+    _isNegative                         ; Detect sign of num
     _if nz
         call negate                     ; ptr ptr num1
-        _swap                           ; ptr num1 ptr
-        ld A, '-'                       ; Output '-' to string and negate HL.
-        ld (BC),A
-        inc BC
+        _swap                           ; ptr num1 ptr ptr
+        _pushChar '-'                   ; ptr num1 ptr '-'
+        _over                           ; ptr num1 ptr '-' ptr
+        _storeChar                      ; ptr num1 ptr
+        inc BC                          ; ptr num1 ptr'
         _swap                           ; ptr ptr' num1
     _endif
-    _push (numberBase)               ; ptr ptr' num1 base
+    _push (numberBase)                  ; ptr ptr' num1 base
     _swap                               ; ptr ptr' base num1
     ld D, 0                             ; D counter
     _do
@@ -24,23 +25,25 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _drop2                              ; ptr ptr'
     _do
         _fromRetStack                   ; ptr ptr' digit
-        ld A,$30
-        add A,C                         ; convert TOS digit to ASCII
-        cp $3A
-        _if nc
-            add A,7
-        _endif
-        _drop                           ; ptr ptr'
-        ld (BC),A
-        inc BC
+        call toAscii                    ; ptr ptr' ascii
+        _over                           ; ptr ptr' ascii ptr'
+        _storeChar                      ; ptr ptr'
+        inc BC                          ; ptr ptr''
         dec D
     _until z
     _enddo
-    _peek H,L                      ; HL = ptr'
-    _dropdup                            ; ptr ptr
-    or A
-    sbc HL, BC
-    _poke  H,L                      ; ptr len
+    _over                               ; ptr ptr'' ptr
+    call minus                          ; ptr len
+    ret
+
+toAscii:                                ; n -- a
+    ld A,$30
+    add A,C                             ; convert TOS digit to ASCII
+    cp $3A
+    _if nc
+        add A,7
+    _endif
+    ld C,A
     ret
 
 toNumber:                               ; str len -- num err
@@ -86,8 +89,7 @@ toNumber:                               ; str len -- num err
         _isZero                         ; str num len
         _swap                           ; str len num
     _until z
-        _dup                            ; str len num num
-        ld BC, (numberBase)             ; str len num base
+        _push (numberBase)              ; str len num base
         call uMultiply                  ; str len num num2 (num *= BASE)
         _drop                           ; str len num
         inc HL
@@ -138,9 +140,3 @@ inBaseRange:                            ; is in range 0 - BASE
     _endIf
     ret
 
-carryToBool:
-    ld BC,0
-    _if c
-        dec BC
-    _endif
-    ret

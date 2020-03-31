@@ -116,17 +116,6 @@
     expect 3002, "nrot2 3002"
     expect 3001, "nrot2 3001"
 
-    ; formatNum
-
-    _push wordBuf2
-    _push -123
-    call formatNum
-    expect 4, "length of -123 = 4"
-    _peek H,L
-    _drop
-    _poke 0,(HL)
-    expect $2D, "first char = '-'"
-
     ; divide
 
     _push 40
@@ -206,6 +195,15 @@
     expect HEADER_ok, "found: ok"
 
     ; formatNum
+
+    _push wordBuf2
+    _push -123
+    call formatNum
+    expect 4, "length of -123 = 4"
+    _peek H,L
+    _drop
+    _poke 0,(HL)
+    expect $2D, "first char = '-'"
 
     _push wordBuf2
     _push -123

@@ -18,5 +18,8 @@ START_RAM       equ     START_ROM + ROM_SIZE
 END_RAM         equ     START_RAM + RAM_SIZE
 RET_STACK       equ     END_RAM             ; return stack, grows down
 
+FLAG_IMMED      equ     0
+FLAG_HIDDEN     equ     7
+
 FALSE           equ     0
 TRUE            equ     -1
