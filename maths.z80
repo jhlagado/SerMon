@@ -67,11 +67,12 @@ uMultiply:                              ; u1 u2 -- plo phi
     pop HL
     ret
 
-; destroys: HL
 plus:                                   ; x y -- z
+    push HL
     _nipInto H,L
     add HL,BC
     _poke H,L
+    pop HL
     ret
 
 ; destroys: HL
