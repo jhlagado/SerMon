@@ -56,10 +56,19 @@ isZero:                                         ; n -- ?  ; this is wrong, shoul
 ; depth of data stack
 ; destroys: HL
 defword "depth", 0, depth                       ; -- n
+    ; push IX
+    ; pop BC
+    ; _push dataStack
+    ; call minus
+    ; _div2
+    ; ret
     push IX
-    pop BC
-    _push dataStack
-    call minus
+    pop HL
+    call dup
+    ld BC,dataStack
+    or A
+    sbc HL,BC
+    _poke  H,L
     _div2
     ret
 

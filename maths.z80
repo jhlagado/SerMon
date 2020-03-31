@@ -75,12 +75,13 @@ plus:                                   ; x y -- z
     pop HL
     ret
 
-; destroys: HL
 minus:                                   ; x y -- z
+    push HL
     _nipInto H,L
     or A
     sbc HL,BC
     _poke H,L
+    pop HL
     ret
 
 carryToBool:
