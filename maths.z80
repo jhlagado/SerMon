@@ -6,8 +6,9 @@ negate:                                 ; num -- -num
     _poke  H,L
     ret
 
-;destroys DE, HL, A
+;destroys HL, A
 divide:                                 ; dividend divisor -- quotient remainder
+    push DE
     _peek D,E                           ; DE = divisor, BC = dividend
     _drop
     ld HL,0
@@ -24,6 +25,7 @@ divide:                                 ; dividend divisor -- quotient remainder
 
     _dup
     _poke H,L                           ; TOS = remainder
+    pop DE
     ret
 
 divide2:
@@ -40,8 +42,9 @@ divide2:
     cpl
     ret
 
-; destroys: AF, HL
+; destroys: AF,DE
 uMultiply:                              ; u1 u2 -- plo phi
+    push HL
     _peek D,E                           ; u1 u2
     _drop                               ; u1
     ld HL,0
@@ -61,4 +64,19 @@ uMultiply:                              ; u1 u2 -- plo phi
     _poke  D,E                          ; plo
     _dup                                ; plo phi
     _poke  H,L
+    pop HL
     ret
+
+; destroys AF'
+plus:                                   ; x y -- z
+    LD A,B
+    ex AF,AF'
+    LD A,C
+    _drop
+    add A,C
+    ld C,A
+    ex AF,AF'
+    adc A,B
+    ld B,A
+    ret
+

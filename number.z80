@@ -16,9 +16,7 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _do
         inc D
         _over                           ; ptr ptr' base num1 base
-        push DE
         call divide                     ; ptr ptr' base num2 rem
-        pop DE
         _toRetStack                     ; ptr ptr' base num2
         _dup                            ; ptr ptr' base num2 num2
     _untilZero
@@ -45,15 +43,6 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
     _poke  H,L                      ; ptr len
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; toNumber -  converts string to number in the ***
-; base strored in numberBase
-;
-; params: HL = string address, BC = string length
-; returns: DE = parsed number, BC = 0: success, not 0, uparsed chars
-; destroys: AF
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 toNumber:                               ; str len -- num err
     _dup                                ; str len len
     _ifZero                             ; if zero then return 0 0
@@ -77,7 +66,7 @@ toNumber:                               ; str len -- num err
             ld A,(HL)                   ; str len ; A = char
         _endIf
     _endIf
-    _push 0                        ; str len num(0)
+    _push 0                             ; str len num(0)
     _do
         _dup
         ld C,A                          ; str len num char
@@ -87,16 +76,10 @@ toNumber:                               ; str len -- num err
         _ifZero                         ; str len num nib
             _drop3                      ; str
             ld BC,0                     ; 0
-            _push 1                ; 0 1
+            _push 1                     ; 0 1
             ret
         _endIf
-        ld A,C
-        _drop
-        add A,C                         ; str len num (num += A)
-        ld C,A
-        xor A
-        adc A,B
-        ld B,A
+        call plus                       ; str len num (num += A)
         _swap                           ; str num len
         dec BC                          ; str num len (len--)
         _dup                            ; str num len len
@@ -104,10 +87,8 @@ toNumber:                               ; str len -- num err
         _swap                           ; str len num
     _until z
         _dup                            ; str len num num
-        ld BC, (numberBase)               ; str len num base
-        push HL
-        call uMultiply           ; str len num num2 (num *= BASE)
-        pop HL
+        ld BC, (numberBase)             ; str len num base
+        call uMultiply                  ; str len num num2 (num *= BASE)
         _drop                           ; str len num
         inc HL
         ld A,(HL)                       ; a = next char
@@ -118,9 +99,9 @@ toNumber:                               ; str len -- num err
     cp "-"
     _drop                               ; num
     _if z
-        call negate                  ; num
+        call negate                     ; num
     _endif
-    _push 0                        ; num 0
+    _push 0                             ; num 0
     ret
 
 charToNibble:                           ; char -- num ; err = -1
@@ -158,9 +139,8 @@ inBaseRange:                            ; is in range 0 - BASE
     ret
 
 carryToBool:
-    _if nc
-        ld BC,0
-    _else
-        ld BC,-1
+    ld BC,0
+    _if c
+        dec BC
     _endif
     ret
