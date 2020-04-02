@@ -4,8 +4,9 @@
 ;; these tests will evaluate when TESTMODE = 1
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    call depth
-    expect 0, " depth"
+    ; call depth
+    ; expect 0, " depth"
+
     TEST_SET_TEXT ""
     _push wordBuf1                 ; buffer
     _push $40                      ; max length
@@ -40,33 +41,33 @@
     expect $BBBB, "over $BBBB"
     expect $AAAA, "over $AAAA"
 
-    _push $AAAA
-    _push $BBBB
-    _push $CCCC
-    _rot
-    expect $AAAA, "rot $AAAA"
-    expect $CCCC, "rot $CCCC"
-    expect $BBBB, "rot $BBBB"
+    ; _push $AAAA
+    ; _push $BBBB
+    ; _push $CCCC
+    ; _rot
+    ; expect $AAAA, "rot $AAAA"
+    ; expect $CCCC, "rot $CCCC"
+    ; expect $BBBB, "rot $BBBB"
 
-    _push $AAAA
-    _push $BBBB
-    _push $CCCC
-    _nrot
-    expect $BBBB, "nrot $BBBB"
-    expect $AAAA, "nrot $AAAA"
-    expect $CCCC, "nrot $CCCC"
+    ; _push $AAAA
+    ; _push $BBBB
+    ; _push $CCCC
+    ; _nrot
+    ; expect $BBBB, "nrot $BBBB"
+    ; expect $AAAA, "nrot $AAAA"
+    ; expect $CCCC, "nrot $CCCC"
 
-    ; 2 stack words
+    ; ; 2 stack words
 
-    _push 1001
-    _push 1002
-    _push 2001
-    _push 2002
-    _swap2
-    expect 1002, "swap 1002"
-    expect 1001, "swap 1001"
-    expect 2002, "swap 2002"
-    expect 2001, "swap 2001"
+    ; _push 1001
+    ; _push 1002
+    ; _push 2001
+    ; _push 2002
+    ; _swap2
+    ; expect 1002, "swap 1002"
+    ; expect 1001, "swap 1001"
+    ; expect 2002, "swap 2002"
+    ; expect 2001, "swap 2001"
 
     _push 1001
     _push 1002
@@ -76,45 +77,45 @@
     expect 1002, "dup2 1002"
     expect 1001, "dup2 1001"
 
-    _push 1001
-    _push 1002
-    _push 2001
-    _push 2002
-    _over2
-    expect 1002, "over2 1002"
-    expect 1001, "over2 1001"
-    expect 2002, "over2 2002"
-    expect 2001, "over2 2001"
-    expect 1002, "over2 1002"
-    expect 1001, "over2 1001"
+    ; _push 1001
+    ; _push 1002
+    ; _push 2001
+    ; _push 2002
+    ; call over2
+    ; expect 1002, "over2 1002"
+    ; expect 1001, "over2 1001"
+    ; expect 2002, "over2 2002"
+    ; expect 2001, "over2 2001"
+    ; expect 1002, "over2 1002"
+    ; expect 1001, "over2 1001"
 
-    _push 1001
-    _push 1002
-    _push 2001
-    _push 2002
-    _push 3001
-    _push 3002
-    _rot2
-    expect 1002, "rot2 1002"
-    expect 1001, "rot2 1001"
-    expect 3002, "rot2 3002"
-    expect 3001, "rot2 3001"
-    expect 2002, "rot2 2002"
-    expect 2001, "rot2 2001"
+    ; _push 1001
+    ; _push 1002
+    ; _push 2001
+    ; _push 2002
+    ; _push 3001
+    ; _push 3002
+    ; _rot2
+    ; expect 1002, "rot2 1002"
+    ; expect 1001, "rot2 1001"
+    ; expect 3002, "rot2 3002"
+    ; expect 3001, "rot2 3001"
+    ; expect 2002, "rot2 2002"
+    ; expect 2001, "rot2 2001"
 
-    _push 1001
-    _push 1002
-    _push 2001
-    _push 2002
-    _push 3001
-    _push 3002
-    _nrot2
-    expect 2002, "nrot2 2002"
-    expect 2001, "nrot2 2001"
-    expect 1002, "nrot2 1002"
-    expect 1001, "nrot2 1001"
-    expect 3002, "nrot2 3002"
-    expect 3001, "nrot2 3001"
+    ; _push 1001
+    ; _push 1002
+    ; _push 2001
+    ; _push 2002
+    ; _push 3001
+    ; _push 3002
+    ; _nrot2
+    ; expect 2002, "nrot2 2002"
+    ; expect 2001, "nrot2 2001"
+    ; expect 1002, "nrot2 1002"
+    ; expect 1001, "nrot2 1001"
+    ; expect 3002, "nrot2 3002"
+    ; expect 3001, "nrot2 3001"
 
     ; divide
 

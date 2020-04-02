@@ -18,13 +18,6 @@
     ld B, regHI                             ; move TOS reg pair into register pair
 .endm
 
-.macro _tuckFrom, regHI, regLO              ; rp = x; y -- x y
-    ld (IX+0), regLO                        ; PUSH register pair
-    ld (IX+1), regHI
-    inc IX
-    inc IX
-.endm
-
 .macro _push, src                           ; put src (value or memory) location on top of param stack
     call dup
     ld BC, src
@@ -57,68 +50,6 @@ tpt_text%%M:
 tpt_text%%M:
         .pstr s1
     _endskip
-.endm
-
-; less common macros
-
-.macro _tuck                                ; x y -- y x y
-    call swap
-    call over
-.endm
-
-.macro _over2                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
-    call dup2
-    _poke (IX-9),(IX-10)
-    _peek (IX-1),(IX-2)
-    _poke (IX-7),(IX-8)
-.endm
-
-; swap the top two items of data stack
-.macro _swap2                               ; x1a x1b x2a x2b -- x2a x2b x1a x1b
-    push DE
-    _alter2x -1,-5
-    _alter2x -2,-6
-    _alter2 -4,C
-    _alter2 -3,B
-    pop DE
-.endm
-
-; rot top three items, third from top ends up on top of data stack
-.macro _rot                                 ; x1 x2 x3 -- x2 x3 x1
-    push DE
-    _alter3 -2,C,-4
-    _alter3 -1,B,-3
-    pop DE
-.endm
-
-; rot top three items, third from top ends up on top of data stack
-.macro _rot2                                ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b
-    push DE
-    _alter3x -6,-2,-10
-    _alter3x -5,-1,-9
-    _alter3 -4,C,-8
-    _alter3 -3,B,-7
-    pop DE
-.endm
-
-; reverse rot top three items, top of data stack becomes third from top  stack
-.macro _nrot                                ; x1 x2 x3 -- x3 x1 x2
-    push DE
-    _alter3 -4,C,-2
-    _alter3 -3,B,-1
-    pop DE
-.endm
-
-; rot top three items, third from top ends up on top of data stack
-.macro _nrot2                               ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
-    push DE
-
-    _alter3x -10,-2,-6
-    _alter3x -9,-1,-5
-    _alter3 -8,C,-4
-    _alter3 -7,B,-3
-
-    pop DE
 .endm
 
 .macro _min                                 ; x1 x2 -- x

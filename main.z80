@@ -74,15 +74,6 @@ TESTS_START:
 
 .if TESTMODE = 2
 
-    _push wordBuf2
-    _push -123
-    call formatNum
-    expect 4, "length of -123 = 4"
-    _peek H,L
-    call drop
-    _poke 0,(HL)
-    expect $2D, "first char = '-'"
-
 .endif
 
 .if TESTMODE

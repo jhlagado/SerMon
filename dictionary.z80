@@ -18,7 +18,7 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         _else
             inc BC                      ; ptr len headptr namePtr   ; length
             inc BC                      ; ptr len headptr namePtr'  ; first char
-            _over2                      ; ptr len headptr namePtr' ptr len
+            call over2                      ; ptr len headptr namePtr' ptr len
             call compareStr             ; ptr len headptr match     ;match == 0
     _untilZero                          ; ptr len headptr
         _endif
