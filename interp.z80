@@ -48,5 +48,6 @@ interpCompile:
     ret
 
 execute:
-    _toRetStack
+    push BC
+    call drop
     ret

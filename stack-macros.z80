@@ -137,16 +137,6 @@ tpt_text%%M:
     pop DE
 .endm
 
-.macro _toRetStack
-    push BC
-    call drop
-.endm
-
-.macro _fromRetStack
-    call dup
-    pop BC
-.endm
-
 .macro _min                                 ; x1 x2 -- x
     _peek H,L
     _peek D,E                               ; make a copy of x2
