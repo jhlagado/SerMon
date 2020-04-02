@@ -18,23 +18,11 @@
     ld B, regHI                             ; move TOS reg pair into register pair
 .endm
 
-.macro _nipInto, regHI, regLO               ; x y -- y ; rep = x
-    dec IX                                  ; POP register pair
-    dec IX
-    ld regHI, (IX+1)
-    ld regLO, (IX+0)
-.endm
-
 .macro _tuckFrom, regHI, regLO              ; rp = x; y -- x y
     ld (IX+0), regLO                        ; PUSH register pair
     ld (IX+1), regHI
     inc IX
     inc IX
-.endm
-
-.macro _overInto, regHI, regLO              ; x y -- y  rp = x
-    ld regLO, (IX-2)
-    ld regHI, (IX-1)                        ; move TOS reg pair into register pair
 .endm
 
 .macro _push, src                           ; put src (value or memory) location on top of param stack
@@ -74,9 +62,8 @@ tpt_text%%M:
 ; less common macros
 
 .macro _tuck                                ; x y -- y x y
-    _peek H,L
-    call drop
-    _tuckFrom H,L
+    call swap
+    call over
 .endm
 
 .macro _over2                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
@@ -105,7 +92,6 @@ tpt_text%%M:
 .endm
 
 ; rot top three items, third from top ends up on top of data stack
-; destroys: AF'
 .macro _rot2                                ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b
     push DE
     _alter3x -6,-2,-10
@@ -116,7 +102,6 @@ tpt_text%%M:
 .endm
 
 ; reverse rot top three items, top of data stack becomes third from top  stack
-; destroys: AF'
 .macro _nrot                                ; x1 x2 x3 -- x3 x1 x2
     push DE
     _alter3 -4,C,-2
@@ -125,7 +110,6 @@ tpt_text%%M:
 .endm
 
 ; rot top three items, third from top ends up on top of data stack
-; destroys: AF',DE
 .macro _nrot2                               ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
     push DE
 

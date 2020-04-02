@@ -12,7 +12,9 @@ printCR:                                ; --
 
 ; destroys: HL
 printStr:                               ; ptr len --
-    _nipInto H,L
+    call swap
+    _peek H,L
+    call drop
 printStr1:
     _do
         ld A,(HL)
@@ -34,10 +36,10 @@ printPStr:                                  ; _ptr --
 
 ; destroys: HL
 defword ".", 0, printNum                    ; num --
-    ld HL, wordBuf1
-    _tuckFrom H,L                           ; ptr num
-    call formatNum
-    call printStr
+    _push wordBuf1                          ; num ptr
+    call swap                               ; ptr num
+    call formatNum                          ; ptr len
+    call printStr                           ; --
     ld A," "
     call putc
     ret

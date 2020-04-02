@@ -44,7 +44,9 @@ toNumber:                               ; str len -- num err
         call dup                        ; zero zero
         ret                             ; -- 0 0
     _endif
-    _overInto H,L                       ; str len ; HL = str
+    call swap
+    _peek H,L
+    call swap                           ; str len ; HL = str
     ld A,(HL)                           ; A = char
     cp '-'                              ; is A negative number?
     _if z
@@ -68,8 +70,7 @@ toNumber:                               ; str len -- num err
         call dup                        ; str len num nib nib
         call isValidDigit               ; str len num nib bool
         _ifZero                         ; str len num nib
-            call nip                    ; str len nib
-            call nip                    ; str nib
+            call nip2                    ; str nib
             call drop                   ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1

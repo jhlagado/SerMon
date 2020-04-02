@@ -24,8 +24,7 @@ defword "find",0,FIND                   ; ptr len -- ptrOrZero
         _endif
         call fetch                          ; ptr len headptr'
     _enddo
-    call nip
-    call nip                                ; headptr
+    call nip2                                ; headptr
     ret
 
 getBody:                                ; ptr -- ptr'

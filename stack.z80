@@ -48,6 +48,13 @@ drop2:                                          ; x x --
     call drop
     ret
 
+nip2:
+    dec IX
+    dec IX
+    dec IX
+    dec IX
+    ret
+
 isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
     _compareZero B,C
     call drop

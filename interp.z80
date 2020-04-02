@@ -37,8 +37,7 @@ interpImmed:                            ; str len -- num?
             call printPStr              ; --
         _endIf                          ; else leave num on stack
     _else
-        call nip                            ; str ptr
-        call nip                            ; ptr
+        call nip2                       ; ptr
         call getBody                    ; ptr'
         call execute                    ; ?
     _endif
