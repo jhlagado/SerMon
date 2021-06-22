@@ -7,7 +7,7 @@ SERIALMODE equ 6850
     .include "macro-dicts.z80"
     .include "macro-dloop.z80"
     .include "macro-stacks.z80"
-    .include "macro-structs.z80"
+    .include "macro-struct.z80"
     .include "macro-tests.z80"
     .include "macro-utils.z80"
 
