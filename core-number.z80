@@ -2,7 +2,7 @@ CODE "formatNum", 0, formatNum       ; ptr num -- ptr len
     call over                           ; ptr num ptr
     call swap                           ; ptr ptr num
     _isNegative                         ; Detect sign of num
-    _if nz
+    __ifnz formatNum1 
         call negate                     ; ptr ptr num1
         call swap                       ; ptr num1 ptr ptr
         _pushChar '-'                   ; ptr num1 ptr '-'
@@ -10,7 +10,7 @@ CODE "formatNum", 0, formatNum       ; ptr num -- ptr len
         call storeChar                  ; ptr num1 ptr
         inc BC                          ; ptr num1 ptr'
         call swap                       ; ptr ptr' num1
-    _endif
+    __endif formatNum1
     _push (numberBase)                  ; ptr ptr' num1 base
     call swap                           ; ptr ptr' base num1
     ld D, 0                             ; D counter
@@ -134,13 +134,13 @@ charToDigit:                            ; char -- numOrError ; error = -1
 ; is in range 0 - BASE
 isValidDigit:                           ; n -- b
     bit 7,B
-    _if nz
+    __ifnz isValidDigit1 
         ld BC,0
-    _else
+    __else isValidDigit1
         ld A,C
         ld BC, (numberBase)
         cp C
         call carryToBool
-    _endIf
+    __endIf isValidDigit1
     ret
 

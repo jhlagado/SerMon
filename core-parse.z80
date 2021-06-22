@@ -10,19 +10,19 @@ skipDelims:                             ; delim -- char
         _switch
 
             bit 7, A                    ; check end of input, used by tests
-            _if nz
+            __ifnz skipDelims1 
                 ld A,0
                 _break
-            _endif
+            __endif skipDelims1                  
 
             cp $5C                      ; \ start of a comment?
             _case z                     ; if yes skip to end of line
                 _do
                     call getKey
                     cp "\r"             ; end of line yet?
-                    _if nz
+                    __ifnz skipDelims2 
                         cp "\n"         ; end of line yet?
-                    _endif
+                    __endif skipDelims
                 _until z
                 _enddo
             _endcase

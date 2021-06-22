@@ -33,10 +33,10 @@ serialIn:
     .if SERIALMODE = 6850
         in A,(IO_CTRL)
         and $01
-        _if nz
+        __ifnz serialIn1     
             in A,(IO_DATA)
             call serialIn2
-        _endif
+        __endif serialIn1
     .else
         _do
             in A,(PORT_STATUS)

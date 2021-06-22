@@ -12,7 +12,7 @@ compareStr:                             ; str1 str2 len -- (-1|0|1)
         ld A,(DE)
         inc DE
         cpi
-        _if nz                          ; char mismatch: exit
+        __ifnz compareStr22                           ; char mismatch: exit
             dec HL                      ; point at mismatch char
             cp (HL)                     ; set carry if char1 < char2
             _if c
@@ -21,7 +21,7 @@ compareStr:                             ; str1 str2 len -- (-1|0|1)
                 ld BC, 1
             _endif
             ret
-        _endif
+        __endif compareStr22
     _until po
     _enddo
     ld BC,0                             ; count exhausted & no mismatch found
