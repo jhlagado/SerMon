@@ -143,8 +143,6 @@ fetch:                                          ; ptr -- n
 
 ; destroys: HL
 store:                                          ; n ptr --
-    ; _getTOS H,L
-    ; call drop
     _pop HL
     ld (HL),C
     inc HL
@@ -154,8 +152,6 @@ store:                                          ; n ptr --
 
 ; destroys: HL
 storeChar:                                      ; c ptr --
-    ; _getTOS H,L
-    ; call drop
     _pop HL
     ld (HL),C
     call drop

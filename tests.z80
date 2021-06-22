@@ -201,8 +201,6 @@
     _push -123
     call formatNum
     expect 4, "length of -123 = 4"
-    ; _getTOS H,L
-    ; call drop
     _pop HL    
     _setTOS 0,(HL)
     expect $2D, "first char = '-'"
