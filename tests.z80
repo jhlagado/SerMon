@@ -201,9 +201,9 @@
     _push -123
     call formatNum
     expect 4, "length of -123 = 4"
-    _peek H,L
+    _getTOS H,L
     call drop
-    _poke 0,(HL)
+    _setTOS 0,(HL)
     expect $2D, "first char = '-'"
 
     _push wordBuf2

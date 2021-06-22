@@ -45,7 +45,7 @@ toNumber:                               ; str len -- num err
         ret                             ; -- 0 0
     _endif
     call swap
-    _peek H,L
+    _getTOS H,L
     call swap                           ; str len ; HL = str
     ld A,(HL)                           ; A = char
     cp '-'                              ; is A negative number?

@@ -8,12 +8,12 @@
 
 ; macros for literal and immediate data
 
-.macro _peek, regHI, regLO                  ; x -- x ; rp = x
+.macro _getTOS, regHI, regLO                  ; x -- x ; rp = x
     ld regLO, C
     ld regHI, B                             ; move TOS reg pair into register pair
 .endm
 
-.macro _poke, regHI, regLO                  ; rp = x ; y -- x
+.macro _setTOS, regHI, regLO                  ; rp = x ; y -- x
     ld C, regLO
     ld B, regHI                             ; move TOS reg pair into register pair
 .endm
@@ -28,10 +28,14 @@
     call drop
 .endm
 
+.macro _pushWord, word
+    call dup
+    ld BC,word
+.endm
+
 .macro _pushChar, char
     call dup
-    ld B,0
-    ld C,char
+    _setTOS 0,char
 .endm
 
 .macro _pushStr, str, len
@@ -53,24 +57,24 @@ tpt_text%%M:
 .endm
 
 .macro _min                                 ; x1 x2 -- x
-    _peek H,L
-    _peek D,E                               ; make a copy of x2
+    _getTOS H,L
+    _getTOS D,E                               ; make a copy of x2
     call drop
     or A
     sbc HL,BC
     jr nc, L_%%M
-    _poke  D,E
+    _setTOS  D,E
 L_%%M:
 .endm
 
 .macro _max                                 ; x1 x2 -- x
-    _peek H,L
-    _peek D,E                               ; make a copy of x2
+    _getTOS H,L
+    _getTOS D,E                               ; make a copy of x2
     call drop
     or A
     sbc HL,BC
     jr c, L_%%M
-    _poke  D,E
+    _setTOS  D,E
 L_%%M:
 .endm
 

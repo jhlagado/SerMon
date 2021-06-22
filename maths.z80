@@ -3,13 +3,13 @@ negate:                                 ; num -- -num
     ld HL,0
     or A
     sbc HL,BC
-    _poke  H,L
+    _setTOS  H,L
     ret
 
 ; destroys: HL
 divide:                                 ; dividend divisor -- quotient remainder
     push DE
-    _peek D,E                           ; DE = divisor, BC = dividend
+    _getTOS D,E                           ; DE = divisor, BC = dividend
     call drop
     ld HL,0
 
@@ -24,7 +24,7 @@ divide:                                 ; dividend divisor -- quotient remainder
     ld C,A
 
     call dup
-    _poke H,L                           ; TOS = remainder
+    _setTOS H,L                           ; TOS = remainder
     pop DE
     ret
 
@@ -45,7 +45,7 @@ divide2:
 ; destroys: DE
 uMultiply:                              ; u1 u2 -- plo phi
     push HL
-    _peek D,E                           ; u1 u2
+    _getTOS D,E                           ; u1 u2
     call drop                               ; u1
     ld HL,0
     ld A,17                             ; loop counter
@@ -61,29 +61,29 @@ uMultiply:                              ; u1 u2 -- plo phi
         dec A
     _until z
     _enddo
-    _poke  D,E                          ; plo
+    _setTOS  D,E                          ; plo
     call dup                                ; plo phi
-    _poke  H,L
+    _setTOS  H,L
     pop HL
     ret
 
 plus:                                   ; x y -- z
     push HL
-    _peek H,L
+    _getTOS H,L
     call drop
     add HL,BC
-    _poke H,L
+    _setTOS H,L
     pop HL
     ret
 
 minus:                                   ; x y -- z
     push HL
-    _peek D,E
+    _getTOS D,E
     call drop
-    _peek H,L
+    _getTOS H,L
     or A
     sbc HL,DE
-    _poke H,L
+    _setTOS H,L
     pop HL
     ret
 

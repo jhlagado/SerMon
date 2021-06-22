@@ -23,7 +23,7 @@ tst_text%%M:
     _push expectVal
     call dup
     call printNum
-    _peek H,L
+    _getTOS H,L
     call drop
     or A
     sbc HL,BC

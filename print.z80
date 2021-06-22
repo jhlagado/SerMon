@@ -13,7 +13,7 @@ printCR:                                ; --
 ; destroys: HL
 printStr:                               ; ptr len --
     call swap
-    _peek H,L
+    _getTOS H,L
     call drop
 printStr1:
     _do
@@ -29,8 +29,8 @@ printStr1:
 
 ; destroys: HL
 printPStr:                                  ; _ptr --
-    _peek H,L
-    _poke 0,(HL)
+    _getTOS H,L
+    _setTOS 0,(HL)
     inc HL
     jr printStr1
 
