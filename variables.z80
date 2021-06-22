@@ -1,9 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; variables
-;;
-;; storage locations declared in RAM
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 dataStack:          ds PARAM_STACK_SIZE
 serInPtr:           dw 0
 serRdPtr:           dw 0
@@ -16,9 +10,6 @@ currkey:            dw 0
 lineBufTop:         dw 0
 lineBuf:            ds LINE_BUFSIZE
 
-; A static lineBuf TOKEN fills.  Subsequent calls
-; overwrite this lineBuf.  Maximum word length is 32 chars.
-
 wordBuf1:           ds 64
 wordBuf2:           ds 64
 nestLevel           dw 0
@@ -27,10 +18,7 @@ numberBase:         dw 0
 latestDef:          dw 0
 
 .if TESTMODE
-
     ; used for mocking getc
-
     charPtr:   dw 0
-
 .endif
 

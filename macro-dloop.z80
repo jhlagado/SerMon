@@ -104,3 +104,16 @@ L_%%M:
     DLOOP_FWD
     DLOOP_POP
 .endm
+
+.macro _untilZero
+    call isZero
+    jp z, DLOOP_TOP - 3  ; jump to jump to enddo
+    DLOOP_FWD               ; needed?
+.endm
+
+.macro _untilNotZero
+    call isZero
+    jp nz, DLOOP_TOP - 3  ; jump to jump to enddo
+    DLOOP_FWD               ; needed?
+.endm
+

@@ -23,7 +23,7 @@ CODE "find",0,FIND                   ; ptr len -- ptrOrZero
     call nip2                                ; headptr
     ret
 
-getBody:                                ; ptr -- ptr'
+CODE ">body",0,getBody                  ; ptr -- ptr'
     inc BC                              ;
     inc BC                              ; skip over backlink
     inc BC                              ; skip over flags

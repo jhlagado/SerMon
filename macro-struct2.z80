@@ -1,0 +1,85 @@
+.macro __ifz, name
+    name_else_done: .set 0    
+    jr nz, name
+.endm
+
+.macro __ifnz, name
+    jr z, name
+.endm
+
+.macro __ifc, name
+    jr nc, name
+.endm
+
+.macro __ifnc, name
+    jr c, name
+.endm
+
+.macro __else, name
+    jp name_endif              ; placeholder jump to _endif
+name:
+    name_used: .set 1    
+.endm
+
+.macro __endif, name
+    .if name_used
+        name_else:
+    .endif
+    name_endif:
+.endm
+
+; switch
+
+.macro __switch, name
+    jr L_%%M
+    jp $            ; placeholder jump to endswitch
+    STRUC_PUSH $
+L_%%M:
+.endm
+
+.macro __case, flag, name, casename
+    jp flag, L_%%M
+    jp $            ; placeholder jump to endcase
+    STRUC_PUSH $
+L_%%M:
+.endm
+
+.macro __endcase, name
+    jp STRUC_2 - 3  ; jump to placeholder jump to endswitch
+    STRUC_FWD
+    STRUC_POP
+.endm
+
+.macro __endswitch, name
+    STRUC_FWD
+    STRUC_POP
+.endm
+
+; skip
+
+.macro __skip, name
+    jp $              ; placeholder jump to _else or _endif
+    STRUC_PUSH $
+.endm
+
+.macro __endskip, name
+    STRUC_FWD
+    STRUC_POP
+.endm
+
+.macro __ifZero, name
+    call isZero
+    jp z, L_%%M
+    jp $              ; placeholder jump to _else or _endif
+    STRUC_PUSH $
+L_%%M:
+.endm
+
+.macro __ifNotZero, name
+    call isZero
+    jp nz, L_%%M
+    jp $              ; placeholder jump to _else or _endif
+    STRUC_PUSH $
+L_%%M:
+.endm
+

@@ -113,7 +113,7 @@ L_%%M:
     STRUC_POP
 .endm
 
-    .macro _ifZero
+.macro _ifZero
     call isZero
     jp z, L_%%M
     jp $              ; placeholder jump to _else or _endif
@@ -128,16 +128,3 @@ L_%%M:
     STRUC_PUSH $
 L_%%M:
 .endm
-
-.macro _untilZero
-    call isZero
-    jp z, DLOOP_TOP - 3  ; jump to jump to enddo
-    DLOOP_FWD               ; needed?
-.endm
-
-.macro _untilNotZero
-    call isZero
-    jp nz, DLOOP_TOP - 3  ; jump to jump to enddo
-    DLOOP_FWD               ; needed?
-.endm
-
