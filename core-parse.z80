@@ -22,7 +22,7 @@ skipDelims:                             ; delim -- char
                     cp "\r"             ; end of line yet?
                     __ifnz skipDelims2 
                         cp "\n"         ; end of line yet?
-                    __endif skipDelims
+                    __endif skipDelims2
                 _until z
                 _enddo
             _endcase
