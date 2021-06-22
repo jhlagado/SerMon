@@ -2,10 +2,12 @@
 compareStr:                             ; str1 str2 len -- (-1|0|1)
     push BC                             ; str1 str2 len
     call drop                           ; str1 str2
-    _getTOS H,L
-    call drop                           ; str1
-    _getTOS D,E
-    pop BC                              ; len
+    ; _getTOS H,L
+    ; call drop                           ; str1
+    _pop HL
+    ; _getTOS D,E
+    ; pop BC                              ; len
+    _pop DE
     call dup
     call isZero                         ; test for Count=0
     ret z

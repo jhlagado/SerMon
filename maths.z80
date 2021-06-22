@@ -9,8 +9,9 @@ negate:                                 ; num -- -num
 ; destroys: HL
 divide:                                 ; dividend divisor -- quotient remainder
     push DE
-    _getTOS D,E                           ; DE = divisor, BC = dividend
-    call drop
+    ; _getTOS D,E                           ; DE = divisor, BC = dividend
+    ; call drop
+    _pop DE
     ld HL,0
 
     ld A,B
@@ -44,8 +45,9 @@ divide2:
 ; destroys: DE
 uMultiply:                              ; u1 u2 -- plo phi
     push HL
-    _getTOS D,E                           ; u1 u2
-    call drop                               ; u1
+    ; _getTOS D,E                           ; u1 u2
+    ; call drop                               ; u1
+    _pop DE
     ld HL,0
     ld A,17                             ; loop counter
     or A                                ; clear carry
@@ -67,8 +69,9 @@ uMultiply:                              ; u1 u2 -- plo phi
 
 plus:                                   ; x y -- z
     push HL
-    _getTOS H,L
-    call drop
+    ; _getTOS H,L
+    ; call drop
+    _pop HL
     add HL,BC
     _setTOS H,L
     pop HL
@@ -76,8 +79,9 @@ plus:                                   ; x y -- z
 
 minus:                                   ; x y -- z
     push HL
-    _getTOS D,E
-    call drop
+    ; _getTOS D,E
+    ; call drop
+    _pop DE
     _getTOS H,L
     or A
     sbc HL,DE

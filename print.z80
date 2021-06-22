@@ -13,8 +13,9 @@ printCR:                                ; --
 ; destroys: HL
 printStr:                               ; ptr len --
     call swap
-    _getTOS H,L
-    call drop
+    ; _getTOS H,L
+    ; call drop
+    _pop HL
 printStr1:
     _do
         ld A,(HL)

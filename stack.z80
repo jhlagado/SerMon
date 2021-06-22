@@ -64,7 +64,7 @@ dup2:                                           ; xa xb -- xa xb xa xb
     call over
     ret
 
-drop2:                                          ; x x --
+drop2:                                          ; x x --   ?????????????????
     call nip
     call drop
     ret
@@ -143,8 +143,9 @@ fetch:                                          ; ptr -- n
 
 ; destroys: HL
 store:                                          ; n ptr --
-    _getTOS H,L
-    call drop
+    ; _getTOS H,L
+    ; call drop
+    _pop HL
     ld (HL),C
     inc HL
     ld (HL),B
@@ -153,8 +154,9 @@ store:                                          ; n ptr --
 
 ; destroys: HL
 storeChar:                                      ; c ptr --
-    _getTOS H,L
-    call drop
+    ; _getTOS H,L
+    ; call drop
+    _pop HL
     ld (HL),C
     call drop
     ret
