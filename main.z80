@@ -1,7 +1,6 @@
 .engine mycomputer
 
 TESTMODE equ 0
-SERIALMODE equ 6850
 
     .include "constants.z80"
     .include "macro-dict.z80"

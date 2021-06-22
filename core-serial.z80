@@ -18,10 +18,8 @@ initSerial:
     ld (serinptr),HL
     ld (serrdptr),HL
 
-    .if SERIALMODE = 6850
-        ld A,RTS_LOW
-        out (IO_CTRL),A
-    .endif
+    ld A,RTS_LOW
+    out (IO_CTRL),A
 
     im 1
     ei
@@ -30,22 +28,12 @@ initSerial:
 serialIn:
     push AF
     push HL
-    .if SERIALMODE = 6850
-        in A,(IO_CTRL)
-        and $01
-        __ifnz serialIn1     
-            in A,(IO_DATA)
-            call serialIn2
-        __endif serialIn1
-    .else
-        _do
-            in A,(PORT_STATUS)
-            bit 1,A
-        _until z
-        _enddo
-        in A,(PORT_DATA)
+    in A,(IO_CTRL)
+    and $01
+    __ifnz serialIn1     
+        in A,(IO_DATA)
         call serialIn2
-    .endif
+    __endif serialIn1
     pop HL
     pop AF
     ei
@@ -73,13 +61,11 @@ serialIn2:
     ld A,(serBufUsed)
     inc A
     ld (serBufUsed),A
-    .if SERIALMODE = 6850
-        cp SER_FULLSIZE
-        _if nc
-            ld A,RTS_HIGH
-            out (IO_CTRL),A
-        _endif
-    .endif
+    cp SER_FULLSIZE
+    _if nc
+        ld A,RTS_HIGH
+        out (IO_CTRL),A
+    _endif
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -88,24 +74,14 @@ serialIn2:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 putc:
-    .if SERIALMODE = 6850
-        push AF                     ; Store character
-        _do
-            in A,(IO_CTRL)      ; Status byte
-            bit 1,A             ; Set Zero flag if still transmitting character
-        _until nz
-        _enddo
-        pop AF                  ; Retrieve character
-        out (IO_DATA),A         ; Output the character
-    .else
-        push AF                     ; Store character
-        _do
-            in A,(PORT_STATUS)  ; Status byte
-            bit 0,A             ; Set Zero flag if still transmitting character
-        _until nz
-        _enddo
-        pop AF                  ; Retrieve character
-    .endif
+    push AF                     ; Store character
+    _do
+        in A,(IO_CTRL)      ; Status byte
+        bit 1,A             ; Set Zero flag if still transmitting character
+    _until nz
+    _enddo
+    pop AF                  ; Retrieve character
+    out (IO_DATA),A         ; Output the character
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
