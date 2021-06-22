@@ -3,13 +3,13 @@
 TESTMODE equ 0
 SERIALMODE equ 6850
 
-.include "constants.z80"
-.include "dict-macros.z80"
-.include "dloop-macros.z80"
-.include "macros.z80"
-.include "struct-macros.z80"
-.include "stack-macros.z80"
-.include "test-macros.z80"
+    .include "constants.z80"
+    .include "macro-dicts.z80"
+    .include "macro-dloop.z80"
+    .include "macro-stacks.z80"
+    .include "macro-structs.z80"
+    .include "macro-tests.z80"
+    .include "macro-utils.z80"
 
 .org START_ROM
 RST00:                                      ; Reset

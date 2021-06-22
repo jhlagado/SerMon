@@ -18,14 +18,13 @@ defword "formatNum", 0, formatNum       ; ptr num -- ptr len
         inc D
         call over                       ; ptr ptr' base num1 base
         call divide                     ; ptr ptr' base num2 rem
-        push BC
-        call dropdup                    ; ptr ptr' base num2 num2
+        _tor
+        call dup                    ; ptr ptr' base num2 num2
     _untilZero
     _enddo
     call drop2                          ; ptr ptr'
     _do
-        call dup
-        pop BC                          ; ptr ptr' digit
+        _rfrom
         call digitToChar                ; ptr ptr' ascii
         call over                       ; ptr ptr' ascii ptr'
         call storeChar                  ; ptr ptr'

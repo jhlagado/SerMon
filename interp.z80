@@ -47,6 +47,5 @@ interpCompile:
     ret
 
 execute:
-    push BC
-    call drop
+    _tor
     ret

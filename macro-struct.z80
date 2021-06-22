@@ -1,15 +1,3 @@
-;-------------------------------------------------------------------------------
-;
-; Assembler Structured Control-flow Macros
-; by John Hardy @ 2019 ALL WRONGS RESERVED
-; https://github.com/jhlagado/struct-z80
-;
-; Inspired by the work of Garth Wilson and Dave Keenan
-; http://wilsonminesco.com/StructureMacros/
-; http://dkeenan.com/AddingStructuredControlFlowToAnyAssembler.htm
-;
-;-------------------------------------------------------------------------------
-
 STRUC_COUNT .set 0
 
 STRUC_12 .set 0
@@ -124,3 +112,32 @@ L_%%M:
     STRUC_FWD
     STRUC_POP
 .endm
+
+    .macro _ifZero
+    call isZero
+    jp z, L_%%M
+    jp $              ; placeholder jump to _else or _endif
+    STRUC_PUSH $
+L_%%M:
+.endm
+
+.macro _ifNotZero
+    call isZero
+    jp nz, L_%%M
+    jp $              ; placeholder jump to _else or _endif
+    STRUC_PUSH $
+L_%%M:
+.endm
+
+.macro _untilZero
+    call isZero
+    jp z, DLOOP_TOP - 3  ; jump to jump to enddo
+    DLOOP_FWD               ; needed?
+.endm
+
+.macro _untilNotZero
+    call isZero
+    jp nz, DLOOP_TOP - 3  ; jump to jump to enddo
+    DLOOP_FWD               ; needed?
+.endm
+
