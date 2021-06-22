@@ -122,7 +122,7 @@ isZero:                                         ; n -- ?  ; this is wrong, shoul
 
 ; depth of data stack
 ; destroys: HL
-defword "depth", 0, depth                       ; -- n
+CODE "depth", 0, depth                       ; -- n
     push IX
     pop HL
     call dup

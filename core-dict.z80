@@ -1,9 +1,5 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; dictionary routines
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-defword "find",0,FIND                   ; ptr len -- ptrOrZero
+CODE "find",0,FIND                   ; ptr len -- ptrOrZero
     _push (latestDef)                   ; ptr len headptr
     _do
         call dup

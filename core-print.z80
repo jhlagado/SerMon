@@ -1,4 +1,4 @@
-defword "ok", 0, OK
+CODE "ok", 0, OK
     _pushPStr "OK"
     call printPStr
     ret
@@ -34,7 +34,7 @@ printPStr:                                  ; _ptr --
     jr printStr1
 
 ; destroys: HL
-defword ".", 0, printNum                    ; num --
+CODE ".", 0, printNum                    ; num --
     _push wordBuf1                          ; num ptr
     call swap                               ; ptr num
     call formatNum                          ; ptr len

@@ -1,0 +1,28 @@
+; destroys: DE, HL
+compareStr:                             ; str1 str2 len -- (-1|0|1)
+    push BC                             ; str1 str2 len
+    call drop                           ; str1 str2
+    _pop HL
+    _getTOS D,E
+    pop BC                              ; len
+    call dup
+    call isZero                         ; test for Count=0
+    ret z
+    _do
+        ld A,(DE)
+        inc DE
+        cpi
+        _if nz                          ; char mismatch: exit
+            dec HL                      ; point at mismatch char
+            cp (HL)                     ; set carry if char1 < char2
+            _if c
+                ld BC, -1
+            _else
+                ld BC, 1
+            _endif
+            ret
+        _endif
+    _until po
+    _enddo
+    ld BC,0                             ; count exhausted & no mismatch found
+    ret
