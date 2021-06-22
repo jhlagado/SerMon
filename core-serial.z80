@@ -143,23 +143,20 @@ getc:
         inc HL
         ld A,L             ; Only need to check low byte because lineBuf<256 bytes
         cp (serBuf + SER_BUFSIZE) & $FF
-        _if z
-            ld HL,serBuf
-        _endif
+        jr nz,getc21
+        ld HL,serBuf
+getc21:
         di
         ld (serRdPtr),HL
         ld A,(serBufUsed)
         dec A
         ld (serBufUsed),A
 
-        .if SERIALMODE = 6850
-            cp SER_EMPTYSIZE
-            _if c
-                ld A,RTS_LOW
-                out (IO_CTRL),A
-            _endif
-        .endif
-
+        cp SER_EMPTYSIZE
+        jr nc,getc22
+        ld A,RTS_LOW
+        out (IO_CTRL),A
+getc22:
         ld A,(HL)
         ei
     .endif
