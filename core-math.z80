@@ -32,9 +32,9 @@ divide2:
         rla
         adc HL,HL
         sbc HL,DE
-        _if c
+        __ifc               divide22
             add HL,DE
-        _endif
+        __endif             divide22
     _djnz
     rla
     cpl
