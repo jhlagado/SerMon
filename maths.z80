@@ -23,8 +23,7 @@ divide:                                 ; dividend divisor -- quotient remainder
     ld B,C
     ld C,A
 
-    call dup
-    _setTOS H,L                           ; TOS = remainder
+    _push HL
     pop DE
     ret
 
@@ -62,8 +61,7 @@ uMultiply:                              ; u1 u2 -- plo phi
     _until z
     _enddo
     _setTOS  D,E                          ; plo
-    call dup                                ; plo phi
-    _setTOS  H,L
+    _push HL
     pop HL
     ret
 

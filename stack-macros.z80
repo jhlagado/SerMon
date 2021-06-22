@@ -28,11 +28,6 @@
     call drop
 .endm
 
-.macro _pushWord, word
-    call dup
-    ld BC,word
-.endm
-
 .macro _pushChar, char
     call dup
     _setTOS 0,char
