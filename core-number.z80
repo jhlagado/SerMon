@@ -48,7 +48,7 @@ toNumber:                               ; str len -- num err
     call swap                           ; str len ; HL = str
     ld A,(HL)                           ; A = char
     cp '-'                              ; is A negative number?
-    _if z
+    __ifz toNumber2
         inc HL
         dec BC                          ; str len
         call dup                        ; str len len
@@ -60,7 +60,7 @@ toNumber:                               ; str len -- num err
         _else
             ld A,(HL)                   ; str len ; A = char
         _endIf
-    _endIf
+    __endIf toNumber2
     _push 0                             ; str len num(0)
     _do
         call dup
@@ -93,9 +93,9 @@ toNumber:                               ; str len -- num err
     ld A,(BC)
     cp "-"
     call drop                           ; num
-    _if z
+    __ifz toNumber3
         call negate                     ; num
-    _endif
+    __endif toNumber3
     _push 0                             ; num 0
     ret
 
