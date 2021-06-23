@@ -59,14 +59,14 @@ getline:
             pop HL
             push HL
             ld BC, 0
-getline0:    
-do_getline:
+getline1:    
+getline2:
             call getc
             cp $08
-            jr nz,else_getline1
+            jr nz,getline4
             call dup
             call isZero
-            jr z,endif_getline11
+            jr z,getline3
             dec HL
             dec BC
             ld a, $08
@@ -75,30 +75,30 @@ do_getline:
             call putc
             ld A, $08
             call putc
-endif_getline11:
-            jr endif_getline1
-else_getline1:
+getline3:
+            jr getline6
+getline4:
             ld (HL), A
             inc HL
             inc BC
             bit 7,a
-            jr nz,getline12
+            jr nz,getline5
             call putc
-getline12:
+getline5:
             cp "\r"
-            jr z, getLineCheck
+            jr z, getline8
             cp "\n"
-            jr z, getLineCheck
+            jr z, getline8
             ld A, E
             cp C
-            jr c, getLineCheck
-endif_getline1:
-            jr do_getline
-enddo_getline:
-getLineCheck:
+            jr c, getline8
+getline6:
+            jr getline2
+getline7:
+getline8:
             ld a, 0
             cp c
-            jr z,getline0
+            jr z,getline1
             pop AF
             pop HL
             call printCR
