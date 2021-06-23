@@ -75,11 +75,10 @@ serialIn23:
 
 putc:
     push AF                     ; Store character
-    _do
+putc0:
         in A,(IO_CTRL)      ; Status byte
         bit 1,A             ; Set Zero flag if still transmitting character
-    _until nz
-    _enddo
+        jr z,putc0
     pop AF                  ; Retrieve character
     out (IO_DATA),A         ; Output the character
     ret
@@ -111,10 +110,9 @@ getc:
         ld (charPtr), HL
 
     .else
-        _do
+getc0:
             call serReady
-        _until nz
-        _enddo
+            jr x, getc0
         ld HL,(serRdPtr)
         inc HL
         ld A,L             ; Only need to check low byte because lineBuf<256 bytes

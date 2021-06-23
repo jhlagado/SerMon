@@ -59,7 +59,7 @@ getline:
     pop HL
     push HL
     ld BC, 0
-    _do
+getline0:    
         _do
             call getc
             cp $08
@@ -95,8 +95,7 @@ getline12:
 getLineCheck:
         ld a, 0
         cp c
-    _until nz
-    _enddo
+        jr z,getline0
     pop AF
     pop HL
     call printCR
