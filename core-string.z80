@@ -23,6 +23,6 @@ else_compareStr221:
 endif_compareStr221:
             ret
 compareStr22:
-    jr pe,compareStr1
+    jp pe,compareStr1
     ld BC,0                             ; count exhausted & no mismatch found
     ret
