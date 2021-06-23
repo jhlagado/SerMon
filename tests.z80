@@ -147,11 +147,10 @@
 
     ; compareStr
 
-    _skip
+    jr skip%%M
         s1: .cstr "string"
         s2: .cstr "String2"
-    _endSkip
-
+    skip%%M:
     _pushPStr s1
     _pushPStr s2
     _push 7

@@ -45,10 +45,10 @@ skip%%M:
 .macro _pushPStr, s1
     _push tpt_text%%M
     ld BC, tpt_text%%M
-    _skip
+    jr skip%%M
 tpt_text%%M:
         .pstr s1
-    _endskip
+skip%%M:
 .endm
 
 ; _alter order of two cells

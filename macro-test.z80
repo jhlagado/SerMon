@@ -10,11 +10,10 @@
     ld (currkey),HL
     ld HL, tst_text%%M
     ld (charPtr), HL
-
-    _skip
+    jr skip%%M:
 tst_text%%M:
         db s1,"\r\n",-1,"\r\n"
-    _endskip
+skip%%M:
 .endm
 
 .macro expect, expectVal, failTxt
@@ -34,10 +33,10 @@ tst_text%%M:
     _push  te_fail%%M
     call printPStr
     halt
-    _skip
+    jr skip%%M
 te_fail%%M:
         .pstr failTxt
-    _endskip
+skip%%M:    
 tf_done%%M:
     call printCR
 .endm
