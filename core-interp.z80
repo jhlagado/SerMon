@@ -1,58 +1,58 @@
 repl:
-    ld IX, dataStack                  ; reset data stack
-    call interpret
-    ret
+            ld IX, dataStack                  ; reset data stack
+            call interpret
+            ret
 
 interpret:
-do_interpret:
-        _push wordBuf1             ; str
-        _push $40                  ; str maxlen
-        _push $20                  ; str maxlen delim
-    	call parseWord                  ; str len
-        call dup  
-        call isZero                          ; str len len
-        jr nz,else_interpret2                        ; str len
+interpret1:
+            _push wordBuf1                  ; str
+            _push $40                       ; str maxlen
+            _push $20                       ; str maxlen delim
+            call parseWord                  ; str len
+            call dup  
+            call isZero                     ; str len len
+            jr nz,interpret2                ; str len
             call drop2                      ; --
-            jr enddo_interpret
-else_interpret2:
-            _push (nestLevel)           ; str len nesting
+            jr interpret6
+interpret2:
+            _push (nestLevel)               ; str len nesting
             call isZero
-            jr nz,else_interpret1          ; str len
-                call interpImmed        ; num?
-                jr endif_interpret1
-else_interpret1: 
-                call interpCompile      ;
-endIf_interpret1:
-endIf_interpret2:
-        jr do_interpret
-enddo_interpret:
-    ret
+            jr nz,interpret3                ; str len
+            call interpImmed                ; num?
+            jr interpret4
+interpret3: 
+            call interpCompile      
+interpret4:
+interpret5:
+            jr interpret1
+interpret6:
+            ret
 
 interpImmed:                                ; str len -- num?
-    call dup2                               ; str len str len
-    call find                               ; str len ptrOrNull
-    call dup                                ; str len ptrOrNull ptrOrNull
-    call isZero                             ; str len ptrOrNull
-    jr nz,else_interpImmed0
-        call drop                           ; str len
-        call toNumber                       ; num err
-        call isZero
-        jr z,endif_interpImmed1
+            call dup2                       ; str len str len
+            call find                       ; str len ptrOrNull
+            call dup                        ; str len ptrOrNull ptrOrNull
+            call isZero                     ; str len ptrOrNull
+            jr nz,interpImm2
+            call drop                       ; str len
+            call toNumber                   ; num err
+            call isZero
+            jr z,interpImm1
             call drop                       ; --
             _pushPStr "NOT FOUND!\r\n"
             call printPStr                  ; --
-endIf_interpImmed1:                         ; else leave num on stack
-        jr endif_interpImmed0
-else_interpImmed0:
-        call nip2                       ; ptr
-        call getBody                    ; ptr'
-        call execute                    ; ?
-endif_interpImmed0:
-    ret
+interpImm1:                                 ; else leave num on stack
+            jr interpImm3
+interpImm2:
+            call nip2                       ; ptr
+            call getBody                    ; ptr'
+            call execute                    ; ?
+interpImm3:
+            ret
 
 interpCompile:
-    ret
+            ret
 
 execute:
-    _tor
-    ret
+            _tor
+            ret
