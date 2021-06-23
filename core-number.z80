@@ -51,14 +51,14 @@ toNumber:                               ; str len -- num err
         inc HL
         dec BC                          ; str len
         call dup                        ; str len len
-        __ifZero toNumber3
+        call isZero
+        jr nz,else_toNumber3
             call nip                    ; zero
             call dup                    ; zero zero
-            ld BC,1
+            ld BC,1                     ; TODO _push 1
             ret                         ; 0 1
-        __else toNumber3
+else_toNumber3:
             ld A,(HL)                   ; str len ; A = char
-        __endIf toNumber3
 toNumber2:
     _push 0                             ; str len num(0)
 toNumber21:
