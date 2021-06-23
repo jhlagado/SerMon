@@ -36,11 +36,12 @@ interpImmed:                                ; str len -- num?
     jr nz,else_interpImmed0
         call drop                           ; str len
         call toNumber                       ; num err
-        __ifNotZero interpImmed1
+        call isZero
+        jr z,endif_interpImmed1
             call drop                       ; --
             _pushPStr "NOT FOUND!\r\n"
             call printPStr                  ; --
-        __endIf interpImmed1                         ; else leave num on stack
+endIf_interpImmed1:                         ; else leave num on stack
         jr endif_interpImmed0
 else_interpImmed0:
         call nip2                       ; ptr

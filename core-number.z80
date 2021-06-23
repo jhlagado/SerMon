@@ -37,11 +37,12 @@ formatNum11:
 
 toNumber:                               ; str len -- num err
     call dup                            ; str len len
-    __ifZero toNumber1                            ; if zero then return 0 0
+    call isZero
+    jr nz,endif_toNumber1               ; if zero then return 0 0
         call nip                        ; zero
         call dup                        ; zero zero
         ret                             ; -- 0 0
-    __endif toNumber1
+endif_toNumber1:
     call swap
     _getTOS H,L
     call swap                           ; str len ; HL = str
@@ -67,13 +68,14 @@ toNumber21:
         call charToDigit                ; str len num nib
         call dup                        ; str len num nib nib
         call isValidDigit               ; str len num nib bool
-        __ifZero toNumber211                        ; str len num nib
-            call nip2                    ; str nib
+        call isZero
+        jr nz,endif_toNumber211         ; str len num nib
+            call nip2                   ; str nib
             call drop                   ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1
             ret
-        __endIf toNumber211
+endIf_toNumber211:
         call plus                       ; str len num (num += A)
         call swap                       ; str num len
         dec BC                          ; str num len (len--)
