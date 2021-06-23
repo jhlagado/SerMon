@@ -60,7 +60,7 @@ getline:
     push HL
     ld BC, 0
 getline0:    
-        _do
+do_getline:
             call getc
             cp $08
             jr nz,else_getline1
@@ -93,7 +93,8 @@ getline12:
                 cp C
                 jr c, getLineCheck
 endif_getline1:
-        _enddo
+                jr do_getline
+enddo_getline:
 getLineCheck:
         ld a, 0
         cp c
