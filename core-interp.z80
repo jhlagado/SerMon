@@ -9,18 +9,22 @@ interpret:
         _push $40                  ; str maxlen
         _push $20                  ; str maxlen delim
     	call parseWord                  ; str len
-        call dup                            ; str len len
-        __ifZero interpret2                        ; str len
+        call dup  
+        call isZero                          ; str len len
+        jr nz,else_interpret2                        ; str len
             call drop2                      ; --
             _break
-        __else interpret2
+            jr endif_interpret2
+else_interpret2:
             _push (nestLevel)           ; str len nesting
-            __ifZero interpret1          ; str len
+            call isZero
+            jr nz,else_interpret1          ; str len
                 call interpImmed        ; num?
-            __else interpret1 
+                jr endif_interpret1
+else_interpret1: 
                 call interpCompile      ;
-            __endIf interpret1
-        __endIf interpret2
+endIf_interpret1:
+endIf_interpret2:
     _endDo
     ret
 
