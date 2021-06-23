@@ -8,7 +8,7 @@ compareStr:                             ; str1 str2 len -- (-1|0|1)
     call dup
     call isZero                         ; test for Count=0
     ret z
-    _do
+compareStr1:
         ld A,(DE)
         inc DE
         cpi
@@ -23,7 +23,6 @@ else_compareStr221:
 endif_compareStr221:
             ret
 compareStr22:
-    _until po
-    _enddo
+    jr pe,compareStr1
     ld BC,0                             ; count exhausted & no mismatch found
     ret
