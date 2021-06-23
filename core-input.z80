@@ -63,7 +63,7 @@ getline0:
         _do
             call getc
             cp $08
-            __ifz getline1
+            jr nz,else_getline1
                 call dup
                 __ifNotZero getline11
                     dec HL
@@ -75,7 +75,8 @@ getline0:
                     ld A, $08
                     call putc
                 __endif getline11
-            __else getline1
+                jr endif_getline1
+else_getline1:
                 ld (HL), A
                 inc HL
                 inc BC
@@ -90,7 +91,7 @@ getline12:
                 ld A, E
                 cp C
                 jr c, getLineCheck
-            __endif getline1
+endif_getline1:
         _enddo
 getLineCheck:
         ld a, 0
