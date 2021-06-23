@@ -40,7 +40,7 @@ divid3:
             cpl
             ret
 
-        ; destroys: DE
+            ; destroys: DE
 uMultiply:                                      ; u1 u2 -- plo phi
             push HL
             _pop DE
