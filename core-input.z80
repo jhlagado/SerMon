@@ -9,6 +9,7 @@ initInput:
 
     CODE "KEY",0,KEY
     call getKey
+    call dup
     _setTOS 0,A
     ret
 

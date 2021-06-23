@@ -59,7 +59,9 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
         _do
             ld (HL),A                   ; write char to lineBuf
             inc HL                      ; ptr ptr'
-            call getKey                 ; get next key
+            call KEY                    ; get next key
+            ld A,C
+            call drop
             cp E                        ; = delim?
         _until z
             cp " "                      ; < space? i.e. control chars
