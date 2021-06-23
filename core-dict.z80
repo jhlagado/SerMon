@@ -1,4 +1,3 @@
-
             CODE "find",0,FIND                  ; ptr len -- ptrOrZero
             _push (latestDef)                   ; ptr len headptr
 find1:
@@ -39,4 +38,3 @@ find4:
             adc A,B
             ld B,A
             ret
-

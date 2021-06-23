@@ -1,89 +1,88 @@
-; destroys: HL
-negate:                                 ; num -- -num
-    ld HL,0
-    or A
-    sbc HL,BC
-    _setTOS  H,L
-    ret
+            ; destroys: HL
+negate:                                         ; num -- -num
+            ld HL,0
+            or A
+            sbc HL,BC
+            _setTOS  H,L
+            ret
 
-; destroys: HL
-divide:                                 ; dividend divisor -- quotient remainder
-    push DE
-    _pop DE
-    ld HL,0
+            ; destroys: HL
+divide:                                         ; dividend divisor -- quotient remainder
+            push DE
+            _pop DE
+            ld HL,0
 
-    ld A,B
-    call divide2
-    ld B,A
+            ld A,B
+            call divid1
+            ld B,A
 
-    ld A,C
-    ld C,B
-    call divide2
-    ld B,C
-    ld C,A
+            ld A,C
+            ld C,B
+            call divid1
+            ld B,C
+            ld C,A
 
-    _push HL
-    pop DE
-    ret
+            _push HL
+            pop DE
+            ret
 
-divide2:
-    ld B,8
-do_divide:
-        rla
-        adc HL,HL
-        sbc HL,DE
-        jr nc,divide22
+divid1:
+            ld B,8
+divid2:
+            rla
+            adc HL,HL
+            sbc HL,DE
+            jr nc,divid3
             add HL,DE
-divide22:
-    djnz do_divide
-    rla
-    cpl
-    ret
+divid3:
+            djnz divid2
+            rla
+            cpl
+            ret
 
-; destroys: DE
-uMultiply:                              ; u1 u2 -- plo phi
-    push HL
-    _pop DE
-    ld HL,0
-    ld A,17                             ; loop counter
-    or A                                ; clear carry
-uMultiply1:
-        rr H
-        rr L
-        rr D
-        rr E
-        jr nc,uMultiply2
+        ; destroys: DE
+uMultiply:                                      ; u1 u2 -- plo phi
+            push HL
+            _pop DE
+            ld HL,0
+            ld A,17                             ; loop counter
+            or A                                ; clear carry
+umul1:
+            rr H
+            rr L
+            rr D
+            rr E
+            jr nc,umul2
             add HL,BC
-uMultiply2:
-        dec A
-        jr nz, uMultiply1
-    _setTOS  D,E                          ; plo
-    _push HL
-    pop HL
-    ret
+umul2:
+            dec A
+            jr nz, umul1
+            _setTOS  D,E                        ; plo
+            _push HL
+            pop HL
+            ret
 
-plus:                                   ; x y -- z
-    push HL
-    _pop HL
-    add HL,BC
-    _setTOS H,L
-    pop HL
-    ret
+plus:                                           ; x y -- z
+            push HL
+            _pop HL
+            add HL,BC
+            _setTOS H,L
+            pop HL
+            ret
 
-minus:                                   ; x y -- z
-    push HL
-    _pop DE
-    _getTOS H,L
-    or A
-    sbc HL,DE
-    _setTOS H,L
-    pop HL
-    ret
+minus:                                          ; x y -- z
+            push HL
+            _pop DE
+            _getTOS H,L
+            or A
+            sbc HL,DE
+            _setTOS H,L
+            pop HL
+            ret
 
 carryToBool:
-    ld BC,0
-    jr nc,carryToBool1
-        dec BC
-carryToBool1:
-    ret
+            ld BC,0
+            ret nc
+            dec BC
+            ret
 
