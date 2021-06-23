@@ -115,16 +115,17 @@ charToDigit:                            ; char -- numOrError ; error = -1
     sub '0'                             ; < '0'?
     jr c, charToDigit1
         cp 10                           ; <= '9'?
-        __ifc charToDigit11
+        jr nc,else_charToDigit11
             ld C,A
-            or A                        ; clear carry flag
-        __else charToDigit11
+            or A  
+            jr endif_charToDigit11                      ; clear carry flag
+else_charToDigit11:
             sub 17                      ; < 'A'? (17 is 'A'-'0')
             jr c,charToDigit111
                 add A,10
                 ld C,A
 charToDigit111:
-        __endif charToDigit11
+endif_charToDigit11:
 charToDigit1:
     jr nc,charToDigit2
         ld BC,-1
@@ -134,13 +135,14 @@ charToDigit2:
 ; is in range 0 - BASE
 isValidDigit:                           ; n -- b
     bit 7,B
-    __ifnz isValidDigit1 
+    jr z,else_isValidDigit1 
         ld BC,0
-    __else isValidDigit1
+        jr endif_isValidDigit1
+else_isValidDigit1:
         ld A,C
         ld BC, (numberBase)
         cp C
         call carryToBool
-    __endIf isValidDigit1
+endIf_isValidDigit1:
     ret
 
