@@ -1,9 +1,10 @@
 
 CODE "find",0,FIND                   ; ptr len -- ptrOrZero
     _push (latestDef)                   ; ptr len headptr
-    _do
+do_find:
         call dup
-    _untilZero                          ; NULL pointer?  (end of the linked list)
+        call isZero
+        jr z,enddo_find                          ; NULL pointer?  (end of the linked list)
         call dup                            ; ptr len headptr headptr
         inc BC
         inc BC                          ; ptr len headptr flagsPtr
@@ -17,10 +18,12 @@ else_find22:
             inc BC                      ; ptr len headptr namePtr'  ; first char
             call over2                      ; ptr len headptr namePtr' ptr len
             call compareStr             ; ptr len headptr match     ;match == 0
-    _untilZero                          ; ptr len headptr
-endif_find22:
+            call isZero
+            jr z,enddo_find                          
+    endif_find22:
         call fetch                          ; ptr len headptr'
-    _enddo
+        jr do_find
+enddo_find:
     call nip2                                ; headptr
     ret
 

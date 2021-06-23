@@ -1,9 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; test-macros
-;;
-;; macros to facilitate tests
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 .macro TEST_SET_TEXT, s1
     ld HL, (lineBufStart)
     ld (lineBufTop),HL
