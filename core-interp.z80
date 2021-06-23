@@ -28,23 +28,25 @@ endIf_interpret2:
     _endDo
     ret
 
-interpImmed:                            ; str len -- num?
+interpImmed:                                ; str len -- num?
     call dup2                               ; str len str len
-    call find                           ; str len ptrOrNull
+    call find                               ; str len ptrOrNull
     call dup                                ; str len ptrOrNull ptrOrNull
-    __ifZero interpImmed0                            ; str len ptrOrNull
+    call isZero                             ; str len ptrOrNull
+    jr nz,else_interpImmed0
         call drop                           ; str len
-        call toNumber                   ; num err
+        call toNumber                       ; num err
         __ifNotZero interpImmed1
             call drop                       ; --
             _pushPStr "NOT FOUND!\r\n"
-            call printPStr              ; --
+            call printPStr                  ; --
         __endIf interpImmed1                         ; else leave num on stack
-    __else interpImmed0
+        jr endif_interpImmed0
+else_interpImmed0:
         call nip2                       ; ptr
         call getBody                    ; ptr'
         call execute                    ; ?
-    __endif interpImmed0
+endif_interpImmed0:
     ret
 
 interpCompile:
