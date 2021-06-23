@@ -36,10 +36,10 @@
 .macro _pushStr, str, len
     _push tpt_text%%M
     _push len
-    _skip
+    jr skip%%M
 tpt_text%%M:
         db str
-    _endskip
+skip%%M:
 .endm
 
 .macro _pushPStr, s1

@@ -54,35 +54,6 @@ STRUC_TOP .set 0
     org CUR_ADR
 .endm
 
-; switch
-
-.macro _switch
-    jr L_%%M
-    jp $            ; placeholder jump to endswitch
-    STRUC_PUSH $
-L_%%M:
-.endm
-
-.macro _case, flag
-    jp flag, L_%%M
-    jp $            ; placeholder jump to endcase
-    STRUC_PUSH $
-L_%%M:
-.endm
-
-.macro _endcase
-    jp STRUC_2 - 3  ; jump to placeholder jump to endswitch
-    STRUC_FWD
-    STRUC_POP
-.endm
-
-.macro _endswitch
-    STRUC_FWD
-    STRUC_POP
-.endm
-
-; skip
-
 .macro _skip
     jp $              ; placeholder jump to _else or _endif
     STRUC_PUSH $
