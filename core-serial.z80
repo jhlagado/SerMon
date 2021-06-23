@@ -30,10 +30,10 @@ serialIn:
     push HL
     in A,(IO_CTRL)
     and $01
-    __ifnz serialIn1     
+    jr z,serialIn1
         in A,(IO_DATA)
         call serialIn2
-    __endif serialIn1
+serialIn1:
     pop HL
     pop AF
     ei
