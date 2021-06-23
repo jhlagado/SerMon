@@ -7,7 +7,6 @@ parseWord:                              ; -- ptr len
 skipDelims:                             ; delim -- char
     _do
         call getKey                     ; get next key, returned in A
-        _switch
 
             bit 7, A                    ; check end of input, used by tests
             jr z,skipDelims1
@@ -15,28 +14,26 @@ skipDelims:                             ; delim -- char
                 _break
 skipDelims1:
             cp $5C                      ; \ start of a comment?
-            _case z                     ; if yes skip to end of line
+            jr nz,ec_skipDelims1        ; if yes skip to end of line
 skipDelims11:
                 call getKey
-                cp "\r"             ; end of line yet?
+                cp "\r"                 ; end of line yet?
                 jr z,skipDelims2
-                    cp "\n"         ; end of line yet?
+                    cp "\n"             ; end of line yet?
 skipDelims2:
                 jr nz,skipDelims11
-            _endcase
-
+                jr es_skipDelims
+ec_skipDelims1:
             cp C                        ; = space?
-            _case z
-            _endcase
+            jr z,es_skipDelims
 
             cp " "                      ; < space?
-            _case c
-            _endcase
+            jr c,es_skipDelims
 
             ; default case
             _break
 
-        _endswitch
+es_skipDelims:
     _enddo
     _setTOS 0,A                           ; TOS = char
     ret
