@@ -1,42 +1,42 @@
 
-CODE "find",0,FIND                   ; ptr len -- ptrOrZero
-    _push (latestDef)                   ; ptr len headptr
-do_find:
-        call dup
-        call isZero
-        jr z,enddo_find                          ; NULL pointer?  (end of the linked list)
-        call dup                            ; ptr len headptr headptr
-        inc BC
-        inc BC                          ; ptr len headptr flagsPtr
-        ld A,(BC)                       ; A = flags
-        bit 7,A                         ; test HIDDEN flag
-        jr z, else_find22 
+            CODE "find",0,FIND                   ; ptr len -- ptrOrZero
+            _push (latestDef)                   ; ptr len headptr
+find1:
+            call dup
+            call isZero
+            jr z,find4                          ; NULL pointer?  (end of the linked list)
+            call dup                            ; ptr len headptr headptr
+            inc BC
+            inc BC                          ; ptr len headptr flagsPtr
+            ld A,(BC)                       ; A = flags
+            bit 7,A                         ; test HIDDEN flag
+            jr z, find2 
             call drop                       ; ptr len headptr
-            jr endif_find22
-else_find22:
+            jr find3
+find2:
             inc BC                      ; ptr len headptr namePtr   ; length
             inc BC                      ; ptr len headptr namePtr'  ; first char
             call over2                      ; ptr len headptr namePtr' ptr len
             call compareStr             ; ptr len headptr match     ;match == 0
             call isZero
-            jr z,enddo_find                          
-    endif_find22:
-        call fetch                          ; ptr len headptr'
-        jr do_find
-enddo_find:
-    call nip2                                ; headptr
-    ret
+            jr z,find4                          
+find3:
+            call fetch                          ; ptr len headptr'
+            jr find1
+find4:
+            call nip2                                ; headptr
+            ret
 
-CODE ">body",0,getBody                  ; ptr -- ptr'
-    inc BC                              ;
-    inc BC                              ; skip over backlink
-    inc BC                              ; skip over flags
-    ld A,(BC)                           ; A = len of routine's name
-    inc BC                              ; skip over len
-    add A,C
-    ld C,A
-    ld A,0
-    adc A,B
-    ld B,A
-    ret
+            CODE ">body",0,getBody                  ; ptr -- ptr'
+            inc BC                              ;
+            inc BC                              ; skip over backlink
+            inc BC                              ; skip over flags
+            ld A,(BC)                           ; A = len of routine's name
+            inc BC                              ; skip over len
+            add A,C
+            ld C,A
+            ld A,0
+            adc A,B
+            ld B,A
+            ret
 

@@ -1,17 +1,17 @@
 initInput:
-    ld HL, linebuf
-    ld (lineBufStart), HL
-    ld (currkey), HL
-    ld (linebuftop), HL
-    ld HL, LINE_BUFSIZE
-    ld (lineBufSize), HL
-    ret
+            ld HL, linebuf
+            ld (lineBufStart), HL
+            ld (currkey), HL
+            ld (linebuftop), HL
+            ld HL, LINE_BUFSIZE
+            ld (lineBufSize), HL
+            ret
 
-    CODE "KEY",0,KEY
-    call getKey
-    call dup
-    _setTOS 0,A
-    ret
+            CODE "KEY",0,KEY
+            call getKey
+            call dup
+            _setTOS 0,A
+            ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; getKey -  inputs a line buffered character
@@ -20,31 +20,31 @@ initInput:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 getKey:
-    push HL
-    push DE
-    push BC
-    ld HL, (currkey)
-    ld DE, (lineBufTop)
-    or A
-    sbc HL, DE                  ; exhausted the input lineBuf?
-    jr c,getKey1
-        ld HL, (lineBufStart)   ; lineBuf
-        ld DE, (lineBufSize)    ; LINE_BUFSIZE
-        call getline
-        ld HL, lineBuf
-        ld (currkey), HL
-        or A
-        adc HL, BC              ; lineBuf+DE = lineBufTop
-        ld (lineBufTop),HL
+            push HL
+            push DE
+            push BC
+            ld HL, (currkey)
+            ld DE, (lineBufTop)
+            or A
+            sbc HL, DE                  ; exhausted the input lineBuf?
+            jr c,getKey1
+            ld HL, (lineBufStart)   ; lineBuf
+            ld DE, (lineBufSize)    ; LINE_BUFSIZE
+            call getline
+            ld HL, lineBuf
+            ld (currkey), HL
+            or A
+            adc HL, BC              ; lineBuf+DE = lineBufTop
+            ld (lineBufTop),HL
 getKey1:
-    ld HL, (currkey)
-    ld A,(HL)               ; get next key from input lineBuf
-    inc HL
-    ld (currkey),HL         ; increment currkey
-    pop BC
-    pop DE
-    pop HL
-    ret
+            ld HL, (currkey)
+            ld A,(HL)               ; get next key from input lineBuf
+            inc HL
+            ld (currkey),HL         ; increment currkey
+            pop BC
+            pop DE
+            pop HL
+            ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; getline - input line of text ***
@@ -52,55 +52,54 @@ getKey1:
 ; returns: BC = length - up to 255
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 getline:
-    push AF
-    push HL
-    _pushPStr "\r\n> "
-    call printPStr
-    pop HL
-    push HL
-    ld BC, 0
+            push AF
+            push HL
+            _pushPStr "\r\n> "
+            call printPStr
+            pop HL
+            push HL
+            ld BC, 0
 getline0:    
 do_getline:
             call getc
             cp $08
             jr nz,else_getline1
-                call dup
-                call isZero
-                jr z,endif_getline11
-                    dec HL
-                    dec BC
-                    ld a, $08
-                    call putc
-                    ld A," "
-                    call putc
-                    ld A, $08
-                    call putc
+            call dup
+            call isZero
+            jr z,endif_getline11
+            dec HL
+            dec BC
+            ld a, $08
+            call putc
+            ld A," "
+            call putc
+            ld A, $08
+            call putc
 endif_getline11:
-                jr endif_getline1
+            jr endif_getline1
 else_getline1:
-                ld (HL), A
-                inc HL
-                inc BC
-                bit 7,a
-                jr nz,getline12
-                call putc
+            ld (HL), A
+            inc HL
+            inc BC
+            bit 7,a
+            jr nz,getline12
+            call putc
 getline12:
-                cp "\r"
-                jr z, getLineCheck
-                cp "\n"
-                jr z, getLineCheck
-                ld A, E
-                cp C
-                jr c, getLineCheck
+            cp "\r"
+            jr z, getLineCheck
+            cp "\n"
+            jr z, getLineCheck
+            ld A, E
+            cp C
+            jr c, getLineCheck
 endif_getline1:
-                jr do_getline
+            jr do_getline
 enddo_getline:
 getLineCheck:
-        ld a, 0
-        cp c
-        jr z,getline0
-    pop AF
-    pop HL
-    call printCR
-    ret
-   
+            ld a, 0
+            cp c
+            jr z,getline0
+            pop AF
+            pop HL
+            call printCR
+            ret
