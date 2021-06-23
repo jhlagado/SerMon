@@ -55,9 +55,10 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
     __ifz wordRead1
         ld BC,0                         ; ptr len           ; where len = 0
     __else wordRead1
+        _pop HL                         ; ptr               ; HL = ptr
         _do
-            ld (BC),A                   ; write char to lineBuf
-            inc BC                      ; ptr ptr'
+            ld (HL),A                   ; write char to lineBuf
+            inc HL                      ; ptr ptr'
             call getKey                 ; get next key
             cp E                        ; = delim?
         _until z
@@ -66,10 +67,8 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
             dec D
         _until z
         _enddo
-        _getTOS H,L                       ; HL = ptr'
-        call dropdup                    ; ptr ptr
         or A
         sbc HL, BC                      ; ptr' - ptr
-        _setTOS  H,L                      ; ptr len
+        _push  HL                       ; ptr len
     __endif wordRead1
     ret
