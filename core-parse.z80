@@ -50,9 +50,10 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
     ld D,C                              ;
     call dropdup                        ; ptr ptr           ; D = maxlen
     or A                                ; A = 0 ?
-    __ifz wordRead1
+    jr nz,else_wordRead1
         ld BC,0                         ; ptr len           ; where len = 0
-    __else wordRead1
+        jr endif_wordRead1
+else_wordRead1:
         _pop HL                         ; ptr               ; HL = ptr
 wordRead11:
             ld (HL),A                   ; write char to lineBuf
@@ -70,5 +71,5 @@ wordRead12:
         or A
         sbc HL, BC                      ; ptr' - ptr
         _push  HL                       ; ptr len
-    __endif wordRead1
+endif_wordRead1:
     ret

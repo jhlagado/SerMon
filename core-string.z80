@@ -15,11 +15,12 @@ compareStr:                             ; str1 str2 len -- (-1|0|1)
         jr z,compareStr22               ; char mismatch: exit
             dec HL                      ; point at mismatch char
             cp (HL)                     ; set carry if char1 < char2
-            __ifc compareStr221
+            jr nc,else_compareStr221
                 ld BC, -1
-            __else compareStr221
+                jr endif_compareStr221
+else_compareStr221:
                 ld BC, 1
-            __endif compareStr221
+endif_compareStr221:
             ret
 compareStr22:
     _until po
