@@ -1,13 +1,48 @@
 initInput:
-
     ld HL, linebuf
     ld (lineBufStart), HL
     ld (currkey), HL
     ld (linebuftop), HL
-
     ld HL, LINE_BUFSIZE
     ld (lineBufSize), HL
+    ret
 
+    CODE "KEY",0,KEY
+    call getKey
+    _setTOS 0,A
+    ret
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; getKey -  inputs a line buffered character
+; params: none
+; returns: A = character,
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+getKey:
+    push HL
+    push DE
+    push BC
+    ld HL, (currkey)
+    ld DE, (lineBufTop)
+    or A
+    sbc HL, DE                  ; exhausted the input lineBuf?
+    _if nc
+        ld HL, (lineBufStart)   ; lineBuf
+        ld DE, (lineBufSize)    ; LINE_BUFSIZE
+        call getline
+        ld HL, lineBuf
+        ld (currkey), HL
+        or A
+        adc HL, BC              ; lineBuf+DE = lineBufTop
+        ld (lineBufTop),HL
+    _endif
+    ld HL, (currkey)
+    ld A,(HL)               ; get next key from input lineBuf
+    inc HL
+    ld (currkey),HL         ; increment currkey
+    pop BC
+    pop DE
+    pop HL
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -15,7 +50,6 @@ initInput:
 ; params: HL = addr, DE = max (currently up to 255)
 ; returns: BC = length - up to 255
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 getline:
     push AF
     push HL
@@ -67,37 +101,4 @@ getLineCheck:
     pop HL
     call printCR
     ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; getKey -  inputs a line buffered character
-; params: none
-; returns: A = character,
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-getKey:
-    push HL
-    push DE
-    push BC
-    ld HL, (currkey)
-    ld DE, (lineBufTop)
-    or A
-    sbc HL, DE                  ; exhausted the input lineBuf?
-    _if nc
-        ld HL, (lineBufStart)   ; lineBuf
-        ld DE, (lineBufSize)    ; LINE_BUFSIZE
-        call getline
-        ld HL, lineBuf
-        ld (currkey), HL
-        or A
-        adc HL, BC              ; lineBuf+DE = lineBufTop
-        ld (lineBufTop),HL
-    _endif
-    ld HL, (currkey)
-    ld A,(HL)               ; get next key from input lineBuf
-    inc HL
-    ld (currkey),HL         ; increment currkey
-    pop BC
-    pop DE
-    pop HL
-    ret
-
+   
