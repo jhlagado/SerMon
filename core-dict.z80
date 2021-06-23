@@ -9,15 +9,16 @@ CODE "find",0,FIND                   ; ptr len -- ptrOrZero
         inc BC                          ; ptr len headptr flagsPtr
         ld A,(BC)                       ; A = flags
         bit 7,A                         ; test HIDDEN flag
-        __ifnz find22 
+        jr z, else_find22 
             call drop                       ; ptr len headptr
-        __else find22
+            jr endif_find22
+else_find22:
             inc BC                      ; ptr len headptr namePtr   ; length
             inc BC                      ; ptr len headptr namePtr'  ; first char
             call over2                      ; ptr len headptr namePtr' ptr len
             call compareStr             ; ptr len headptr match     ;match == 0
     _untilZero                          ; ptr len headptr
-        __endif find22
+endif_find22:
         call fetch                          ; ptr len headptr'
     _enddo
     call nip2                                ; headptr
