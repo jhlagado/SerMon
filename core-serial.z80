@@ -54,7 +54,7 @@ serialIn2:
     cp (serBuf + SER_BUFSIZE) & $FF
     __ifz serialIn22
         ld HL,serBuf
-    __endifserialIn22
+    __endif serialIn22
     ld (serInPtr),HL
     pop AF
     ld (HL),A
