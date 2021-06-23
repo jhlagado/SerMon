@@ -15,14 +15,13 @@ printStr:                               ; ptr len --
     call swap
     _pop HL
 printStr1:
-    _do
         ld A,(HL)
         call putc
         inc HL
         dec BC
         call dup
-    _untilZero
-    _enddo
+        call isZero
+        jr nz,printStr1
     call drop                                   ; clear TOS
     ret
 

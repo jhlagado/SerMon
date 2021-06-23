@@ -5,7 +5,7 @@ parseWord:                              ; -- ptr len
     ret
 
 skipDelims:                             ; delim -- char
-    do_skipDelims
+do_skipDelims:
         call getKey                     ; get next key, returned in A
 
             bit 7, A                    ; check end of input, used by tests
