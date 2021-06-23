@@ -23,15 +23,14 @@ formatNum1:
     _untilZero
     _enddo
     call drop2                          ; ptr ptr'
-    _do
+formatNum11:
         _rfrom
         call digitToChar                ; ptr ptr' ascii
         call over                       ; ptr ptr' ascii ptr'
         call storeChar                  ; ptr ptr'
         inc BC                          ; ptr ptr''
         dec D
-    _until z
-    _enddo
+        jr nz, formatNum11
     call over                           ; ptr ptr'' ptr
     call minus                          ; ptr len
     ret
@@ -62,7 +61,7 @@ toNumber:                               ; str len -- num err
         _endIf
 toNumber2:
     _push 0                             ; str len num(0)
-    _do
+toNumber21:
         call dup
         ld C,A                          ; str len num char
         call charToDigit                ; str len num nib
@@ -81,13 +80,14 @@ toNumber2:
         call dup                        ; str num len len
         call isZero                     ; str num len
         call swap                       ; str len num
-    _until z
+        jr z, toNumber22
         _push (numberBase)              ; str len num base
         call uMultiply                  ; str len num num2 (num *= BASE)
         call drop                       ; str len num
         inc HL
         ld A,(HL)                       ; a = next char
-    _enddo
+        jr toNumber21
+toNumber22:
     call nip                            ; str num
     call swap                           ; num str
     ld A,(BC)

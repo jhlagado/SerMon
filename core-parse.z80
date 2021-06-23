@@ -16,14 +16,13 @@ skipDelims:                             ; delim -- char
 skipDelims1:
             cp $5C                      ; \ start of a comment?
             _case z                     ; if yes skip to end of line
-                _do
-                    call getKey
-                    cp "\r"             ; end of line yet?
-                    jr z,skipDelims2
-                        cp "\n"         ; end of line yet?
+skipDelims11:
+                call getKey
+                cp "\r"             ; end of line yet?
+                jr z,skipDelims2
+                    cp "\n"         ; end of line yet?
 skipDelims2:
-                    _until z
-                _enddo
+                jr nz,skipDelims11
             _endcase
 
             cp C                        ; = space?
@@ -55,19 +54,19 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
         ld BC,0                         ; ptr len           ; where len = 0
     __else wordRead1
         _pop HL                         ; ptr               ; HL = ptr
-        _do
+wordRead11:
             ld (HL),A                   ; write char to lineBuf
             inc HL                      ; ptr ptr'
             call KEY                    ; get next key
             ld A,C
             call drop
             cp E                        ; = delim?
-        _until z
+            jr z,wordRead12
             cp " "                      ; < space? i.e. control chars
-        _until c
+            jr c,wordRead12
             dec D
-        _until z
-        _enddo
+            jr nz, wordRead11
+wordRead12:
         or A
         sbc HL, BC                      ; ptr' - ptr
         _push  HL                       ; ptr len

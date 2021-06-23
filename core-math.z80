@@ -47,17 +47,16 @@ uMultiply:                              ; u1 u2 -- plo phi
     ld HL,0
     ld A,17                             ; loop counter
     or A                                ; clear carry
-    _do
+uMultiply1:
         rr H
         rr L
         rr D
         rr E
-        jr nc,uMultiply11
+        jr nc,uMultiply2
             add HL,BC
-uMultiply11:
+uMultiply2:
         dec A
-    _until z
-    _enddo
+        jr nz, uMultiply1
     _setTOS  D,E                          ; plo
     _push HL
     pop HL
