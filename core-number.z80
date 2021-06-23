@@ -14,14 +14,13 @@ formatNum1:
     _push (numberBase)                  ; ptr ptr' num1 base
     call swap                           ; ptr ptr' base num1
     ld D, 0                             ; D counter
-    _do
+do_formatNum:
         inc D
         call over                       ; ptr ptr' base num1 base
         call divide                     ; ptr ptr' base num2 rem
         _tor
-        call dup                    ; ptr ptr' base num2 num2
-    _untilZero
-    _enddo
+        call dup                        ; ptr ptr' base num2 num2
+        jr nz,do_formatNum
     call drop2                          ; ptr ptr'
 formatNum11:
         _rfrom

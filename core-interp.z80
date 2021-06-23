@@ -4,7 +4,7 @@ repl:
     ret
 
 interpret:
-    _do
+do_interpret:
         _push wordBuf1             ; str
         _push $40                  ; str maxlen
         _push $20                  ; str maxlen delim
@@ -25,7 +25,8 @@ else_interpret1:
                 call interpCompile      ;
 endIf_interpret1:
 endIf_interpret2:
-    _endDo
+        jr do_interpret
+enddo_interpret:
     ret
 
 interpImmed:                                ; str len -- num?
