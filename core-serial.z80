@@ -112,13 +112,13 @@ getc:
     .else
 getc0:
             call serReady
-            jr x, getc0
+            jr z, getc0
         ld HL,(serRdPtr)
         inc HL
         ld A,L             ; Only need to check low byte because lineBuf<256 bytes
         cp (serBuf + SER_BUFSIZE) & $FF
         jr nz,getc21
-        ld HL,serBuf
+            ld HL,serBuf
 getc21:
         di
         ld (serRdPtr),HL
@@ -128,8 +128,8 @@ getc21:
 
         cp SER_EMPTYSIZE
         jr nc,getc22
-        ld A,RTS_LOW
-        out (IO_CTRL),A
+            ld A,RTS_LOW
+            out (IO_CTRL),A
 getc22:
         ld A,(HL)
         ei
