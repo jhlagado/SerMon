@@ -103,9 +103,9 @@ digitToChar:                            ; n -- a
     ld A,$30
     add A,C                             ; convert TOS digit to ASCII
     cp $3A
-    _if nc
+    __ifnc digitToChar1
         add A,7
-    _endif
+    __endif digitToChar1
     ld C,A
     ret
 
@@ -113,22 +113,22 @@ charToDigit:                            ; char -- numOrError ; error = -1
     ld A,C
     ld B,0
     sub '0'                             ; < '0'?
-    _if nc                              ; invalid char, end of number
+    __ifnc charToDigit1                             ; invalid char, end of number
         cp 10                           ; <= '9'?
-        _if c
+        __ifc charToDigit11
             ld C,A
             or A                        ; clear carry flag
-        _else
+        __else charToDigit11
             sub 17                      ; < 'A'? (17 is 'A'-'0')
-            _if nc
+            __ifnc charToDigit111
                 add A,10
                 ld C,A
-            _endif
-        _endif
-    _endif
-    _if c
+            __endif charToDigit111
+        __endif charToDigit11
+    __endif charToDigit1
+    __ifc charToDigit2
         ld BC,-1
-    _endIf
+    __endIf charToDigit2
     ret
 
 ; is in range 0 - BASE

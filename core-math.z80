@@ -52,9 +52,9 @@ uMultiply:                              ; u1 u2 -- plo phi
         rr L
         rr D
         rr E
-        _if c
+        __ifc uMultiply11
             add HL,BC
-        _endif
+        __endif uMultiply11
         dec A
     _until z
     _enddo
@@ -83,8 +83,8 @@ minus:                                   ; x y -- z
 
 carryToBool:
     ld BC,0
-    _if c
+    __ifc carryToBool1
         dec BC
-    _endif
+    __endif carryToBool1
     ret
 

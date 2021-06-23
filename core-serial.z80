@@ -44,17 +44,17 @@ serialIn2:
     push AF
     ld A,(serBufUsed)
     cp SER_BUFSIZE
-    _if z
+    __ifz serialIn21
         pop AF
         ret
-    _endif
+    __endif serialIn21
     ld HL,(serInPtr)
     inc HL
     ld A,L             ; Only need to check low byte becasuse lineBuf<256 bytes
     cp (serBuf + SER_BUFSIZE) & $FF
-    _if z
+    __ifz serialIn22
         ld HL,serBuf
-    _endif
+    __endifserialIn22
     ld (serInPtr),HL
     pop AF
     ld (HL),A
@@ -62,10 +62,10 @@ serialIn2:
     inc A
     ld (serBufUsed),A
     cp SER_FULLSIZE
-    _if nc
+    __ifnc serialIn23
         ld A,RTS_HIGH
         out (IO_CTRL),A
-    _endif
+    __endif serialIn23
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
