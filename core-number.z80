@@ -20,6 +20,7 @@ do_formatNum:
         call divide                     ; ptr ptr' base num2 rem
         _tor
         call dup                        ; ptr ptr' base num2 num2
+        call isZero
         jr nz,do_formatNum
     call drop2                          ; ptr ptr'
 formatNum11:
