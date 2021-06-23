@@ -93,18 +93,3 @@ L_%%M:
     STRUC_POP
 .endm
 
-.macro _ifZero
-    call isZero
-    jp z, L_%%M
-    jp $              ; placeholder jump to _else or _endif
-    STRUC_PUSH $
-L_%%M:
-.endm
-
-.macro _ifNotZero
-    call isZero
-    jp nz, L_%%M
-    jp $              ; placeholder jump to _else or _endif
-    STRUC_PUSH $
-L_%%M:
-.endm

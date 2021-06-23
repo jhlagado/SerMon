@@ -65,7 +65,7 @@ getline0:
             cp $08
             __ifz getline1
                 call dup
-                _ifNotZero
+                __ifNotZero getline11
                     dec HL
                     dec BC
                     ld a, $08
@@ -74,7 +74,7 @@ getline0:
                     call putc
                     ld A, $08
                     call putc
-                _endif
+                __endif getline11
             __else getline1
                 ld (HL), A
                 inc HL

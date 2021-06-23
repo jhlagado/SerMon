@@ -10,17 +10,17 @@ interpret:
         _push $20                  ; str maxlen delim
     	call parseWord                  ; str len
         call dup                            ; str len len
-        _ifZero                         ; str len
+        __ifZero interpret2                        ; str len
             call drop2                      ; --
             _break
-        _else
+        __else interpret2
             _push (nestLevel)           ; str len nesting
-            _ifZero                     ; str len
+            __ifZero interpret1          ; str len
                 call interpImmed        ; num?
-            _else
+            __else interpret1 
                 call interpCompile      ;
-            _endIf
-        _endIf
+            __endIf interpret1
+        __endIf interpret2
     _endDo
     ret
 
@@ -28,19 +28,19 @@ interpImmed:                            ; str len -- num?
     call dup2                               ; str len str len
     call find                           ; str len ptrOrNull
     call dup                                ; str len ptrOrNull ptrOrNull
-    _ifZero                             ; str len ptrOrNull
+    __ifZero interpImmed0                            ; str len ptrOrNull
         call drop                           ; str len
         call toNumber                   ; num err
-        _ifNotZero
+        __ifNotZero interpImmed1
             call drop                       ; --
             _pushPStr "NOT FOUND!\r\n"
             call printPStr              ; --
-        _endIf                          ; else leave num on stack
-    _else
+        __endIf interpImmed1                         ; else leave num on stack
+    __else interpImmed0
         call nip2                       ; ptr
         call getBody                    ; ptr'
         call execute                    ; ?
-    _endif
+    __endif interpImmed0
     ret
 
 interpCompile:
