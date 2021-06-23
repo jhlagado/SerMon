@@ -4,7 +4,6 @@ TESTMODE equ 0
 
     .include "constants.z80"
     .include "macro-dict.z80"
-    .include "macro-dloop.z80"
     .include "macro-stack.z80"
     .include "macro-test.z80"
     .include "macro-util.z80"

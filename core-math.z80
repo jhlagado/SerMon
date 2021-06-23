@@ -28,14 +28,14 @@ divide:                                 ; dividend divisor -- quotient remainder
 
 divide2:
     ld B,8
-    _do
+do_divide:
         rla
         adc HL,HL
         sbc HL,DE
         jr nc,divide22
             add HL,DE
 divide22:
-    _djnz
+    djnz do_divide
     rla
     cpl
     ret

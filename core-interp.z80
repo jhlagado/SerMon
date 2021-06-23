@@ -13,8 +13,7 @@ do_interpret:
         call isZero                          ; str len len
         jr nz,else_interpret2                        ; str len
             call drop2                      ; --
-            _break
-            jr endif_interpret2
+            jr enddo_interpret
 else_interpret2:
             _push (nestLevel)           ; str len nesting
             call isZero
