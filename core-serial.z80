@@ -62,10 +62,10 @@ serialIn2:
     inc A
     ld (serBufUsed),A
     cp SER_FULLSIZE
-    __ifnc serialIn23
+    jr c, serialIn23
         ld A,RTS_HIGH
         out (IO_CTRL),A
-    __endif serialIn23
+serialIn23:
     ret
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

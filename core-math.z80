@@ -32,9 +32,9 @@ divide2:
         rla
         adc HL,HL
         sbc HL,DE
-        __ifc               divide22
+        jr nc,divide22
             add HL,DE
-        __endif             divide22
+divide22:
     _djnz
     rla
     cpl
@@ -52,9 +52,9 @@ uMultiply:                              ; u1 u2 -- plo phi
         rr L
         rr D
         rr E
-        __ifc uMultiply11
+        jr nc,uMultiply11
             add HL,BC
-        __endif uMultiply11
+uMultiply11:
         dec A
     _until z
     _enddo
@@ -83,8 +83,8 @@ minus:                                   ; x y -- z
 
 carryToBool:
     ld BC,0
-    __ifc carryToBool1
+    jr nc,carryToBool1
         dec BC
-    __endif carryToBool1
+carryToBool1:
     ret
 

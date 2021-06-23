@@ -27,7 +27,7 @@ getKey:
     ld DE, (lineBufTop)
     or A
     sbc HL, DE                  ; exhausted the input lineBuf?
-    __ifnc getKey1
+    jr c,getKey1
         ld HL, (lineBufStart)   ; lineBuf
         ld DE, (lineBufSize)    ; LINE_BUFSIZE
         call getline
@@ -36,7 +36,7 @@ getKey:
         or A
         adc HL, BC              ; lineBuf+DE = lineBufTop
         ld (lineBufTop),HL
-    __endif getKey1
+getKey1:
     ld HL, (currkey)
     ld A,(HL)               ; get next key from input lineBuf
     inc HL
@@ -80,10 +80,9 @@ getline:
                 inc HL
                 inc BC
                 bit 7,a
-                __ifz getline12
-                    call putc
-                __endif getline12
-
+                jr nz,getline12
+                call putc
+getline12:
                 cp "\r"
                 jr z, getLineCheck
                 cp "\n"
