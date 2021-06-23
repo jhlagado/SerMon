@@ -10,7 +10,7 @@
     ld (currkey),HL
     ld HL, tst_text%%M
     ld (charPtr), HL
-    jr skip%%M:
+    jr skip%%M
 tst_text%%M:
         db s1,"\r\n",-1,"\r\n"
 skip%%M:
