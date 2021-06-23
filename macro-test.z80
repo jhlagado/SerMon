@@ -28,8 +28,7 @@ tst_text%%M:
     sbc HL,BC
     call drop
     _compareZero H,L
-    jp z, tf_done%%M            ; asm80 macro nesting issue
-                                ; prevents using _if macro here
+    jp z, tf_done%%M            
     _push FAILED
     call printPStr
     _push  te_fail%%M
