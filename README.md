@@ -19,9 +19,10 @@ SerMon is a serial monitor for the TEC-1
 
 ## to debug
 
-- comment out line 1: ```
-  ; .engine mycomputer
+- comment out line 1:
 
 ```asm
-in main.z80 or main-test.z80 files
+  ; .engine mycomputer
 ```
+
+in main.z80 or main-test.z80 files
