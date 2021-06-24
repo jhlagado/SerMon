@@ -6,6 +6,7 @@ HEADER_label:
 backLink: .set HEADER_label
     DB flags                                ; flags
     .pstr name                              ; name string
+    .align 2                                ; adds a null byte if string length odd
 label:                                      ; body
 .endm
 
@@ -20,16 +21,3 @@ label:                                      ; body
 ;     defconst name, flags, label, variable
 ; .endm
 
-; fun1: .set 0
-; .macro fun, label, vargs, vvars
-;     fun1: .set vargs
-
-;     label_args: .set fun1
-;         db fun1
-;     ; HEADER_label_args: .set z_label_args
-; .endm
-
-; .macro endFun, label
-; .endm
-
-; fun x, 30, 2

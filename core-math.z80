@@ -88,3 +88,13 @@ carryToBool:
             dec BC
             ret
 
+cells:
+twoStar:
+            SLA C
+            RL	B            
+            ret
+
+twoSlash:
+            SRA B
+            RR	C
+            ret

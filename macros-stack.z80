@@ -8,6 +8,11 @@
     pop BC                          
 .endm
 
+.macro _rdrop
+    _rfrom          
+    call drop
+.endm
+
 .macro _getTOS, regHI, regLO                  ; x -- x ; rp = x
     ld regLO, C
     ld regHI, B                             ; move TOS reg pair into register pair

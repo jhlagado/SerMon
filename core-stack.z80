@@ -47,6 +47,13 @@ tuck:                                ; x y -- y x y
     call over
     ret
 
+rot:
+    _tor
+    call swap
+    _rfrom
+    call swap
+    ret
+
 dup2:                                           ; xa xb -- xa xb xa xb
     call over
     call over
@@ -90,27 +97,36 @@ CODE "depth", 0, depth                       ; -- n
     _div2
     ret
 
-; destroys: HL
 fetch:                                          ; ptr -- n
+    push HL
     _getTOS H,L
     ld C,(HL)
     inc HL
     ld B,(HL)
+    pop HL
     ret
 
-; destroys: HL
 store:                                          ; n ptr --
+    push HL
     _pop HL
     ld (HL),C
     inc HL
     ld (HL),B
     call drop
+    pop HL
     ret
 
 ; destroys: HL
 storeChar:                                      ; c ptr --
+    push HL
     _pop HL
     ld (HL),C
     call drop
+    pop HL
     ret
 
+; -- n r: n -- n
+rfetch:                                          
+    _rfrom
+    push BC
+    ret

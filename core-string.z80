@@ -26,3 +26,68 @@ compareStr22:
     jp pe,compareStr1
     ld BC,0                             ; count exhausted & no mismatch found
     ret
+
+;     CODE  'SAME?',0,SAMEQ
+;     DW      TOR
+;     DW      BRAN,SAME2
+; SAME1:          
+;     DW      OVER,RAT,CELLS,PLUS,AT
+;     DW      OVER,RAT,CELLS,PLUS,AT
+;     DW      SUBB,QDUP
+;     DW      QBRAN,SAME2
+;     DW      RFROM,DROP,EXIT         ;strings not equal
+; SAME2:          
+;     DW      DONXT,SAME1
+;     DW      DOLIT,0,EXIT            ;strings equal
+    
+; ( adr1 adr2 u -- -1|0|1 )
+; Compare u cells in two strings. Return 0 if identical.
+
+CODE  'SAME?',0,SAMEQ
+            _tor            ; adr1 adr2 r: u          
+            jr SAME2
+SAME1:
+            call SAME3      ; adr1 adr2 c1
+            call SAME3      ; adr1 adr2 c1 c2
+            call minus      ; adr1 adr2 bool
+            call isZero
+            jr nz,SAME2
+            _rdrop
+            ret
+SAME2:
+            call DONXT
+            dw SAME1
+            _push 0
+            ret
+
+SAME3:                      ; adr x r: u
+            call over       ; adr x adr r: u
+            call rfetch     ; adr x adr u r: u
+            call twoStar    ; cell
+            call plus       ; adr x adr+u
+            call cfetch     ; adr x char
+            ret
+
+;   next        ( -- )
+;               Run time code for the single index loop.
+;               : next ( -- ) \ hilevel model
+;                 r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
+CODE 'next',0,DONXT
+            _rfrom
+            _rfrom
+            call dup
+            call isZero
+            jr nz,DONXT1
+            dec BC
+            _tor
+            call fetch
+            _tor
+            ret
+DONXT1:
+            call drop
+            inc BC
+            inc BC
+            _tor
+            ret
+
+
