@@ -1,8 +1,8 @@
     .include "constants.z80"
-    .include "macro-dict.z80"
-    .include "macro-stack.z80"
-    .include "macro-test.z80"
-    .include "macro-util.z80"
+    .include "macros-dict.z80"
+    .include "macros-stack.z80"
+    .include "macros-testing.z80"
+    .include "macros-util.z80"
 
 .org START_ROM
 RST00:                                      ; Reset
