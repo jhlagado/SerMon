@@ -1,6 +1,6 @@
 .engine mycomputer
 
-TESTMODE equ 0
+TESTMODE equ 1
 
     .include "constants.z80"
     .include "macro-dict.z80"
@@ -32,20 +32,28 @@ RST38:                                      ; rst 38
 initialLatest:
     dw backLink
 
-    start:
+start:
     ld SP, RET_STACK                        ; Initialise the return stack.
     call initKernel
     call initInput
     call initSerial
 
-    _pushPStr "SerMon 2020\r\n\r\n"
-    call printPStr
-    call repl
-    halt
+    jp TESTS_START
 
 org START_RAM
 
 .include "variables.z80"
 
 START_USER:
+TESTS_START:
+
+    .include "tests.z80"
+
+    _pushPStr "\r\nDone! \r\n"
+    call printPStr
+    halt
+
+FAILED:
+    .pstr "Failed: "
+
 
