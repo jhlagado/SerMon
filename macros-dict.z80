@@ -6,7 +6,7 @@ HEADER_label:
 backLink: .set HEADER_label
     DB flags                                ; flags
     .pstr name                              ; name string
-    .align 2                                ; adds a null byte if string length odd
+    ; .align 2                                ; adds a null byte if string length odd
 label:                                      ; body
 .endm
 
