@@ -51,10 +51,3 @@ tpt_text%%M:
 skip%%M:
 .endm
 
-; _alter order of two cells
-.macro _alter2, ofs, reg                ; x1 x2 -- x2 x1
-    ld A,(IX+ofs)
-    ld (IX+ofs),reg
-    ld reg,A
-.endm
-

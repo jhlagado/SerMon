@@ -34,8 +34,12 @@ nip:
     ret
 
 swap:
-    _alter2 -2,C
-    _alter2 -1,B
+    ld A,(IX-2)
+    ld (IX-2),C
+    ld C,A
+    ld A,(IX-1)
+    ld (IX-1),B
+    ld B,A
     ret
 
 tuck:                                ; x y -- y x y
