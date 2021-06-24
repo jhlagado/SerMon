@@ -25,4 +25,4 @@ SerMon is a serial monitor for the TEC-1
   ; .engine mycomputer
 ```
 
-in main.z80 or main-test.z80 files
+in `main.z80` or `main-test.z80` files
