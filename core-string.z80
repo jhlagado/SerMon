@@ -65,7 +65,7 @@ SAME3:                      ; adr x r: u
             call rfetch     ; adr x adr u r: u
             call twoStar    ; cell
             call plus       ; adr x adr+u
-            call cfetch     ; adr x char
+            call fetch     ; adr x char
             ret
 
 ;   next        ( -- )
