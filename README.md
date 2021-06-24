@@ -1,7 +1,5 @@
 # SerMon
 
-SerMon is a serial monitor for the TEC-1
-
 ## import this repo into asm80.com
 
 - click `Import repo from GitHub` button
