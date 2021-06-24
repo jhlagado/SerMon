@@ -40,11 +40,12 @@ divid3:
             cpl
             ret
 
-            ; destroys: DE
 uMultiply:                                      ; u1 u2 -- plo phi
-            push HL
-            _pop DE
-            ld HL,0
+            ; push HL                             ; needed?
+            _pop HL                             ; HL = u2, BC = u1
+            push DE                             ; save DE ....    
+            ex DE,HL                            ; DE = u2                
+            ld HL,0                             ; HLDE = 0 0 u2hi u2lo
             ld A,17                             ; loop counter
             or A                                ; clear carry
 umul1:
@@ -58,8 +59,9 @@ umul2:
             dec A
             jr nz, umul1
             _setTOS  D,E                        ; plo
+            pop DE                              ; restore DE
             _push HL
-            pop HL
+            ; pop HL                              ; needed?
             ret
 
 plus:                                           ; x y -- z

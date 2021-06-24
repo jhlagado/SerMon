@@ -84,7 +84,9 @@ endIf_toNumber211:
         call swap                       ; str len num
         jr z, toNumber22
         _push (numberBase)              ; str len num base
+        push HL
         call uMultiply                  ; str len num num2 (num *= BASE)
+        pop HL
         call drop                       ; str len num
         inc HL
         ld A,(HL)                       ; a = next char

@@ -131,19 +131,19 @@
     expect 4, "remainder 4"
     expect 2, "24 / 10 = 2"
 
+    ; ; _min
+
+    ; _push 1
+    ; _push 2
     ; _min
+    ; expect 1, "min(1,2) = 1"
 
-    _push 1
-    _push 2
-    _min
-    expect 1, "min(1,2) = 1"
+    ; ; max
 
-    ; max
-
-    _push 1
-    _push 2
-    _max
-    expect 2, "max(1,2) = 2"
+    ; _push 1
+    ; _push 2
+    ; _max
+    ; expect 2, "max(1,2) = 2"
 
     ; compareStr
 
