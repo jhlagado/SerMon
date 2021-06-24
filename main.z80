@@ -17,15 +17,24 @@ RST00:                                      ; Reset
 RST38:                                      ; rst 38
     jp serialIn
 
-start:
+    .include "core-dict.z80"
+    .include "core-input.z80"
+    .include "core-interp.z80"
+    .include "core-kernel.z80"
+    .include "core-math.z80"
+    .include "core-number.z80"
+    .include "core-parse.z80"
+    .include "core-print.z80"
+    .include "core-serial.z80"
+    .include "core-stack.z80"
+    .include "core-string.z80"
+
+initialLatest:
+    dw backLink
+
+    start:
     ld SP, RET_STACK                        ; Initialise the return stack.
-    ld IX, dataStack                        ; initialise the data stack.
-    ld BC, 0
-    ld (nestLevel),BC
-    ld BC, 10
-    ld (numberBase),BC
-    ld BC, (initialLatest)
-    ld (latestDef),BC
+    call initKernel
     call initInput
     call initSerial
 
@@ -41,20 +50,6 @@ start:
     jp TESTS_START
 
 .endif
-
-.include "core-dict.z80"
-.include "core-input.z80"
-.include "core-interp.z80"
-.include "core-math.z80"
-.include "core-number.z80"
-.include "core-parse.z80"
-.include "core-print.z80"
-.include "core-serial.z80"
-.include "core-stack.z80"
-.include "core-string.z80"
-
-initialLatest:
-    dw backLink
 
 org START_RAM
 

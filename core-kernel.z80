@@ -1,0 +1,9 @@
+initKernel:
+    ld IX, dataStack                        ; initialise the data stack.
+    ld BC, 0
+    ld (nestLevel),BC
+    ld BC, 10
+    ld (numberBase),BC
+    ld BC, (initialLatest)
+    ld (latestDef),BC
+    ret
