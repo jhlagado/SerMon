@@ -13,9 +13,13 @@ CODE "formatNum", 0, formatNum       ; ptr num -- ptr len
 formatNum1:    
     _push (numberBase)                  ; ptr ptr' num1 base
     call swap                           ; ptr ptr' base num1
-    ld D, 0                             ; D counter
+    ex AF,AF'
+    ld A, 0                             ; D counter
+    ex AF,AF'
 do_formatNum:
-        inc D
+        ex AF,AF'
+        inc A
+        ex AF,AF'
         call over                       ; ptr ptr' base num1 base
         call divide                     ; ptr ptr' base num2 rem
         _tor
@@ -23,14 +27,18 @@ do_formatNum:
         call isZero
         jr nz,do_formatNum
     call drop2                          ; ptr ptr'
+    ex AF,AF'
 formatNum11:
+        ex AF,AF'
         _rfrom
         call digitToChar                ; ptr ptr' ascii
         call over                       ; ptr ptr' ascii ptr'
         call storeChar                  ; ptr ptr'
         inc BC                          ; ptr ptr''
-        dec D
+        ex AF,AF'
+        dec A
         jr nz, formatNum11
+        ex AF,AF'
     call over                           ; ptr ptr'' ptr
     call minus                          ; ptr len
     ret
