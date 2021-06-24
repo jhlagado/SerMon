@@ -43,22 +43,6 @@ tuck:                                ; x y -- y x y
     call over
     ret
 
-; rot top three items, third from top ends up on top of data stack
-; rot:                                 ; x1 x2 x3 -- x2 x3 x1
-;     push DE
-;     _alter3 -2,C,-4
-;     _alter3 -1,B,-3
-;     pop DE
-;     ret
-
-; reverse rot top three items, top of data stack becomes third from top  stack
-; nrot:                                ; x1 x2 x3 -- x3 x1 x2
-;     push DE
-;     _alter3 -4,C,-2
-;     _alter3 -3,B,-1
-;     pop DE
-;     ret
-
 dup2:                                           ; xa xb -- xa xb xa xb
     call over
     call over
@@ -83,37 +67,6 @@ over2:                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
     _setTOS (IX-7),(IX-8)
     ret
 
-; swap the top two items of data stack
-; swap2:                               ; x1a x1b x2a x2b -- x2a x2b x1a x1b
-;     push DE
-;     _alter2x -1,-5
-;     _alter2x -2,-6
-;     _alter2 -4,C
-;     _alter2 -3,B
-;     pop DE
-;     ret
-
-; rot top three items, third from top ends up on top of data stack
-; rot2:                                ; x1a x1b x2a x2b x3a x3b -- x2a x2b x3a x3b x1a x1b
-;     push DE
-;     _alter3x -6,-2,-10
-;     _alter3x -5,-1,-9
-;     _alter3 -4,C,-8
-;     _alter3 -3,B,-7
-;     pop DE
-;     ret
-
-; rot top three items, third from top ends up on top of data stack
-; nrot2:                               ; x1a x1b x2a x2b x3a x3b -- x3a x3b x1a x1b x2a x2b
-;     push DE
-
-;     _alter3x -10,-2,-6
-;     _alter3x -9,-1,-5
-;     _alter3 -8,C,-4
-;     _alter3 -7,B,-3
-
-;     pop DE
-;     ret
 
 isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
     _compareZero B,C
