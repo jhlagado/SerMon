@@ -5,39 +5,39 @@ parseWord:                              ; -- ptr len
     ret
 
 skipDelims:                             ; delim -- char
-do_skipDelims:
+skipd1:
         call key                     ; get next key, returned in A
         ld A,C
         call drop
 
             bit 7, A                    ; check end of input, used by tests
-            jr z,skipDelims1
+            jr z,skipd2
                 ld A,0
-                jr enddo_skipDelims
-skipDelims1:
+                jr skipd7
+skipd2:
             cp $5C                      ; \ start of a comment?
-            jr nz,ec_skipDelims1        ; if yes skip to end of line
-skipDelims11:
+            jr nz,skipd5        ; if yes skip to end of line
+skipd3:
                 call getKey
                 cp "\r"                 ; end of line yet?
-                jr z,skipDelims2
+                jr z,skipd4
                     cp "\n"             ; end of line yet?
-skipDelims2:
-                jr nz,skipDelims11
-                jr es_skipDelims
-ec_skipDelims1:
+skipd4:
+                jr nz,skipd3
+                jr skipd6
+skipd5:
             cp C                        ; = space?
-            jr z,es_skipDelims
+            jr z,skipd6
 
             cp " "                      ; < space?
-            jr c,es_skipDelims
+            jr c,skipd6
 
             ; default case
-            jr enddo_skipDelims
+            jr skipd7
 
-es_skipDelims:
-    jr do_skipDelims
-enddo_skipDelims:
+skipd6:
+    jr skipd1
+skipd7:
     _setTOS 0,A                           ; TOS = char
     ret
 
@@ -51,30 +51,30 @@ wordRead:                               ; ptr maxlen delim char -- ptr len
     ld B,A                              ; ptr delim:maxlen  ; A = delim A' = char
     ex af,af'                           ; ptr del:max       ; A = char
     or A                                ; A = 0 ?
-    jr nz,else_wordRead1
+    jr nz,wordRd1
         ld BC,0                         ; ptr len           ; where len = 0
-        jr endif_wordRead1
-else_wordRead1:
+        jr wordRd4
+wordRd1:
         call over                       ; ptr del:max ptr   ; A = char
         _pop HL                         ; ptr del:max       ; HL = ptr A = char
-wordRead11:
+wordRd2:
             ld (HL),A                   ; write char to lineBuf
             inc HL                      ; ptr del:max       ; HL = ptr'
             call KEY                    ; ptr del:max key
             ld A,C                      ; ptr del:max key   ; A = key    
             call drop                   ; ptr del:max       ; A = key B = delim C = maxlen
             cp B                        ; key = delim?
-            jr z,wordRead12
+            jr z,wordRd3
             cp " "                      ; < space? i.e. control chars
-            jr c,wordRead12
+            jr c,wordRd3
             dec C                       ; maxlen--
-            jr nz, wordRead11           ; jump loop
-wordRead12:
+            jr nz, wordRd2           ; jump loop
+wordRd3:
         call drop                       ; ptr
         or A
         sbc HL, BC                      ; ptr' - ptr
         _push  HL                       ; ptr len
-endif_wordRead1:
+wordRd4:
     ret
 
 ;     wordRead:                               ; ptr maxlen delim char -- ptr len
@@ -85,28 +85,28 @@ endif_wordRead1:
 ;     ld D,C                              ;
 ;     call dropdup                        ; ptr ptr           ; D = maxlen
 ;     or A                                ; A = 0 ?
-;     jr nz,else_wordRead1
+;     jr nz,wordRd1
 ;         ld BC,0                         ; ptr len           ; where len = 0
-;         jr endif_wordRead1
-; else_wordRead1:
+;         jr wordRd4
+; wordRd1:
 ;         _pop HL                         ; ptr               ; HL = ptr
-; wordRead11:
+; wordRd2:
 ;             ld (HL),A                   ; write char to lineBuf
 ;             inc HL                      ; ptr ptr'
 ;             call KEY                    ; get next key
 ;             ld A,C
 ;             call drop
 ;             cp E                        ; = delim?
-;             jr z,wordRead12
+;             jr z,wordRd3
 ;             cp " "                      ; < space? i.e. control chars
-;             jr c,wordRead12
+;             jr c,wordRd3
 ;             dec D
-;             jr nz, wordRead11
-; wordRead12:
+;             jr nz, wordRd2
+; wordRd3:
 ;         or A
 ;         sbc HL, BC                      ; ptr' - ptr
 ;         _push  HL                       ; ptr len
-; endif_wordRead1:
+; wordRd4:
 ;     ret
 
 
