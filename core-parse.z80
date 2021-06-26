@@ -1,62 +1,59 @@
 parseWord:                              ; -- ptr len
-    call dup                            ; dup delim
-    call skipDelims
-    call wordRead
-    ret
+            call dup                            ; dup delim
+            call skipDelims
+            call wordRead
+            ret
 
 skipDelims:                             ; delim -- char
 skipd1:
-        call key                     ; get next key, returned in A
-        ld A,C
-        call drop
+            call key                     ; get next key, returned in A
+            ld A,C
+            call drop
 
             bit 7, A                    ; check end of input, used by tests
             jr z,skipd2
-                ld A,0
-                jr skipd7
+            ld A,0
+            jr skipd7
 skipd2:
             cp $5C                      ; \ start of a comment?
             jr nz,skipd5        ; if yes skip to end of line
 skipd3:
-                call getKey
-                cp "\r"                 ; end of line yet?
-                jr z,skipd4
-                    cp "\n"             ; end of line yet?
+            call getKey
+            cp "\r"                 ; end of line yet?
+            jr z,skipd4
+            cp "\n"             ; end of line yet?
 skipd4:
-                jr nz,skipd3
-                jr skipd6
+            jr nz,skipd3
+            jr skipd6
 skipd5:
             cp C                        ; = space?
             jr z,skipd6
-
             cp " "                      ; < space?
             jr c,skipd6
-
-            ; default case
             jr skipd7
 
 skipd6:
-    jr skipd1
+            jr skipd1
 skipd7:
-    _setTOS 0,A                           ; TOS = char
-    ret
+            _setTOS 0,A                           ; TOS = char
+            ret
 
-; destroys: DE, HL
-wordRead:                               ; ptr maxlen delim char -- ptr len
-    ld A,C                              ; A = char
-    ex AF,AF'                           ; AA = char
-    call drop                           ; ptr maxlen delim  ; A' = char
-    ld A,C                              ; ptr maxlen delim  ; A = delim A' = char
-    call drop                           ; ptr maxlen        ; A = delim A' = char
-    ld B,A                              ; ptr delim:maxlen  ; A = delim A' = char
-    ex af,af'                           ; ptr del:max       ; A = char
-    or A                                ; A = 0 ?
-    jr nz,wordRd1
-        ld BC,0                         ; ptr len           ; where len = 0
-        jr wordRd4
+            ; destroys: HL
+wordRead:                                       ; ptr maxlen delim char -- ptr len
+            ld A,C                              ; A = char
+            ex AF,AF'                           ; AA = char
+            call drop                           ; ptr maxlen delim  ; A' = char
+            ld A,C                              ; ptr maxlen delim  ; A = delim A' = char
+            call drop                           ; ptr maxlen        ; A = delim A' = char
+            ld B,A                              ; ptr delim:maxlen  ; A = delim A' = char
+            ex af,af'                           ; ptr del:max       ; A = char
+            or A                                ; A = 0 ?
+            jr nz,wordRd1
+            ld BC,0                         ; ptr len           ; where len = 0
+            ret
 wordRd1:
-        call over                       ; ptr del:max ptr   ; A = char
-        _pop HL                         ; ptr del:max       ; HL = ptr A = char
+            call over                       ; ptr del:max ptr   ; A = char
+            _pop HL                         ; ptr del:max       ; HL = ptr A = char
 wordRd2:
             ld (HL),A                   ; write char to lineBuf
             inc HL                      ; ptr del:max       ; HL = ptr'
@@ -70,225 +67,224 @@ wordRd2:
             dec C                       ; maxlen--
             jr nz, wordRd2           ; jump loop
 wordRd3:
-        call drop                       ; ptr
-        or A
-        sbc HL, BC                      ; ptr' - ptr
-        _push  HL                       ; ptr len
-wordRd4:
-    ret
+            call drop                       ; ptr
+            or A
+            sbc HL, BC                      ; ptr' - ptr
+            _push  HL                       ; ptr len
+            ret
 
-;     wordRead:                               ; ptr maxlen delim char -- ptr len
-;     ld A,C                              ;
-;     call drop                           ; ptr maxlen delim  ; A = char
-;     ld E,C                              ;
-;     call drop                           ; ptr maxlen        ; E = delim
-;     ld D,C                              ;
-;     call dropdup                        ; ptr ptr           ; D = maxlen
-;     or A                                ; A = 0 ?
-;     jr nz,wordRd1
-;         ld BC,0                         ; ptr len           ; where len = 0
-;         jr wordRd4
-; wordRd1:
-;         _pop HL                         ; ptr               ; HL = ptr
-; wordRd2:
-;             ld (HL),A                   ; write char to lineBuf
-;             inc HL                      ; ptr ptr'
-;             call KEY                    ; get next key
-;             ld A,C
-;             call drop
-;             cp E                        ; = delim?
-;             jr z,wordRd3
-;             cp " "                      ; < space? i.e. control chars
-;             jr c,wordRd3
-;             dec D
-;             jr nz, wordRd2
-; wordRd3:
-;         or A
-;         sbc HL, BC                      ; ptr' - ptr
-;         _push  HL                       ; ptr len
-; wordRd4:
-;     ret
-
+            ;     wordRead:                               ; ptr maxlen delim char -- ptr len
+            ;     ld A,C                              ;
+            ;     call drop                           ; ptr maxlen delim  ; A = char
+            ;     ld E,C                              ;
+            ;     call drop                           ; ptr maxlen        ; E = delim
+            ;     ld D,C                              ;
+            ;     call dropdup                        ; ptr ptr           ; D = maxlen
+            ;     or A                                ; A = 0 ?
+            ;     jr nz,wordRd1
+            ;         ld BC,0                         ; ptr len           ; where len = 0
+            ;         jr wordRd4
+            ; wordRd1:
+            ;         _pop HL                         ; ptr               ; HL = ptr
+            ; wordRd2:
+            ;             ld (HL),A                   ; write char to lineBuf
+            ;             inc HL                      ; ptr ptr'
+            ;             call KEY                    ; get next key
+            ;             ld A,C
+            ;             call drop
+            ;             cp E                        ; = delim?
+            ;             jr z,wordRd3
+            ;             cp " "                      ; < space? i.e. control chars
+            ;             jr c,wordRd3
+            ;             dec D
+            ;             jr nz, wordRd2
+            ; wordRd3:
+            ;         or A
+            ;         sbc HL, BC                      ; ptr' - ptr
+            ;         _push  HL                       ; ptr len
+            ; wordRd4:
+            ;     ret
 
 
 
-; ; accept ( b u -- b u )
-; ; Accept characters to input buffer. Return with actual count.
-;     CODE  'accept',0,ACCEP
-;     call OVER   ; b u b
-;     call PLUS   ; b u+b
-;     call OVER   ; b u+b b'
-; ACCP1:          
-;     call DDUP   ; b u+b b u+b b 
-;     call XORR   ; b u+b b u+b=b
-;     call isZero
-;     jr z, ACCP4 ; b u+b b   ; if u+b=b 
-;     call KEY    ; b u+b b key
-;     call DUP    ; b u+b b key key
-;     _push $20  ; b u+b b key key $20
-;     _push 127   ; b u+b b key key $20 127
-;     call WITHI  ; b u+b b key
-;     call isZero
-;     jr z, ACCP2
-;     call TAP    ; b u+b b'
-;     jr ACCP3
-; ACCP2:          
-;     call KTAP   ; b u+b b'' 
-; ACCP3:          
-;     jr ACCP1    ; loop
-; ACCP4:          
-;     call DROP   ; b u+b b'
-;     call OVER   ; b u+b b
-;     call minus  ; b len
-;     ret
 
-;     ; tap p1 p2 cur key -- p1 p2 cur'
-;     CODE 'TAP',0,TAP
-;     call DUP 
-;     call emit 
-;     call OVER 
-;     call CStore
-;     _push 1 
-;     call plus 
-;     ret 
+            ; ; accept ( b u -- b u )
+            ; ; Accept characters to input buffer. Return with actual count.
+            ;     CODE  'accept',0,ACCEP
+            ;     call OVER   ; b u b
+            ;     call PLUS   ; b u+b
+            ;     call OVER   ; b u+b b'
+            ; ACCP1:          
+            ;     call DDUP   ; b u+b b u+b b 
+            ;     call XORR   ; b u+b b u+b=b
+            ;     call isZero
+            ;     jr z, ACCP4 ; b u+b b   ; if u+b=b 
+            ;     call KEY    ; b u+b b key
+            ;     call DUP    ; b u+b b key key
+            ;     _push $20  ; b u+b b key key $20
+            ;     _push 127   ; b u+b b key key $20 127
+            ;     call WITHI  ; b u+b b key
+            ;     call isZero
+            ;     jr z, ACCP2
+            ;     call TAP    ; b u+b b'
+            ;     jr ACCP3
+            ; ACCP2:          
+            ;     call KTAP   ; b u+b b'' 
+            ; ACCP3:          
+            ;     jr ACCP1    ; loop
+            ; ACCP4:          
+            ;     call DROP   ; b u+b b'
+            ;     call OVER   ; b u+b b
+            ;     call minus  ; b len
+            ;     ret
 
-;     ; ktap p1 p2 cur key -- p1 p2 cur' ; process CR or BS
-;     CODE 'KTAP',0,KTAP
-;     call DUP            ; p1 p2 cur key key
-;     _push $0D           ; p1 p2 cur key key CR
-;     call XORR           ; p1 p2 cur key z?
-;     call isZero
-;     jr z, KTAPCR 
-    
-;     _push $08           ; p1 p2 cur key BS
-;     call XORR           ; p1 p2 cur z?
-;     call isZero
-;     jr z, BKSP          ; return via BKSP
-    
-;     _push $20 ; space   ; other control chars, display as space
-;     jr TAP              ; return via TAP
+            ;     ; tap p1 p2 cur key -- p1 p2 cur'
+            ;     CODE 'TAP',0,TAP
+            ;     call DUP 
+            ;     call emit 
+            ;     call OVER 
+            ;     call CStore
+            ;     _push 1 
+            ;     call plus 
+            ;     ret 
 
-; KTAPCR:                 ; is CR 
-;     call DROP           ; p1 p2 cur
-;     call SWAP           ; p1 cur p2
-;     call DROP           ; p1 cur
-;     call DUP            ; p1 cur cur
-;     ret
+            ;     ; ktap p1 p2 cur key -- p1 p2 cur' ; process CR or BS
+            ;     CODE 'KTAP',0,KTAP
+            ;     call DUP            ; p1 p2 cur key key
+            ;     _push $0D           ; p1 p2 cur key key CR
+            ;     call XORR           ; p1 p2 cur key z?
+            ;     call isZero
+            ;     jr z, KTAPCR 
 
-;     CODE '^H',0,BKSP
-;     _tor
-;     call OVER
-;     _rfrom
-;     call SWAP
-;     call OVER
-;     call XORR
-;     call isZero
-;     jr z,BACK1
-;     _push $08,
-;     call emit
-;     _push 1
-;     call minus
-;     _push $20
-;     call emit
-;     _push $08
-;     call emit
-; BACK1:          
-;     ret
+            ;     _push $08           ; p1 p2 cur key BS
+            ;     call XORR           ; p1 p2 cur z?
+            ;     call isZero
+            ;     jr z, BKSP          ; return via BKSP
 
-;     CODE  '2DUP',0,DDUP
-;     call OVER
-;     call OVER
-;     ret
+            ;     _push $20 ; space   ; other control chars, display as space
+            ;     jr TAP              ; return via TAP
 
-;     CODE   'XOR',0,XORR    
-;     push HL
-;     _POP HL
-;     ld A,B
-;     xor	H
-;     ld	B,A
-;     ld	A,C
-;     xor	L
-;     ld C,A
-;     pop HL
-;     ret
+            ; KTAPCR:                 ; is CR 
+            ;     call DROP           ; p1 p2 cur
+            ;     call SWAP           ; p1 cur p2
+            ;     call DROP           ; p1 cur
+            ;     call DUP            ; p1 cur cur
+            ;     ret
 
-;   WITHIN      ( u ul uh -- t )
-;               Return true if u is within the range of ul and uh.
+            ;     CODE '^H',0,BKSP
+            ;     _tor
+            ;     call OVER
+            ;     _rfrom
+            ;     call SWAP
+            ;     call OVER
+            ;     call XORR
+            ;     call isZero
+            ;     jr z,BACK1
+            ;     _push $08,
+            ;     call emit
+            ;     _push 1
+            ;     call minus
+            ;     _push $20
+            ;     call emit
+            ;     _push $08
+            ;     call emit
+            ; BACK1:          
+            ;     ret
 
-    ; CODE 'WITHIN',0,WITHI
-    ; call OVER
-    ; call minus
-    ; _tor                   ;ul <= u < uh
-    ; call minus
-    ; _rfrom
-    ; call ULESS
-    ; ret
+            ;     CODE  '2DUP',0,DDUP
+            ;     call OVER
+            ;     call OVER
+            ;     ret
 
-;     CODE 'U<',0,ULESS
-;     DDUP,
-;     XORR,
-;     ZLESS
-;     QBRAN,ULES1
-;     SWAP,
-;     DROP,
-;     ZLESS,
-;     EXIT
-; ULES1:          
-;     SUBB,
-;     ZLESS,
-;     EXIT
+            ;     CODE   'XOR',0,XORR    
+            ;     push HL
+            ;     _POP HL
+            ;     ld A,B
+            ;     xor	H
+            ;     ld	B,A
+            ;     ld	A,C
+            ;     xor	L
+            ;     ld C,A
+            ;     pop HL
+            ;     ret
 
-;     CODE '0<',0,ZLESS
-;     push HL
-;     _POP HL         ;10t
-;     ADD HL, HL     ;11t
-;     JR  C, LESSZ   ;12/7t
-;     LD  HL, 0      ;10t
-;     PUSH HL        ;11t
-;     ret
-; LESSZ: 
-;     LD  HL, 0FFFFH ;10t
-;     _PUSH HL        ;11t
-;     pop HL
-;     ret
+            ;   WITHIN      ( u ul uh -- t )
+            ;               Return true if u is within the range of ul and uh.
 
-;     CODE 'EMIT',0,EMIT
-;     ld A,C
-;     call putc
-;     ret
+            ; CODE 'WITHIN',0,WITHI
+            ; call OVER
+            ; call minus
+            ; _tor                   ;ul <= u < uh
+            ; call minus
+            ; _rfrom
+            ; call ULESS
+            ; ret
 
-;     CODE 'C@',0,CFetch
-;     push HL
-;     _getTOS H,L
-;     ld C,(HL)
-;     pop HL
-;     ret
+            ;     CODE 'U<',0,ULESS
+            ;     DDUP,
+            ;     XORR,
+            ;     ZLESS
+            ;     QBRAN,ULES1
+            ;     SWAP,
+            ;     DROP,
+            ;     ZLESS,
+            ;     EXIT
+            ; ULES1:          
+            ;     SUBB,
+            ;     ZLESS,
+            ;     EXIT
 
-;     CODE 'C!',0,CStore
-;     push HL
-;     _pop HL
-;     ld (HL),C
-;     call drop
-;     pop HL
-;     ret
+            ;     CODE '0<',0,ZLESS
+            ;     push HL
+            ;     _POP HL         ;10t
+            ;     ADD HL, HL     ;11t
+            ;     JR  C, LESSZ   ;12/7t
+            ;     LD  HL, 0      ;10t
+            ;     PUSH HL        ;11t
+            ;     ret
+            ; LESSZ: 
+            ;     LD  HL, 0FFFFH ;10t
+            ;     _PUSH HL        ;11t
+            ;     pop HL
+            ;     ret
 
-; rxchg:
+            ;     CODE 'EMIT',0,EMIT
+            ;     ld A,C
+            ;     call putc
+            ;     ret
 
-; .macro _saveHL
-;     ld A,L
-;     ex AF,AF'
-;     ld A,H
-; .endm
+            ;     CODE 'C@',0,CFetch
+            ;     push HL
+            ;     _getTOS H,L
+            ;     ld C,(HL)
+            ;     pop HL
+            ;     ret
 
-; .macro _restoreHL
-;     ld A,L
-;     ex AF,AF'
-;     ld A,H
-; .endm
+            ;     CODE 'C!',0,CStore
+            ;     push HL
+            ;     _pop HL
+            ;     ld (HL),C
+            ;     call drop
+            ;     pop HL
+            ;     ret
 
-; .macro _rxchg regHI, regLO
-;     _saveHL
-;     ld H,regHI
-;     ld L,regLO
-;     ex HL,(SP)
-; .endm
+            ; rxchg:
+
+            ; .macro _saveHL
+            ;     ld A,L
+            ;     ex AF,AF'
+            ;     ld A,H
+            ; .endm
+
+            ; .macro _restoreHL
+            ;     ld A,L
+            ;     ex AF,AF'
+            ;     ld A,H
+            ; .endm
+
+            ; .macro _rxchg regHI, regLO
+            ;     _saveHL
+            ;     ld H,regHI
+            ;     ld L,regLO
+            ;     ex HL,(SP)
+            ; .endm
