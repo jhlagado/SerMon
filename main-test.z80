@@ -1,4 +1,4 @@
-.engine mycomputer
+; .engine mycomputer
 
 TESTMODE equ 1
 
@@ -12,8 +12,6 @@ org START_RAM
 
 START_USER:
 TESTS_START:
-
-    ld de, 1234
 
     ; word read
 
@@ -341,12 +339,6 @@ skipStr:
 
     ; compareStr
 
-
-
-
-
-    _setTOS d,e
-    call printNum
 
     _pushPStr "\r\nDone! \r\n"
     call printPStr
