@@ -16,18 +16,18 @@ compareStr:                             ; str1 str2 len -- (-1|0|1)
     ex af,af'
     ld C,A                              ; len
 compstr1:
-        ld A,(DE)
-        inc DE
-        cpi
-        jr z,compstr3                   ; char mismatch: exit
-            dec HL                      ; point at mismatch char
-            cp (HL)                     ; set carry if char1 < char2
-            jr nc,compstr2
-                ld BC, -1               ; -1 str1 < str2
-                jr compstr4
+    ld A,(DE)
+    inc DE
+    cpi
+    jr z,compstr3                   ; char mismatch: exit
+    dec HL                      ; point at mismatch char
+    cp (HL)                     ; set carry if char1 < char2
+    jr nc,compstr2
+    ld BC, -1               ; -1 str1 < str2
+    jr compstr4
 compstr2:
-                ld BC, 1                ; 1 str1 > str2
-                jr compstr4
+    ld BC, 1                ; 1 str1 > str2
+    jr compstr4
 compstr3:
     jp pe,compstr1
     ld BC,0                             ; 0 no mismatch found
@@ -35,66 +35,25 @@ compstr4:
     pop DE
     ret
 
-;     CODE  'SAME?',0,SAMEQ
-;     DW      TOR
-;     DW      BRAN,SAME2
-; SAME1:          
-;     DW      OVER,RAT,CELLS,PLUS,AT
-;     DW      OVER,RAT,CELLS,PLUS,AT
-;     DW      SUBB,QDUP
-;     DW      QBRAN,SAME2
-;     DW      RFROM,DROP,EXIT         ;strings not equal
-; SAME2:          
-;     DW      DONXT,SAME1
-;     DW      DOLIT,0,EXIT            ;strings equal
-    
-; ( adr1 adr2 u -- -1|0|1 )
-; Compare u cells in two strings. Return 0 if identical.
-
-CODE  'SAME?',0,SAMEQ
-            _tor            ; adr1 adr2 r: u          
-            jr SAME2
-SAME1:
-            call SAME3      ; adr1 adr2 c1
-            call SAME3      ; adr1 adr2 c1 c2
-            call minus      ; adr1 adr2 bool
-            call isZero
-            jr nz,SAME2
-            _rdrop
-            ret
-SAME2:
-            call DONXT
-            dw SAME1
-            _push 0
-            ret
-
-SAME3:                      ; adr x r: u
-            call over       ; adr x adr r: u
-            call rfetch     ; adr x adr u r: u
-            call twoStar    ; cell
-            call plus       ; adr x adr+u
-            call fetch      ; adr x char
-            ret
-
-; next ( -- ) ( r: idx ret ) followed by address of loop start
-; Run time code for the single index loop.
-; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
-CODE 'next',0,DONXT         
-            _rfrom          ; ret ( r: idx )   
-            _rfrom          ; ret idx 
-            call dup        ; ret idx idx
-            call isZero     
-            jr nz,DONXT1    
-            dec BC          ; ret idx'
-            _tor            ; ret (r: idx')
-            call fetch      ; ret' (r: idx')
-            _tor            ; (r: idx' ret')
-            ret             ; jump to ret' (start of loop)
-DONXT1:
-            call drop       ; ret
-            inc BC          
-            inc BC          ; ret+2
-            _tor            ; (r: ret+2)
-            ret             ; jump to ret+2 (after offset)
+; ; next ( -- ) ( r: idx ret ) followed by address of loop start
+; ; Run time code for the single index loop.
+; ; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
+; CODE 'next',0,DONXT         
+;             _rfrom          ; ret ( r: idx )   
+;             _rfrom          ; ret idx 
+;             call dup        ; ret idx idx
+;             call isZero     
+;             jr nz,DONXT1    
+;             dec BC          ; ret idx'
+;             _tor            ; ret (r: idx')
+;             call fetch      ; ret' (r: idx')
+;             _tor            ; (r: idx' ret')
+;             ret             ; jump to ret' (start of loop)
+; DONXT1:
+;             call drop       ; ret
+;             inc BC          
+;             inc BC          ; ret+2
+;             _tor            ; (r: ret+2)
+;             ret             ; jump to ret+2 (after offset)
 
 

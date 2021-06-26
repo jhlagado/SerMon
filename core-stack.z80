@@ -1,51 +1,62 @@
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
-    ld (IX+0), C                                ; PUSH register pair
-    ld (IX+1), B
-    inc IX
-    inc IX
+    ld (DE), C                                ; PUSH register pair
+    INC DE
+    ld (DE), B
+    inc DE
     ret
 
 ; remove top of data stack
 ; x1 x2 -- x1
 drop:
-    dec IX                                      ; POP register pair
-    dec IX
-    _setTOS (IX+1),(IX+0)
-    ret
-
-; copy memory  to BC
-; x y -- x x;
-dropdup:
-    _setTOS (IX-1),(IX-2)
+    dec DE
+    ld B,(DE)
+    dec DE
+    ld C,(DE)
     ret
 
 ; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
 over:
+    dec DE
+    ld H,(DE)
+    dec DE
+    ld L,(DE)
+    inc DE
+    inc DE
     call dup
-    _setTOS (IX-3),(IX-4)
+    ld B,H
+    ld C,L
     ret
 
+; x1 x2 -- x2
 nip:
-    dec IX
-    dec IX
+    dec DE
+    dec DE
     ret
 
+; x1 x2 -- x2 x1
 swap:
-    ld A,(IX-2)
-    ld (IX-2),C
+    dec DE
+    dec DE
+    ld A,(DE)
+    ld (DE),C
     ld C,A
-    ld A,(IX-1)
-    ld (IX-1),B
+    inc DE
+    ld A,(DE)
+    ld (DE),B
     ld B,A
+    inc DE
     ret
 
 tuck:                                ; x y -- y x y
     call swap
     call over
     ret
+
+; ROT 	( x1 x2 x3 -- x2 x3 x1 )	
+; Rotate the top three data stack items.
 
 rot:
     _tor
@@ -54,10 +65,26 @@ rot:
     call swap
     ret
 
+; 2SWAP	( x1 x2 x3 x4 -- x3 x4 x1 x2 )	
+; Exchange the top two cell pairs.
+
+swap2:
+    call rot
+    call tor
+    call rot
+    call rfrom
+    ret
+
+; 2DUP	( x1 x2 -- x1 x2 x1 x2 )	
+; Duplicate cell pair x1 x2.
+
 dup2:                                           ; xa xb -- xa xb xa xb
     call over
     call over
     ret
+
+;   2DROP	( x1 x2 -- )			
+;	Drop cell pair x1 x2 from the stack.
 
 drop2:                                          ; x x --   ?????????????????
     call nip
@@ -70,14 +97,18 @@ nip2:
     dec IX
     dec IX
     ret
-
-over2:                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
+    
+;   2OVER	( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 )	  \ CORE
+;	Copy cell pair x1 x2 to the top of the stack.
+    
+over2:
+    call tor
+    call tor
     call dup2
-    _setTOS (IX-9),(IX-10)
-    _getTOS (IX-1),(IX-2)
-    _setTOS (IX-7),(IX-8)
+    call rfrom
+    call rfrom
+    call swap2
     ret
-
 
 isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
     _compareZero B,C
