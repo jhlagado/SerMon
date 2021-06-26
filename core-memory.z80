@@ -1,0 +1,33 @@
+fetch:                                          ; ptr -- n
+    push HL
+    _getTOS H,L
+    ld C,(HL)
+    inc HL
+    ld B,(HL)
+    pop HL
+    ret
+
+store:                                          ; n ptr --
+    push HL
+    _pop HL
+    ld (HL),C
+    inc HL
+    ld (HL),B
+    call drop
+    pop HL
+    ret
+
+; destroys: HL
+storeChar:                                      ; c ptr --
+    push HL
+    _pop HL
+    ld (HL),C
+    call drop
+    pop HL
+    ret
+
+; -- n r: n -- n
+rfetch:                                          
+    _rfrom
+    push BC
+    ret

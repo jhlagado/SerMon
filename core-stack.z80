@@ -1,33 +1,39 @@
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
-    ld (DE), C                                ; PUSH register pair
-    INC DE
-    ld (DE), B
-    inc DE
+    ex DE,HL
+    ld (HL), C                                ; PUSH register pair
+    inc HL
+    ld (HL), B
+    inc HL
+    ex DE,HL
     ret
 
 ; remove top of data stack
 ; x1 x2 -- x1
 drop:
-    dec DE
-    ld B,(DE)
-    dec DE
-    ld C,(DE)
+    ex DE,HL
+    dec HL
+    ld B,(HL)
+    dec HL
+    ld C,(HL)
+    ex DE,HL
     ret
 
-; duplicate second from top of data stack
+; duplicate NOS
 ; x1 x2 -- x1 x2 x1
 over:
-    dec DE
-    ld H,(DE)
-    dec DE
-    ld L,(DE)
-    inc DE
-    inc DE
+    ex DE,HL
+    dec HL
+    ld D,(HL)
+    dec HL
+    ld E,(HL)
+    inc HL
+    inc HL
     call dup
-    ld B,H
-    ld C,L
+    ld B,D
+    ld C,E
+    ex DE,HL
     ret
 
 ; x1 x2 -- x2
@@ -36,18 +42,18 @@ nip:
     dec DE
     ret
 
+
 ; x1 x2 -- x2 x1
 swap:
-    dec DE
-    dec DE
-    ld A,(DE)
-    ld (DE),C
-    ld C,A
-    inc DE
-    ld A,(DE)
-    ld (DE),B
-    ld B,A
-    inc DE
+    ex DE,HL
+    dec HL
+    ld D,(HL)
+    dec HL
+    ld E,(HL)
+    call dup
+    ld B,D
+    ld C,E
+    ex DE,HL
     ret
 
 tuck:                                ; x y -- y x y
@@ -128,36 +134,3 @@ CODE "depth", 0, depth                       ; -- n
     _div2
     ret
 
-fetch:                                          ; ptr -- n
-    push HL
-    _getTOS H,L
-    ld C,(HL)
-    inc HL
-    ld B,(HL)
-    pop HL
-    ret
-
-store:                                          ; n ptr --
-    push HL
-    _pop HL
-    ld (HL),C
-    inc HL
-    ld (HL),B
-    call drop
-    pop HL
-    ret
-
-; destroys: HL
-storeChar:                                      ; c ptr --
-    push HL
-    _pop HL
-    ld (HL),C
-    call drop
-    pop HL
-    ret
-
-; -- n r: n -- n
-rfetch:                                          
-    _rfrom
-    push BC
-    ret
