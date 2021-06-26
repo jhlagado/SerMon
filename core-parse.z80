@@ -73,40 +73,6 @@ wordRd3:
             _push  HL                       ; ptr len
             ret
 
-            ;     wordRead:                               ; ptr maxlen delim char -- ptr len
-            ;     ld A,C                              ;
-            ;     call drop                           ; ptr maxlen delim  ; A = char
-            ;     ld E,C                              ;
-            ;     call drop                           ; ptr maxlen        ; E = delim
-            ;     ld D,C                              ;
-            ;     call dropdup                        ; ptr ptr           ; D = maxlen
-            ;     or A                                ; A = 0 ?
-            ;     jr nz,wordRd1
-            ;         ld BC,0                         ; ptr len           ; where len = 0
-            ;         jr wordRd4
-            ; wordRd1:
-            ;         _pop HL                         ; ptr               ; HL = ptr
-            ; wordRd2:
-            ;             ld (HL),A                   ; write char to lineBuf
-            ;             inc HL                      ; ptr ptr'
-            ;             call KEY                    ; get next key
-            ;             ld A,C
-            ;             call drop
-            ;             cp E                        ; = delim?
-            ;             jr z,wordRd3
-            ;             cp " "                      ; < space? i.e. control chars
-            ;             jr c,wordRd3
-            ;             dec D
-            ;             jr nz, wordRd2
-            ; wordRd3:
-            ;         or A
-            ;         sbc HL, BC                      ; ptr' - ptr
-            ;         _push  HL                       ; ptr len
-            ; wordRd4:
-            ;     ret
-
-
-
 
             ; ; accept ( b u -- b u )
             ; ; Accept characters to input buffer. Return with actual count.
