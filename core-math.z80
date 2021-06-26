@@ -41,7 +41,6 @@ divid3:
             ret
 
 uMultiply:                                      ; u1 u2 -- plo phi
-            ; push HL                             ; needed?
             _pop HL                             ; HL = u2, BC = u1
             push DE                             ; save DE ....    
             ex DE,HL                            ; DE = u2                
@@ -61,7 +60,6 @@ umul2:
             _setTOS  D,E                        ; plo
             pop DE                              ; restore DE
             _push HL
-            ; pop HL                              ; needed?
             ret
 
 plus:                                           ; x y -- z
@@ -72,12 +70,12 @@ plus:                                           ; x y -- z
             pop HL
             ret
 
-minus:                                          ; x y -- z
+minus:                                           ; x y -- z
             push HL
-            _pop DE
-            _getTOS H,L
-            or A
-            sbc HL,DE
+            call swap
+            _pop HL
+            or a
+            sbc HL,BC
             _setTOS H,L
             pop HL
             ret
