@@ -1,0 +1,99 @@
+; duplicate top of data stack
+; x1 -- x1 x1
+dup:
+    ld (IX+0), C                                ; PUSH register pair
+    ld (IX+1), B
+    inc IX
+    inc IX
+    ret
+
+; remove top of data stack
+; x1 x2 -- x1
+drop:
+    dec IX                                      ; POP register pair
+    dec IX
+    _setTOS (IX+1),(IX+0)
+    ret
+
+; copy memory  to BC
+; x y -- x x;
+dropdup:
+    _setTOS (IX-1),(IX-2)
+    ret
+
+; duplicate second from top of data stack
+; x1 x2 -- x1 x2 x1
+over:
+    call dup
+    _setTOS (IX-3),(IX-4)
+    ret
+
+nip:
+    dec IX
+    dec IX
+    ret
+
+swap:
+    ld A,(IX-2)
+    ld (IX-2),C
+    ld C,A
+    ld A,(IX-1)
+    ld (IX-1),B
+    ld B,A
+    ret
+
+tuck:                                ; x y -- y x y
+    call swap
+    call over
+    ret
+
+rot:
+    _tor
+    call swap
+    _rfrom
+    call swap
+    ret
+
+dup2:                                           ; xa xb -- xa xb xa xb
+    call over
+    call over
+    ret
+
+drop2:                                          ; x x --   ?????????????????
+    call nip
+    call drop
+    ret
+
+nip2:
+    dec IX
+    dec IX
+    dec IX
+    dec IX
+    ret
+
+over2:                               ;x1a x1b x2a x2b -- x1a x1b x2a x2b x1a x1b
+    call dup2
+    _setTOS (IX-9),(IX-10)
+    _getTOS (IX-1),(IX-2)
+    _setTOS (IX-7),(IX-8)
+    ret
+
+
+isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
+    _compareZero B,C
+    call drop
+    ret
+
+; depth of data stack
+; destroys: HL
+CODE "depth", 0, depth                       ; -- n
+    push IX
+    pop HL
+    call dup
+    ld BC,dataStack
+    or A
+    sbc HL,BC
+    _setTOS  H,L
+    _div2
+    ret
+

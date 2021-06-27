@@ -1,59 +1,101 @@
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
+    push IX
+    pop DE
     ex DE,HL
     ld (HL), C                                ; PUSH register pair
     inc HL
     ld (HL), B
     inc HL
     ex DE,HL
+    push DE
+    pop IX
+
+    ; ld (IX+0), C                                ; PUSH register pair
+    ; ld (IX+1), B
+    ; inc IX
+    ; inc IX
     ret
 
 ; remove top of data stack
 ; x1 x2 -- x1
 drop:
+    push IX
+    pop DE
     ex DE,HL
     dec HL
     ld B,(HL)
     dec HL
     ld C,(HL)
     ex DE,HL
+    push DE
+    pop IX
+
+
+    ; dec IX                                      ; POP register pair
+    ; dec IX
+    ; _setTOS (IX+1),(IX+0)
     ret
 
-; duplicate NOS
+; SWAP	( x1 x2 -- x2 x1 )		
+; Exchange top two stack items.
+swap:
+    push IX
+    pop DE
+    
+    ld H,D
+    ld L,E
+    dec HL
+    ld A,B
+    ld B,(HL)
+    ld (HL),A
+    dec HL
+    ld A,C
+    ld C,(HL)
+    ld (HL),A
+    
+    push DE
+    pop IX
+    ret
+
+
+; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
 over:
-    ex DE,HL
-    dec HL
-    ld D,(HL)
-    dec HL
-    ld E,(HL)
-    inc HL
-    inc HL
+    push IX
+    pop DE
+
+    ld H,D
+    ld L,E
     call dup
-    ld B,D
-    ld C,E
-    ex DE,HL
+    dec HL
+    ld B,(HL)
+    dec HL
+    ld C,(HL)
+
+    push DE
+    pop IX
+
+
+    ; call dup
+    ; _setTOS (IX-3),(IX-4)
+    
     ret
 
-; x1 x2 -- x2
+; NIP 	( n1 n2 -- n2 ) 		
+; Discard the second stack item.
+
 nip:
+    push IX
+    pop DE
+
     dec DE
     dec DE
-    ret
 
+    push DE
+    pop IX
 
-; x1 x2 -- x2 x1
-swap:
-    ex DE,HL
-    dec HL
-    ld D,(HL)
-    dec HL
-    ld E,(HL)
-    call dup
-    ld B,D
-    ld C,E
-    ex DE,HL
     ret
 
 tuck:                                ; x y -- y x y
@@ -61,14 +103,21 @@ tuck:                                ; x y -- y x y
     call over
     ret
 
-; ROT 	( x1 x2 x3 -- x2 x3 x1 )	
-; Rotate the top three data stack items.
-
 rot:
     _tor
     call swap
     _rfrom
     call swap
+    ret
+
+dup2:                                           ; xa xb -- xa xb xa xb
+    call over
+    call over
+    ret
+
+drop2:                                          ; x x --   ?????????????????
+    call nip
+    call drop
     ret
 
 ; 2SWAP	( x1 x2 x3 x4 -- x3 x4 x1 x2 )	
@@ -81,29 +130,6 @@ swap2:
     _rfrom
     ret
 
-; 2DUP	( x1 x2 -- x1 x2 x1 x2 )	
-; Duplicate cell pair x1 x2.
-
-dup2:                                           ; xa xb -- xa xb xa xb
-    call over
-    call over
-    ret
-
-;   2DROP	( x1 x2 -- )			
-;	Drop cell pair x1 x2 from the stack.
-
-drop2:                                          ; x x --   ?????????????????
-    call nip
-    call drop
-    ret
-
-nip2:
-    dec DE
-    dec DE
-    dec DE
-    dec DE
-    ret
-    
 ;   2OVER	( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 )	  \ CORE
 ;	Copy cell pair x1 x2 to the top of the stack.
     
@@ -116,6 +142,14 @@ over2:
     call swap2
     ret
 
+; 2NIP 	( n1 n2 n3 -- n3 ) 		
+; Discard the second stack item.
+
+nip2:
+    call nip
+    call nip
+    ret
+
 isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
     _compareZero B,C
     call drop
@@ -124,8 +158,11 @@ isZero:                                         ; n -- ?  ; this is wrong, shoul
 ; depth of data stack
 ; destroys: HL
 CODE "depth", 0, depth                       ; -- n
-    ld H,D
-    ld L,E
+    push IX
+    pop DE
+
+    push DE
+    pop HL
     call dup
     ld BC,dataStack
     or A

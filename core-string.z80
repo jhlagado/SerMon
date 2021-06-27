@@ -32,7 +32,7 @@ compstr3:
     jp pe,compstr1
     ld BC,0                             ; 0 no mismatch found
 compstr4:
-    pop DE
+    pop DE                              ; restore DE resume forth
     ret
 
 ; ; next ( -- ) ( r: idx ret ) followed by address of loop start
