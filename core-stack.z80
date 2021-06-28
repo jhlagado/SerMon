@@ -1,39 +1,28 @@
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
-    ; push IX
-    ; pop DE
     ex DE,HL
     ld (HL), C                                ; PUSH register pair
     inc HL
     ld (HL), B
     inc HL
     ex DE,HL
-    push DE
-    pop IX
     ret
 
 ; remove top of data stack
 ; x1 x2 -- x1
 drop:
-    ; push IX
-    ; pop DE
     ex DE,HL
     dec HL
     ld B,(HL)
     dec HL
     ld C,(HL)
     ex DE,HL
-    push DE
-    pop IX
     ret
 
 ; SWAP	( x1 x2 -- x2 x1 )		
 ; Exchange top two stack items.
 swap:
-    ; push IX
-    ; pop DE
-    
     ld H,D
     ld L,E
     dec HL
@@ -44,18 +33,12 @@ swap:
     ld A,C
     ld C,(HL)
     ld (HL),A
-    
-    push DE
-    pop IX
     ret
 
 
 ; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
 over:
-    ; push IX
-    ; pop DE
-
     ld H,D
     ld L,E
     call dup
@@ -63,25 +46,14 @@ over:
     ld B,(HL)
     dec HL
     ld C,(HL)
-
-    push DE
-    pop IX
-    
     ret
 
 ; NIP 	( n1 n2 -- n2 ) 		
 ; Discard the second stack item.
 
 nip:
-    ; push IX
-    ; pop DE
-
     dec DE
     dec DE
-
-    push DE
-    pop IX
-
     ret
 
 tuck:                                ; x y -- y x y
@@ -156,4 +128,3 @@ CODE "depth", 0, depth                       ; -- n
     _setTOS  H,L
     _div2
     ret
-
