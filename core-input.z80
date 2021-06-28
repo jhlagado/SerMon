@@ -3,30 +3,19 @@ initInput:
     ld (lineBufStart), HL
     ld (currkey), HL
     ld (linebuftop), HL
+    ld HL, LINE_BUFSIZE
+    ld (lineBufSize), HL
     ret
 
     CODE "KEY",0,KEY
-    call getKey
-    call dup
-    _setTOS 0,A
-    ret
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; getKey -  inputs a line buffered character
-; params: none
-; returns: A = character,
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 getKey:
-    push HL
-    push DE
     push BC
     ld HL, (currkey)
     ld BC, (lineBufTop)
     or A
-    sbc HL, BC                  ; exhausted the input lineBuf?
+    sbc HL,BC                  ; exhausted the input lineBuf?
     jr c,getKey1
-    ld HL, (lineBufStart)   ; lineBuf
+
     call getline
     ld HL, lineBuf
     ld (currkey), HL
@@ -39,31 +28,25 @@ getKey1:
     inc HL
     ld (currkey),HL         ; increment currkey
     pop BC
-    pop DE
-    pop HL
+    call dup
+    _setTOS 0,A
     ret
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; getline - input line of text ***
-; params: HL = addr, DE = max (currently up to 255)
 ; returns: BC = length - up to 255
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 getline:
-    push AF
-    push HL
     _pushPStr "\r\n> "
     call printPStr
-    pop HL
-    push HL
+    ld HL, lineBuf
     ld BC, 0
 getline1:    
-getline2:
     call getc
     cp $08
     jr nz,getline4
     call dup
     call isZero
-    jr z,getline3
+    jr z,getline1
     dec HL
     dec BC
     ld a, $08
@@ -72,8 +55,7 @@ getline2:
     call putc
     ld A, $08
     call putc
-getline3:
-    jr getline6
+    jr getline1
 getline4:
     ld (HL), A
     inc HL
@@ -83,20 +65,16 @@ getline4:
     call putc
 getline5:
     cp "\r"
-    jr z, getline8
+    jr z, getline7
     cp "\n"
-    jr z, getline8
-    ld A, E
+    jr z, getline7
+    ld A, LINE_BUFSIZE-1
     cp C
-    jr c, getline8
-getline6:
-    jr getline2
+    jr c, getline7
+    jr getline1
 getline7:
-getline8:
     ld a, 0
     cp c
     jr z,getline1
-    pop AF
-    pop HL
     call printCR
     ret

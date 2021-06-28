@@ -58,7 +58,9 @@ wordRd1:
 wordRd2:
     ld (HL),A                   ; write char to lineBuf
     inc HL                      ; ptr del:max       ; HL = ptr'
+    push HL
     call KEY                    ; ptr del:max key
+    pop HL
     ld A,C                      ; ptr del:max key   ; A = key    
     call drop                   ; ptr del:max       ; A = key B = delim C = maxlen
     cp B                        ; key = delim?
