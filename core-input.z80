@@ -40,13 +40,13 @@ getline:
     call printPStr
     ld HL, lineBuf
     ld BC, 0
-getline1:    
+getln1:    
     call getc
     cp $08
-    jr nz,getline4
+    jr nz,getln2
     call dup
     call isZero
-    jr z,getline1
+    jr z,getln1
     dec HL
     dec BC
     ld a, $08
@@ -55,26 +55,26 @@ getline1:
     call putc
     ld A, $08
     call putc
-    jr getline1
-getline4:
+    jr getln1
+getln2:
     ld (HL), A
     inc HL
     inc BC
     bit 7,a
-    jr nz,getline5
+    jr nz,getln3
     call putc
-getline5:
+getln3:
     cp "\r"
-    jr z, getline7
+    jr z, getln4
     cp "\n"
-    jr z, getline7
+    jr z, getln4
     ld A, LINE_BUFSIZE-1
     cp C
-    jr c, getline7
-    jr getline1
-getline7:
+    jr c, getln4
+    jr getln1
+getln4:
     ld a, 0
     cp c
-    jr z,getline1
+    jr z,getln1
     call printCR
     ret
