@@ -35,25 +35,3 @@ compstr4:
     pop DE                              ; restore DE resume forth
     ret
 
-; ; next ( -- ) ( r: idx ret ) followed by address of loop start
-; ; Run time code for the single index loop.
-; ; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
-; CODE 'next',0,DONXT         
-;             _rfrom          ; ret ( r: idx )   
-;             _rfrom          ; ret idx 
-;             call dup        ; ret idx idx
-;             call isZero     
-;             jr nz,DONXT1    
-;             dec BC          ; ret idx'
-;             _tor            ; ret (r: idx')
-;             call fetch      ; ret' (r: idx')
-;             _tor            ; (r: idx' ret')
-;             ret             ; jump to ret' (start of loop)
-; DONXT1:
-;             call drop       ; ret
-;             inc BC          
-;             inc BC          ; ret+2
-;             _tor            ; (r: ret+2)
-;             ret             ; jump to ret+2 (after offset)
-
-

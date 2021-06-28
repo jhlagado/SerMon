@@ -1,4 +1,4 @@
-            CODE "find",0,FIND                  ; ptr len -- ptrOrZero
+FIND:
             _push (latestDef)                   ; ptr len headptr
 find1:
             call dup
@@ -26,7 +26,7 @@ find4:
             call nip2                           ; headptr
             ret
 
-            CODE ">body",0,getBody              ; ptr -- ptr'
+getBody:                                        ; ptr -- ptr'
             inc BC                              ;
             inc BC                              ; skip over backlink
             inc BC                              ; skip over flags
