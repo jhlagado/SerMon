@@ -8,21 +8,20 @@ initInput:
     ret
 
     CODE "KEY",0,KEY
-getKey:
     push BC
     ld HL, (currkey)
     ld BC, (lineBufTop)
     or A
     sbc HL,BC                  ; exhausted the input lineBuf?
-    jr c,getKey1
+    jr c,key1
 
-    call getline
+    call getLine
     ld HL, lineBuf
     ld (currkey), HL
     or A
     adc HL, BC              ; lineBuf+DE = lineBufTop
     ld (lineBufTop),HL
-getKey1:
+key1:
     ld HL, (currkey)
     ld A,(HL)               ; get next key from input lineBuf
     inc HL
@@ -35,7 +34,7 @@ getKey1:
 ; getline - input line of text ***
 ; returns: BC = length - up to 255
 
-getline:
+getLine:
     _pushPStr "\r\n> "
     call printPStr
     ld HL, lineBuf
