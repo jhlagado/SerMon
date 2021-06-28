@@ -24,3 +24,13 @@
 ```
 
 in `main.z80` or `main-test.z80` files
+
+## Programming an 8K AT28C64B-15PU EEPROM
+
+### truncate to 8192
+
+head -c 8192 main.z80.bin > x.bin
+
+### program to minipro
+
+minipro -p AT28C64B -w x.bin
