@@ -13,8 +13,18 @@
     START_USER:
     TESTS_START:
     
-        ; word read
+        ld HL,16
+        ld (numberBase),HL
     
+        _pushStr "2/",2
+        call FIND
+        expect HEADER_TWOSLASH, "twoSlash"
+
+        TEST_SET_TEXT "5 2/"
+        call INTERPRET
+        EXPECT 2, "interpret 5/2"
+
+        ; word read
         TEST_SET_TEXT ""
         _push wordBuf1                 ; buffer
         _push $40                      ; max length
@@ -144,6 +154,9 @@
     
         ; formatNum
     
+        ld HL,10
+        ld (numberBase),HL
+
         _push wordBuf2
         _push -123
         call formatNum
