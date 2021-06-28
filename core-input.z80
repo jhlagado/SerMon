@@ -72,7 +72,7 @@ getln3:
     jr c, getln4
     jr getln1
 getln4:
-    ld a, 0
+    ld a, LINE_BUFSIZE-1
     cp c
     jr z,getln1
     call printCR

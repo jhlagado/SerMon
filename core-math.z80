@@ -94,7 +94,7 @@ twoStar:
             RL	B            
             ret
 
-twoSlash:
+            CODE "2/",0,twoSlash
             SRA B
             RR	C
             ret

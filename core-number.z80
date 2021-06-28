@@ -1,4 +1,3 @@
-; CODE "formatNum", 0, formatNum       
 formatNum:                              ; ptr num -- ptr len
     call over                           ; ptr num ptr
     call swap                           ; ptr ptr num
