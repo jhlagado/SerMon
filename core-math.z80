@@ -1,13 +1,13 @@
-            ; destroys: HL
-negate:                                         ; num -- -num
+; num -- -num
+            CODE "negate", 0, negate                         
             ld HL,0
             or A
             sbc HL,BC
             _setTOS  H,L
             ret
 
-            ; destroys: HL
-divide:                                         ; dividend divisor -- quotient remainder
+; dividend divisor -- quotient remainder
+            CODE "/", 0, divide                         
             _pop HL  
             push DE
             ex DE,HL
@@ -41,7 +41,9 @@ divid3:
             cpl
             ret
 
-uMultiply:                                      ; u1 u2 -- plo phi
+
+; u1 u2 -- plo phi
+            CODE "U*", 0, uMultiply                         
             _pop HL                             ; HL = u2, BC = u1
             push DE                             ; save DE .... suspend forth   
             ex DE,HL                            ; DE = u2                
@@ -64,7 +66,7 @@ umul2:
             _push HL
             ret
 
-plus:                                           ; x y -- z
+            CODE "+", 0, plus                         
             push HL
             _pop HL
             add HL,BC
@@ -72,7 +74,7 @@ plus:                                           ; x y -- z
             pop HL
             ret
 
-minus:                                           ; x y -- z
+            CODE "-", 0, minus                         
             push HL
             call swap
             _pop HL
@@ -82,19 +84,20 @@ minus:                                           ; x y -- z
             pop HL
             ret
 
+            CODE "cells", 0, cells                         
+            CODE "2*", 0, twoStar                         
+            SLA C
+            RL	B            
+            ret
+            
+CODE "2/",0,twoSlash
+            SRA B
+            RR	C
+            ret
+            
+
 carryToBool:
             ld BC,0
             ret nc
             dec BC
-            ret
-
-cells:
-twoStar:
-            SLA C
-            RL	B            
-            ret
-
-            CODE "2/",0,twoSlash
-            SRA B
-            RR	C
             ret

@@ -1,29 +1,6 @@
-.engine mycomputer
-
-    TESTMODE equ 1
-    
-        .include "header-main.z80"
-    
-        jp TESTS_START
-    
-    org START_RAM
-    
-    .include "variables.z80"
-    
-    START_USER:
-    TESTS_START:
-    
         ld HL,16
         ld (numberBase),HL
     
-        _pushStr "2/",2
-        call FIND
-        expect HEADER_TWOSLASH, "twoSlash"
-
-        TEST_SET_TEXT "5 2/"
-        call INTERPRET
-        EXPECT 2, "interpret 5/2"
-
         ; word read
         TEST_SET_TEXT ""
         _push wordBuf1                 ; buffer
@@ -266,12 +243,3 @@
         _push 10
         call isValidDigit
         expect FALSE, '10 not in base 10'
-    
-    
-        _pushPStr "\r\nDone! \r\n"
-        call printPStr
-        halt
-    
-    FAILED:
-        .pstr "Failed: "
-    
