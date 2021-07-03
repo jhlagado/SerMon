@@ -1,0 +1,23 @@
+;   ,           ( w -- )
+;               Compile an integer into the code dictionary.
+
+        CODE ",",0,COMMA
+        	ld HL,(VAR_HERE)	; HERE
+        	ld (HL),C
+        	inc HL
+        	ld (HL),B
+        	ld (VAR_HERE),HL	; Update HERE (incremented)
+        	call drop		    ; cleanup TOS
+            ret
+
+; COMPILE     ( -- )
+; Compile the next address in colon list to code dictionary.
+
+            CODE 'COMPILE',0,compi
+            _rfrom
+            call dup
+            call fetch
+            call comma     ;compile address
+            call cellp
+            _tor
+            ret

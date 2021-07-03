@@ -16,6 +16,7 @@ nestLevel           dw 0
 
 numberBase:         dw 0
 latestDef:          dw 0
+VAR_HERE:           dw 0
 
 .if TESTMODE
     ; used for mocking getc

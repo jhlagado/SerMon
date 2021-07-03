@@ -84,17 +84,37 @@ umul2:
             pop HL
             ret
 
+            CODE "1+",0,onep
+            inc BC
+            ret
+
+            CODE "1-",0,onem
+            dec BC
+            ret
+
             CODE "cells", 0, cells                         
             CODE "2*", 0, twoStar                         
             SLA C
             RL	B            
             ret
             
-CODE "2/",0,twoSlash
+            CODE "2/",0,twoSlash
             SRA B
             RR	C
             ret
             
+            CODE "2+",0,twop
+            CODE "cell+",0,cellp
+            inc BC
+            inc BC
+            ret
+
+            CODE "2-",0,twom
+            dec BC
+            dec BC
+            ret
+
+
 
 carryToBool:
             ld BC,0
