@@ -1,6 +1,10 @@
         ld HL,16
         ld (numberBase),HL
     
+        _pushStr "2/",2
+        call FIND
+        expect HEADER_TWOSLASH, "twoSlash"
+    
         ; word read
         TEST_SET_TEXT ""
         _push wordBuf1                 ; buffer

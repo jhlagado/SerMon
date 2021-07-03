@@ -1,6 +1,7 @@
-        _pushStr "2/",2
-        call FIND
-        expect HEADER_TWOSLASH, "twoSlash"
+
+        TEST_SET_TEXT "1 2 +"
+        call INTERPRET
+        EXPECT 3, "interpret 1 + 2 = 3"
 
         TEST_SET_TEXT "5 2/"
         call INTERPRET

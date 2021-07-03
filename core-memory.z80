@@ -1,29 +1,34 @@
+cfetch:                                          ; ptr -- n
+    LD HL,BC
+    ld C,(HL)
+    ld B,0
+    ret
+
+storeChar:                                      ; c ptr --
+cstore:                                          ; n ptr --
+    ld HL,BC
+    call drop
+    ld (HL),C
+    call drop
+    ret
+
 fetch:                                          ; ptr -- n
-    push HL
+    push HL                                     ; needed?
     _getTOS H,L
     ld C,(HL)
     inc HL
     ld B,(HL)
-    pop HL
+    pop HL                                      ; needed?
     ret
 
 store:                                          ; n ptr --
-    push HL
+    push HL                                     ; needed?
     _pop HL
     ld (HL),C
     inc HL
     ld (HL),B
     call drop
-    pop HL
-    ret
-
-; destroys: HL
-storeChar:                                      ; c ptr --
-    push HL
-    _pop HL
-    ld (HL),C
-    call drop
-    pop HL
+    pop HL                                      ; needed?
     ret
 
 ; -- n r: n -- n

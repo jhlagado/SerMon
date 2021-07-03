@@ -14,8 +14,21 @@ find1:
             jr find3
 find2:
             inc BC                              ; ptr len headptr namePtr   ; length
+            call dup                            ; ptr len headptr namePtr namePtr
+            call cfetch                         ; ptr len headptr namePtr nlen
+            _tor                                ; ptr len headptr namePtr r: nlen
             inc BC                              ; ptr len headptr namePtr'  ; first char
             call over2                          ; ptr len headptr namePtr' ptr len
+            call dup                            ; ptr len headptr namePtr' ptr len len
+            _rfrom                              ; ptr len headptr namePtr' ptr len len nlen
+            call minus                          ; ptr len headptr namePtr' ptr len diff
+            call isZero                         ; ptr len headptr namePtr' ptr len
+            jr z, find2A
+            call drop                           ; ptr len headptr namePtr' ptr
+            call drop                           ; ptr len headptr namePtr' 
+            call drop                           ; ptr len headptr 
+            jr find3
+find2A:
             call compareStr                     ; ptr len headptr match     ;match == 0
             call isZero
             jr z,find4                          

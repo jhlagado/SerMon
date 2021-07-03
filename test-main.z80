@@ -13,8 +13,12 @@
     START_USER:
     TESTS_START:
 
-        .include "test-math.z80"
-        .include "test-misc.z80"
+        TEST_SET_TEXT "1 2 ."
+        call INTERPRET
+        EXPECT 1, "1 2 . -> 2"
+
+        ; .include "test-math.z80"
+        ; .include "test-misc.z80"
     
         _pushPStr "\r\nDone! \r\n"
         call printPStr
