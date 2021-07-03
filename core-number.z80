@@ -52,7 +52,7 @@ toNumber:                               ; str len -- num err
         ret                             ; -- 0 0
 endif_toNumber1:
     call swap                           ; len str
-    _getTOS H,L                         ; len str ; HL = str
+    LD HL,BC                            ; len str ; HL = str
     push HL                             ;-------****
     call swap                           ; str len ; HL = str
     pop HL

@@ -15,8 +15,8 @@
 .endm
 
 ; .macro _min                                 ; x1 x2 -- x
-;     _getTOS H,L
-;     _getTOS D,E                               ; make a copy of x2
+;     LD HL,BC
+;     LD DE,BC                               ; make a copy of x2
 ;     call drop
 ;     or A
 ;     sbc HL,BC
@@ -26,8 +26,8 @@
 ; .endm
 
 ; .macro _max                                 ; x1 x2 -- x
-;     _getTOS H,L
-;     _getTOS D,E                               ; make a copy of x2
+;     LD HL,BC
+;     LD DE,BC                               ; make a copy of x2
 ;     call drop
 ;     or A
 ;     sbc HL,BC

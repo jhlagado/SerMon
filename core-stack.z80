@@ -125,6 +125,6 @@ CODE "depth", 0, depth                       ; -- n
     ld BC,dataStack
     or A
     sbc HL,BC
-    _setTOS  H,L
+    ld BC,HL
     _div2
     ret

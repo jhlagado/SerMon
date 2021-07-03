@@ -3,7 +3,7 @@
             ld HL,0
             or A
             sbc HL,BC
-            _setTOS  H,L
+            ld BC,HL
             ret
 
 ; dividend divisor -- quotient remainder
@@ -70,7 +70,7 @@ umul2:
             push HL
             _pop HL
             add HL,BC
-            _setTOS H,L
+            ld BC,HL
             pop HL
             ret
 
@@ -80,7 +80,7 @@ umul2:
             _pop HL
             or a
             sbc HL,BC
-            _setTOS H,L
+            ld BC,HL
             pop HL
             ret
 

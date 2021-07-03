@@ -14,7 +14,7 @@ cstore:                                          ; n ptr --
 
 fetch:                                          ; ptr -- n
     push HL                                     ; needed?
-    _getTOS H,L
+    LD HL,BC
     ld C,(HL)
     inc HL
     ld B,(HL)
