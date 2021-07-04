@@ -1,25 +1,26 @@
 .engine mycomputer
 
-    TESTMODE equ 1
+TESTMODE equ 1
     
-        .include "header-main.z80"
+    .include "header-main.z80"
     
-        jp TESTS_START
+    jp TESTS_START
     
-    org START_RAM
+org START_RAM
     
     .include "variables.z80"
+    ; used for mocking getc
+    charPtr:   dw 0
     
-    START_USER:
-    TESTS_START:
-
-        .include "test-math.z80"
-        .include "test-misc.z80"
+START_USER:
+TESTS_START:
     
-        _pushPStr "\r\nDone! \r\n"
-        call printPStr
-        halt
+    .include "test-math.z80"
+    .include "test-misc.z80"
     
-    FAILED:
-        .pstr "Failed: "
+    _pushPStr "\r\nDone! \r\n"
+    call printPStr
+    halt
     
+FAILED:
+    .pstr "Failed: "
