@@ -14,6 +14,6 @@ wordBuf1:           ds 64
 wordBuf2:           ds 64
 nestLevel           dw 0
 
-numberBase:         dw 0
-latestDef:          dw 0
-VAR_HERE:           dw 0
+var_base:           dw 0
+var_here:           dw 0
+var_latest:          dw 0

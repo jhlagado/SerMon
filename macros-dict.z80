@@ -10,14 +10,14 @@ backLink: .set HEADER_label
 label:                                      ; body
 .endm
 
-; .macro defconst, name, flags, label, value
-;     CODE name, flags, label
-;     call dup
-;     ld BC, value
-;     ret
-; .endm
+.macro CONST, name, flags, label, value
+    CODE name, flags, label
+    call dup
+    ld BC, value
+    ret
+.endm
 
-; .macro defvar, name, flags, label, variable
-;     defconst name, flags, label, variable
-; .endm
+.macro VAR, name, flags, label, variable
+    defconst name, flags, label, variable
+.endm
 

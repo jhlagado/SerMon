@@ -1,7 +1,7 @@
 ; next ( -- ) ( r: idx ret ) followed by address of loop start
 ; Run time code for the single index loop.
 ; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
-CODE 'next',0,DONXT         
+CODE 'donxt',0,DONXT         
             call rfrom          ; ret ( r: idx )   
             call rfrom          ; ret idx 
             call dup        ; ret idx idx
@@ -17,12 +17,19 @@ DONXT1:
             inc BC          ; ret+2
             jp tor            ; (r: ret+2)
 
-;   FOR         ( -- a )
-;               Start a FOR-NEXT loop structure in a colon definition.
-
+; FOR         ( -- a )
+; Start a FOR-NEXT loop structure in a colon definition.
 CODE 'for',IMMED,FOR    
     call COMPI
     dw TOR
     ld HL,(VAR_HERE)
     _push HL
     ret
+
+; NEXT        ( a -- )
+; Terminate a FOR-NEXT loop structure.
+CODE 'next',IMMED,NEXT    
+    call COMPI
+    dw DONXT
+    call COMMA
+    ret    
