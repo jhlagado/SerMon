@@ -1,3 +1,17 @@
+tor:
+    pop HL
+    push BC
+    push HL
+    call drop
+    ret
+
+rfrom:
+    call dup
+    pop HL
+    pop BC
+    push HL
+    ret
+
 ; duplicate top of data stack
 ; x1 -- x1 x1
 dup:
@@ -62,9 +76,9 @@ tuck:                                ; x y -- y x y
     ret
 
 rot:
-    _tor
+    call tor 
     call swap
-    _rfrom
+    call rfrom
     call swap
     ret
 
@@ -83,20 +97,20 @@ drop2:                                          ; x x --   ?????????????????
 
 swap2:
     call rot
-    _tor
+    call tor
     call rot
-    _rfrom
+    call rfrom
     ret
 
 ;   2OVER	( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 )	  \ CORE
 ;	Copy cell pair x1 x2 to the top of the stack.
     
 over2:
-    _tor
-    _tor
+    call tor
+    call tor
     call dup2
-    _rfrom
-    _rfrom
+    call rfrom
+    call rfrom
     call swap2
     ret
 

@@ -19,3 +19,12 @@ DONXT1:
             _tor            ; (r: ret+2)
             ret             ; jump to ret+2 (after offset)
 
+;   FOR         ( -- a )
+;               Start a FOR-NEXT loop structure in a colon definition.
+
+CODE 'for',IMMED,FOR    
+    call COMPI
+    dw TOR
+    ld HL,(VAR_HERE)
+    _push HL
+    ret
