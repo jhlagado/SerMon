@@ -22,4 +22,3 @@ VAR_HERE:           dw 0
     ; used for mocking getc
     charPtr:   dw 0
 .endif
-

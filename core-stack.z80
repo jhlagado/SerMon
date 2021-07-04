@@ -1,11 +1,20 @@
-tor:
+CODE "dolit", 0, dolit                         
+    call dup
+    pop HL
+    ld C,(HL)
+    inc HL
+    ld B,(HL)
+    inc HL
+    jp (HL)
+
+CODE ">r", 0, tor
     pop HL
     push BC
     push HL
     call drop
     ret
 
-rfrom:
+CODE "r>", 0, rfrom
     call dup
     pop HL
     pop BC
@@ -14,7 +23,7 @@ rfrom:
 
 ; duplicate top of data stack
 ; x1 -- x1 x1
-dup:
+CODE "dup", 0, dup
     ex DE,HL
     ld (HL), C                                ; PUSH register pair
     inc HL
@@ -25,7 +34,7 @@ dup:
 
 ; remove top of data stack
 ; x1 x2 -- x1
-drop:
+CODE "drop", 0, drop
     ex DE,HL
     dec HL
     ld B,(HL)
@@ -36,7 +45,7 @@ drop:
 
 ; SWAP	( x1 x2 -- x2 x1 )		
 ; Exchange top two stack items.
-swap:
+CODE "swap", 0, swap
     ld H,D
     ld L,E
     dec HL
@@ -52,7 +61,7 @@ swap:
 
 ; duplicate second from top of data stack
 ; x1 x2 -- x1 x2 x1
-over:
+CODE "over", 0, over
     ld H,D
     ld L,E
     call dup
@@ -65,29 +74,29 @@ over:
 ; NIP 	( n1 n2 -- n2 ) 		
 ; Discard the second stack item.
 
-nip:
+CODE "nip", 0, nip
     dec DE
     dec DE
     ret
 
-tuck:                                ; x y -- y x y
+CODE "tuck", 0, tuck                                ; x y -- y x y
     call swap
     call over
     ret
 
-rot:
+CODE "rot", 0, rot
     call tor 
     call swap
     call rfrom
     call swap
     ret
 
-dup2:                                           ; xa xb -- xa xb xa xb
+CODE "2dup", 0, dup2                                           ; xa xb -- xa xb xa xb
     call over
     call over
     ret
 
-drop2:                                          ; x x --   ?????????????????
+CODE "2drop", 0, drop2                                          ; x x --   ?????????????????
     call nip
     call drop
     ret
@@ -95,7 +104,7 @@ drop2:                                          ; x x --   ?????????????????
 ; 2SWAP	( x1 x2 x3 x4 -- x3 x4 x1 x2 )	
 ; Exchange the top two cell pairs.
 
-swap2:
+CODE "2swap", 0, swap2
     call rot
     call tor
     call rot
@@ -105,7 +114,7 @@ swap2:
 ;   2OVER	( x1 x2 x3 x4 -- x1 x2 x3 x4 x1 x2 )	  \ CORE
 ;	Copy cell pair x1 x2 to the top of the stack.
     
-over2:
+CODE "2over", 0, over2
     call tor
     call tor
     call dup2
@@ -117,22 +126,14 @@ over2:
 ; 2NIP 	( n1 n2 n3 -- n3 ) 		
 ; Discard the second stack item.
 
-nip2:
+CODE "2nip", 0, nip2
     call nip
     call nip
-    ret
-
-isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
-    _compareZero B,C
-    call drop
     ret
 
 ; depth of data stack
 ; destroys: HL
 CODE "depth", 0, depth                       ; -- n
-    ; push IX
-    ; pop DE
-
     push DE
     pop HL
     call dup
@@ -142,3 +143,10 @@ CODE "depth", 0, depth                       ; -- n
     ld BC,HL
     _div2
     ret
+
+isZero:                                         ; n -- ?  ; this is wrong, should leave boolean
+    _compareZero B,C
+    call drop
+    ret
+
+
