@@ -33,6 +33,6 @@ store:                                          ; n ptr --
 
 ; -- n r: n -- n
 rfetch:                                          
-    _rfrom
+    call rfrom
     push BC
     ret

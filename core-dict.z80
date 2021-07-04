@@ -16,11 +16,11 @@ find2:
             inc BC                              ; ptr len headptr namePtr   ; length
             call dup                            ; ptr len headptr namePtr namePtr
             call cfetch                         ; ptr len headptr namePtr nlen
-            _tor                                ; ptr len headptr namePtr r: nlen
+            call tor                                ; ptr len headptr namePtr r: nlen
             inc BC                              ; ptr len headptr namePtr'  ; first char
             call over2                          ; ptr len headptr namePtr' ptr len
             call dup                            ; ptr len headptr namePtr' ptr len len
-            _rfrom                              ; ptr len headptr namePtr' ptr len len nlen
+            call rfrom                              ; ptr len headptr namePtr' ptr len len nlen
             call minus                          ; ptr len headptr namePtr' ptr len diff
             call isZero                         ; ptr len headptr namePtr' ptr len
             jr z, find2A

@@ -54,5 +54,5 @@ interpCompile:
             ret
 
 execute:
-            _tor
+            call tor
             ret

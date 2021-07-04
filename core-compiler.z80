@@ -14,10 +14,10 @@
 ; Compile the next address in colon list to code dictionary.
 
             CODE 'COMPILE',0,compi
-            _rfrom
+            call rfrom
             call dup
             call fetch
             call comma     ;compile address
             call cellp
-            _tor
+            call tor
             ret

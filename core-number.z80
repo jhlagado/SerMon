@@ -22,7 +22,7 @@ do_formatNum:
         ex AF,AF'
         call over                       ; ptr ptr' base num1 base
         call divide                     ; ptr ptr' base num2 rem
-        _tor
+        call tor
         call dup                        ; ptr ptr' base num2 num2
         call isZero
         jr nz,do_formatNum
@@ -30,7 +30,7 @@ do_formatNum:
     ex AF,AF'
 formatNum11:
         ex AF,AF'
-        _rfrom
+        call rfrom
         call digitToChar                ; ptr ptr' ascii
         call over                       ; ptr ptr' ascii ptr'
         call storeChar                  ; ptr ptr'
