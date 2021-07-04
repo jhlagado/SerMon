@@ -3,7 +3,7 @@ initKernel:
     ld BC, 0
     ld (nestLevel),BC
     ld BC, 10
-    ld (BASE),BC
+    ld (var_base),BC
     ld BC, (initialLatest)
     ld (var_latest),BC
     ret

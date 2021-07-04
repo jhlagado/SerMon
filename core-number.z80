@@ -11,7 +11,7 @@ formatNum:                              ; ptr num -- ptr len
         inc BC                          ; ptr num1 ptr'
         call swap                       ; ptr ptr' num1
 formatNum1:    
-    _push (BASE)                  ; ptr ptr' num1 base
+    _push (var_base)                  ; ptr ptr' num1 base
     call swap                           ; ptr ptr' base num1
     ex AF,AF'
     ld A, 0                             ; D counter
@@ -92,8 +92,8 @@ endIf_toNumber211:
         call isZero                     ; str num len
         call swap                       ; str len num
         jr z, toNumber22
-        _push (BASE)              ; str len num base
-        call uMultiply                  ; str len num num2 (num *= BASE)
+        _push (var_base)              ; str len num base
+        call uMultiply                  ; str len num num2 (num *= var_base)
         call drop                       ; str len num
         pop HL
         inc HL
@@ -145,7 +145,7 @@ charToDigit1:
 charToDigit2:
     ret
 
-; is in range 0 - BASE
+; is in range 0 - var_base
 isValidDigit:                           ; n -- b
     bit 7,B
     jr z,else_isValidDigit1 
@@ -153,7 +153,7 @@ isValidDigit:                           ; n -- b
         jr endif_isValidDigit1
 else_isValidDigit1:
         ld A,C
-        ld BC, (BASE)
+        ld BC, (var_base)
         cp C
         call carryToBool
 endIf_isValidDigit1:

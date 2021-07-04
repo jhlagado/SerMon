@@ -1,5 +1,5 @@
         ld HL,16
-        ld (BASE),HL
+        ld (var_base),HL
     
         _pushStr "2/",2
         call FIND
@@ -136,7 +136,7 @@
         ; formatNum
     
         ld HL,10
-        ld (BASE),HL
+        ld (var_base),HL
 
         _push wordBuf2
         _push -123
