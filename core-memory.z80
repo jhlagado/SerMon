@@ -9,8 +9,7 @@ cstore:                                          ; n ptr --
     ld HL,BC
     call drop
     ld (HL),C
-    call drop
-    ret
+    jp drop
 
 fetch:                                          ; ptr -- n
     push HL                                     ; needed?

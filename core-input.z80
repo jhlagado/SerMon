@@ -75,5 +75,4 @@ getln4:
     ld a, LINE_BUFSIZE-1
     cp c
     jr z,getln1
-    call printCR
-    ret
+    jp printCR

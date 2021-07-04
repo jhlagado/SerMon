@@ -10,14 +10,12 @@ CODE 'next',0,DONXT
             dec BC          ; ret idx'
             call tor            ; ret (r: idx')
             call fetch      ; ret' (r: idx')
-            call tor            ; (r: idx' ret')
-            ret             ; jump to ret' (start of loop)
+            jp tor            ; (r: idx' ret')
 DONXT1:
             call drop       ; ret
             inc BC          
             inc BC          ; ret+2
-            call tor            ; (r: ret+2)
-            ret             ; jump to ret+2 (after offset)
+            jp tor            ; (r: ret+2)
 
 ;   FOR         ( -- a )
 ;               Start a FOR-NEXT loop structure in a colon definition.

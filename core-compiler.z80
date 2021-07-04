@@ -7,8 +7,7 @@
         	inc HL
         	ld (HL),B
         	ld (VAR_HERE),HL	; Update HERE (incremented)
-        	call drop		    ; cleanup TOS
-            ret
+        	jp drop		    ; cleanup TOS
 
 ; COMPILE     ( -- )
 ; Compile the next address in colon list to code dictionary.
@@ -19,5 +18,4 @@
             call fetch
             call comma     ;compile address
             call cellp
-            call tor
-            ret
+            jp tor

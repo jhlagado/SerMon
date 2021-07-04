@@ -1,8 +1,7 @@
 parseWord:                              ; -- ptr len
     call dup                            ; dup delim
     call skipDelims
-    call wordRead
-    ret
+    jp wordRead
 
 skipDelims:                             ; delim -- char
 skipd1:

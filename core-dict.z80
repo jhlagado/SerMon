@@ -36,8 +36,7 @@ find3:
             call fetch                          ; ptr len headptr'
             jr find1
 find4:
-            call twonip                           ; headptr
-            ret
+            jp twonip                           ; headptr
 
 getBody:                                        ; ptr -- ptr'
             inc BC                              ;

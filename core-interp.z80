@@ -1,7 +1,6 @@
 repl:
             ld DE, dataStack
-            call interpret
-            ret
+            jp interpret
 
 interpret:
 interpret1:
@@ -12,8 +11,7 @@ interpret1:
             call dup  
             call isZero                     ; str len len
             jr nz,interpret2                ; str len
-            call twodrop                      ; --
-            jr interpret6
+            jp twodrop                      ; --
 interpret2:
             _push (nestLevel)               ; str len nesting
             call isZero
@@ -25,8 +23,6 @@ interpret3:
 interpret4:
 interpret5:
             jr interpret1
-interpret6:
-            ret
 
 interpImmed:                                ; str len -- num?
             call twodup                       ; str len str len
@@ -54,5 +50,4 @@ interpCompile:
             ret
 
 execute:
-            call tor
-            ret
+            jp tor

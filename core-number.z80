@@ -40,16 +40,14 @@ formatNum11:
         jr nz, formatNum11
         ex AF,AF'
     call over                           ; ptr ptr'' ptr
-    call minus                          ; ptr len
-    ret
+    jp minus                          ; ptr len
 
 toNumber:                               ; str len -- num err
     call dup                            ; str len len
     call isZero
     jr nz,endif_toNumber1               ; if zero then return 0 0
         call nip                        ; zero
-        call dup                        ; zero zero
-        ret                             ; -- 0 0
+        jp dup                        ; zero zero
 endif_toNumber1:
     call swap                           ; len str
     LD HL,BC                            ; len str ; HL = str

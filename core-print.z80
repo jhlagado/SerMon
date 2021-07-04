@@ -1,14 +1,12 @@
 CODE "ok", 0, OK
     _pushPStr "OK"
-    call printPStr
-    ret
+    jp printPStr
 
 printCR:                                ; --
     ld A,"\r"
     call putc
     ld A,"\n"
-    call putc
-    ret
+    jp putc
 
 ; destroys: HL
 printStr:                               ; ptr len --
@@ -22,8 +20,7 @@ printStr1:
         call dup
         call isZero
         jr nz,printStr1
-    call drop                                   ; clear TOS
-    ret
+    jp drop                                   ; clear TOS
 
 ; destroys: HL
 printPStr:                                  ; _ptr --
@@ -39,6 +36,5 @@ CODE ".", 0, printNum                    ; num --
     call formatNum                          ; ptr len
     call printStr                           ; --
     ld A," "
-    call putc
-    ret
+    jp putc
 
