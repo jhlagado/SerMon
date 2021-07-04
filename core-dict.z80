@@ -15,7 +15,7 @@ find1:
 find2:
             inc BC                              ; ptr len headptr namePtr   ; length
             call dup                            ; ptr len headptr namePtr namePtr
-            call cfetch                         ; ptr len headptr namePtr nlen
+            call cat                         ; ptr len headptr namePtr nlen
             call tor                                ; ptr len headptr namePtr r: nlen
             inc BC                              ; ptr len headptr namePtr'  ; first char
             call twoover                          ; ptr len headptr namePtr' ptr len
@@ -33,7 +33,7 @@ find2A:
             call isZero
             jr z,find4                          
 find3:
-            call fetch                          ; ptr len headptr'
+            call at                          ; ptr len headptr'
             jr find1
 find4:
             jp twonip                           ; headptr

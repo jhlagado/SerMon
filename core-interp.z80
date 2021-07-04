@@ -48,6 +48,3 @@ interpImm3:
 
 interpCompile:
             ret
-
-execute:
-            jp tor

@@ -1,3 +1,25 @@
+CODE "?branch", 0, qbran                         
+    call isZero
+    jr z, bran
+    pop HL
+    inc HL
+    inc HL
+    jp (HL)
+
+CODE "branch", 0, bran                         
+    call dup
+    pop HL
+    ld C,(HL)
+    inc HL
+    ld B,(HL)
+    ld HL,BC
+    jp (HL)
+
+CODE "execute", 0, execute
+    ld HL,BC
+    call drop
+    jp (HL)
+
 ; next ( -- ) ( r: idx ret ) followed by address of loop start
 ; Run time code for the single index loop.
 ; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
@@ -9,7 +31,7 @@ CODE 'donxt',0,DONXT
             jr nz,DONXT1    
             dec BC          ; ret idx'
             call tor            ; ret (r: idx')
-            call fetch      ; ret' (r: idx')
+            call at      ; ret' (r: idx')
             jp tor            ; (r: idx' ret')
 DONXT1:
             call drop       ; ret
