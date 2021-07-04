@@ -26,7 +26,7 @@ do_formatNum:
         call dup                        ; ptr ptr' base num2 num2
         call isZero
         jr nz,do_formatNum
-    call drop2                          ; ptr ptr'
+    call twodrop                          ; ptr ptr'
     ex AF,AF'
 formatNum11:
         ex AF,AF'
@@ -80,7 +80,7 @@ toNumber21:
         call isValidDigit               ; str len num nib bool
         call isZero
         jr nz,endif_toNumber211         ; str len num nib
-            call nip2                   ; str nib
+            call twonip                   ; str nib
             call drop                   ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1

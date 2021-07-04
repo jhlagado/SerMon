@@ -18,7 +18,7 @@ find2:
             call cfetch                         ; ptr len headptr namePtr nlen
             call tor                                ; ptr len headptr namePtr r: nlen
             inc BC                              ; ptr len headptr namePtr'  ; first char
-            call over2                          ; ptr len headptr namePtr' ptr len
+            call twoover                          ; ptr len headptr namePtr' ptr len
             call dup                            ; ptr len headptr namePtr' ptr len len
             call rfrom                              ; ptr len headptr namePtr' ptr len len nlen
             call minus                          ; ptr len headptr namePtr' ptr len diff
@@ -36,7 +36,7 @@ find3:
             call fetch                          ; ptr len headptr'
             jr find1
 find4:
-            call nip2                           ; headptr
+            call twonip                           ; headptr
             ret
 
 getBody:                                        ; ptr -- ptr'

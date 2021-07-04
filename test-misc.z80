@@ -48,31 +48,31 @@
     
         _push 1001
         _push 1002
-        call dup2
-        expect 1002, "dup2 1002"
-        expect 1001, "dup2 1001"
-        expect 1002, "dup2 1002"
-        expect 1001, "dup2 1001"
+        call twodup
+        expect 1002, "twodup 1002"
+        expect 1001, "twodup 1001"
+        expect 1002, "twodup 1002"
+        expect 1001, "twodup 1001"
     
         _push $AAAA
         _push $BBBB
         _push $CCCC
         _push $DDDD
-        call over2
-        expect $BBBB, "over2 $BBBB"
-        expect $AAAA, "over2 $AAAA"
-        expect $DDDD, "over2 $DDDD"
-        expect $CCCC, "over2 $CCCC"
-        expect $BBBB, "over2 $BBBB"
-        expect $AAAA, "over2 $AAAA"
+        call twoover
+        expect $BBBB, "twoover $BBBB"
+        expect $AAAA, "twoover $AAAA"
+        expect $DDDD, "twoover $DDDD"
+        expect $CCCC, "twoover $CCCC"
+        expect $BBBB, "twoover $BBBB"
+        expect $AAAA, "twoover $AAAA"
     
         _push $AAAA
         _push $BBBB
         _push $CCCC
         _push $DDDD
-        call nip2
-        expect $DDDD, "over2 $DDDD"
-        expect $AAAA, "over2 $AAAA"
+        call twonip
+        expect $DDDD, "twoover $DDDD"
+        expect $AAAA, "twoover $AAAA"
     
         _push 40
         _push 4

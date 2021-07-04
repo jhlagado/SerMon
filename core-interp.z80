@@ -12,7 +12,7 @@ interpret1:
             call dup  
             call isZero                     ; str len len
             jr nz,interpret2                ; str len
-            call drop2                      ; --
+            call twodrop                      ; --
             jr interpret6
 interpret2:
             _push (nestLevel)               ; str len nesting
@@ -29,7 +29,7 @@ interpret6:
             ret
 
 interpImmed:                                ; str len -- num?
-            call dup2                       ; str len str len
+            call twodup                       ; str len str len
             call find                       ; str len ptrOrNull
             call dup                        ; str len ptrOrNull ptrOrNull
             call isZero                     ; str len ptrOrNull
@@ -44,7 +44,7 @@ interpImmed:                                ; str len -- num?
 interpImm1:                                 ; else leave num on stack
             jr interpImm3
 interpImm2:
-            call nip2                       ; ptr
+            call twonip                       ; ptr
             call getBody                    ; ptr'
             call execute                    ; ?
 interpImm3:
