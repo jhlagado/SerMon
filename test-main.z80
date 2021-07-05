@@ -15,8 +15,9 @@ org START_RAM
 START_USER:
 TESTS_START:
     
-    .include "test-math.z80"
-    .include "test-misc.z80"
+    ; .include "test-math.z80"
+    ; .include "test-misc.z80"
+    .include "test-path.z80"
     
     _pushPStr "\r\nDone! \r\n"
     call printPStr

@@ -1,0 +1,9 @@
+call here
+EXPECT var_here, "HERE"
+
+; TEST_SET_TEXT "xyz"
+; ppushValue $20
+; call WORD
+; call COUNT
+; EXPECT 3, "word length 'xyz'"
+; EXPECT var_here, "word ptr HERE"
