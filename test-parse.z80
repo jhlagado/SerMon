@@ -1,9 +1,17 @@
-call here
-EXPECT var_here, "HERE"
+call dolit 
+dw 16
+call base
+call store
 
-; TEST_SET_TEXT "xyz"
-; ppushValue $20
-; call WORD
-; call COUNT
-; EXPECT 3, "word length 'xyz'"
-; EXPECT var_here, "word ptr HERE"
+TEST_SET_TEXT "xyz "
+call dolit 
+dw $20
+call WORD
+call dup
+call cat
+EXPECT 3, "word length 'xyz'"
+call here
+call at
+call minus
+EXPECT 0, "word ptr HERE"
+    

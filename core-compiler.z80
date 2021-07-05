@@ -29,18 +29,18 @@ CODE "create",0,create
     call store                              ; store header to latest 
     call dolit 
     dw 0                                    ; 0
-    call ccomma                              ; write 0 to flags field (inc here by 1)
+    call ccomma                             ; write 0 to flags field (inc here by 1)
     call bl                                 ; delim
     call word                               ; read word token into name field at here
     call cat                                ; get name length
-    call ONEP                               ; inc by 1 for length byte
-    call allot                              ; inc here by string length plus length byte
+    call onep                               ; inc by 1 for length byte
+    call allot                              ; allot len+1
     call dolit 
     dw jp_opcode 
     call ccomma                             ; compile default behavious
     call dolit 
     dw create1 
-    call comma                  ; i.e. push addr of data area
+    call comma                              ; i.e. push addr of data area
     ret
 create1:
     call rfrom                              ; push onto stack

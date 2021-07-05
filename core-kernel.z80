@@ -6,4 +6,6 @@ initKernel:
     ld (var_base),BC
     ld BC, (initialLatest)
     ld (var_latest),BC
+    ld BC, START_USER
+    ld (var_here),BC
     ret
