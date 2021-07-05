@@ -15,6 +15,7 @@ jp serialIn
 
 .include "core-compiler.z80"
 .include "core-control.z80"
+.include "core-defs.z80"
 .include "core-dict.z80"
 .include "core-input.z80"
 .include "core-interp.z80"

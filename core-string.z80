@@ -1,3 +1,13 @@
+;   COUNT       ( b -- b +n )
+;               Return count byte of a string and add 1 to byte address.
+
+CODE 'COUNT',0,COUNT
+    call dup
+    call onep
+    call swap
+    call cat
+    ret
+
 ; destroys: HL
 compareStr:                             ; str1 str2 len -- (-1|0|1)
     call dup

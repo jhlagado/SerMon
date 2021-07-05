@@ -18,6 +18,6 @@ label:                                      ; body
 .endm
 
 .macro VAR, name, flags, label, variable
-    defconst name, flags, label, variable
+    CONST name, flags, label, variable
 .endm
 

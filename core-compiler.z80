@@ -27,3 +27,29 @@ CODE 'LITERAL',IMMED,LITER
     dw dolit
     call comma
     ret
+
+; CREATE ( -- ; <string> )
+; Compile a new array entry without allocating code space.
+CODE "create",0,create             
+    call here 
+    call at                             ; get old "here"
+    call latest 
+    call at 
+    call comma                    ; write link to previous word to "here"
+    call latest 
+    call store                        ; update latest to old "here"
+    call bl 
+    call word                             ; read word token
+    call cat 
+    call ONEP 
+    call allot           
+    call dolit 
+    dw jp_opcode 
+    call ccomma               ; compile default behavious
+    call dolit 
+    dw create1 
+    call comma                  ; i.e. push addr of data area
+    ret
+create1:
+    call rfrom                              ; push onto stack
+    ret

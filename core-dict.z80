@@ -1,5 +1,5 @@
 FIND:
-            _push (var_latest)                   ; ptr len headptr
+            _push (var_latest)                  ; ptr len headptr
 find1:
             call dup
             call isZero
@@ -15,12 +15,12 @@ find1:
 find2:
             inc BC                              ; ptr len headptr namePtr   ; length
             call dup                            ; ptr len headptr namePtr namePtr
-            call cat                         ; ptr len headptr namePtr nlen
-            call tor                                ; ptr len headptr namePtr r: nlen
+            call cat                            ; ptr len headptr namePtr nlen
+            call tor                            ; ptr len headptr namePtr r: nlen
             inc BC                              ; ptr len headptr namePtr'  ; first char
-            call twoover                          ; ptr len headptr namePtr' ptr len
+            call twoover                        ; ptr len headptr namePtr' ptr len
             call dup                            ; ptr len headptr namePtr' ptr len len
-            call rfrom                              ; ptr len headptr namePtr' ptr len len nlen
+            call rfrom                          ; ptr len headptr namePtr' ptr len len nlen
             call minus                          ; ptr len headptr namePtr' ptr len diff
             call isZero                         ; ptr len headptr namePtr' ptr len
             jr z, find2A
