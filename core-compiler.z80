@@ -1,14 +1,3 @@
-;   ,           ( w -- )
-;               Compile an integer into the code dictionary.
-
-CODE ",",0,COMMA
-    ld HL,(VAR_HERE)	; HERE
-    ld (HL),C
-    inc HL
-    ld (HL),B
-    ld (VAR_HERE),HL	; Update HERE (incremented)
-    jp drop		    ; cleanup TOS
-
 ; COMPILE     ( -- )
 ; Compile the next address in colon list to code dictionary.
 CODE 'COMPILE',0,compi
@@ -31,21 +20,24 @@ CODE 'LITERAL',IMMED,LITER
 ; CREATE ( -- ; <string> )
 ; Compile a new array entry without allocating code space.
 CODE "create",0,create             
-    call here 
-    call at                             ; get old "here"
-    call latest 
-    call at 
-    call comma                    ; write link to previous word to "here"
-    call latest 
-    call store                        ; update latest to old "here"
-    call bl 
-    call word                             ; read word token
-    call cat 
-    call ONEP 
-    call allot           
+    call here                               ; &here
+    call at                                 ; here
+    call latest                             ; here &latest
+    call at                                 ; here latest
+    call comma                              ; write value current value of latest to link field (inc here by 2)
+    call latest                             ; here latest
+    call store                              ; store header to latest 
+    call dolit 
+    dw 0                                    ; 0
+    call ccomma                              ; write 0 to flags field (inc here by 1)
+    call bl                                 ; delim
+    call word                               ; read word token into name field at here
+    call cat                                ; get name length
+    call ONEP                               ; inc by 1 for length byte
+    call allot                              ; inc here by string length plus length byte
     call dolit 
     dw jp_opcode 
-    call ccomma               ; compile default behavious
+    call ccomma                             ; compile default behavious
     call dolit 
     dw create1 
     call comma                  ; i.e. push addr of data area
