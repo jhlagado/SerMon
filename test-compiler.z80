@@ -1,8 +1,14 @@
-TEST_SET_TEXT "xyz"
-call CREATE
-call LATEST
-call AT
-EXPECT START_USER, "create xyz latest"
-call HERE
-call AT
-EXPECT START_USER + 10, "create xyz here"
+    call initKernel
+
+    TEST_SET_TEXT "xyz"
+    call CREATE
+    call LATEST
+    call AT
+    EXPECT START_USER, "create xyz latest"
+    call HERE
+    call AT
+    EXPECT START_USER + 10, "create xyz here"
+    
+    ; TEST_SET_TEXT "create xyz xyz ."
+    ; call INTERPRET
+    ; EXPECT 2, "interpret 5/2"

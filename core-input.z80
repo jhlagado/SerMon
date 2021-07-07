@@ -7,7 +7,7 @@ initInput:
     ld (lineBufSize), HL
     ret
 
-    CODE "KEY",0,KEY
+CODE "KEY",0,KEY
     push BC
     ld HL, (currkey)
     ld BC, (lineBufTop)

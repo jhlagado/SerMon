@@ -34,7 +34,7 @@ dw backLink
 
 start:
 ld SP, RET_STACK                        ; Initialise the return stack.
-call initKernel
 call initInput
 call initSerial
+call initKernel
 

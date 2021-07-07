@@ -45,3 +45,34 @@ CODE "create",0,create
 create1:
     call rfrom                              ; push onto stack
     ret
+    
+CODE ":",0,colon
+    call create                             ; create the dictionary entry / header
+    call dolit
+    dw -3
+    call allot                              ; erase jump instruction left by create 
+    call latest
+    call at
+    call hidden                             ; make the word hidden
+    call rbrac                              ; go into compile mode.
+    ret                                     
+
+; hidden addr --
+; hides word pointed to by addr
+CODE "hidden",0,hidden
+    call cellp                              ; Point to name/flags byte.
+    ld A, (BC)
+    xor HIDE        	                    ; Toggle the HIDDEN bit.
+    ld (BC), A
+    ret
+
+CODE "[",IMMED,lbrac
+	ld HL, 0
+	ld (VAR_STATE), HL	; Set STATE to 0.
+    ret
+
+CODE "]",0,rbrac
+	ld HL, 1
+	ld (VAR_STATE), HL	; Set STATE to 1.
+    ret
+    
