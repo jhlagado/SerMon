@@ -76,3 +76,13 @@ CODE "]",0,rbrac
 	ld (VAR_STATE), HL	; Set STATE to 1.
     ret
     
+CODE ";",1,IMMED,semicolon
+    call dolit 
+    dw RET_OPCODE 
+    call comma                              ; compile ret
+    call latest                             
+    call at                                 ; get latest defined word
+    call hidden                             ; toggle hidden flag -- unhide 
+    call lbrac                              ; go back to immediate mode.
+    ret                                
+

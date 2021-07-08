@@ -23,4 +23,6 @@ HIDE            equ     $80
 
 FALSE           equ     0
 TRUE            equ     -1
+
 JP_OPCODE       equ     $C3
+RET_OPCODE      equ     $C9
