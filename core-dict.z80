@@ -33,20 +33,18 @@ find2A:
             call isZero
             jr z,find4                          
 find3:
-            call at                          ; ptr len headptr'
+            call at                             ; ptr len headptr'
             jr find1
 find4:
             jp twonip                           ; headptr
 
-getBody:                                        ; ptr -- ptr'
-            inc BC                              ;
-            inc BC                              ; skip over backlink
-            inc BC                              ; skip over flags
-            ld A,(BC)                           ; A = len of routine's name
-            inc BC                              ; skip over len
-            add A,C
-            ld C,A
-            ld A,0
-            adc A,B
-            ld B,A
+; >body     ( ptr -- ptr' )
+CODE ">body",0,getBody                                        
+            _cellp                              ; skip over backlink
+            _onep                               ; skip over flags
+            call dup
+            call cat
+            _onep                               ; skip over len
+            call plus
             ret
+

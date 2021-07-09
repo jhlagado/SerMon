@@ -1,11 +1,9 @@
-call dolit 
-dw 16
+_push 16
 call base
 call store
 
 TEST_SET_TEXT "xyz "
-call dolit 
-dw $20
+_push $20
 call WORD
 call dup
 call cat

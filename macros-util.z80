@@ -14,28 +14,6 @@
     ld B,0
 .endm
 
-; .macro _min                                 ; x1 x2 -- x
-;     LD HL,BC
-;     LD DE,BC                               ; make a copy of x2
-;     call drop
-;     or A
-;     sbc HL,BC
-;     jr nc, L_%%M
-;     _setTOS  D,E
-; L_%%M:
-; .endm
-
-; .macro _max                                 ; x1 x2 -- x
-;     LD HL,BC
-;     LD DE,BC                               ; make a copy of x2
-;     call drop
-;     or A
-;     sbc HL,BC
-;     jr c, L_%%M
-;     _setTOS  D,E
-; L_%%M:
-; .endm
-
 ; divide by 2
 .macro _div2                                 ; n -- n
     srl B
@@ -46,3 +24,15 @@
     bit 7,A
 .endm
 
+.macro _onep
+    inc BC
+.endm
+
+.macro _twop
+    inc BC
+    inc BC
+.endm
+
+.macro _cellp
+    _twop
+.endm

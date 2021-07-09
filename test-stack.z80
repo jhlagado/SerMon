@@ -1,5 +1,4 @@
-        call dolit
-        dw 1234
+        _push 1234
         expect 1234, "lit 1234"
 
         ; call depth

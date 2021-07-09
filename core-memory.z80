@@ -52,13 +52,13 @@ rat:
 ; Compile an integer into the code dictionary.
 CODE ",",0,COMMA
     call COMMA1                                   
-    call cellp                                  ; here+2
+    _cellp                                  ; here+2
     call here                                   ; here+2 &here
     call store
     ret                                                     
 CODE "c,",0,CCOMMA
     call COMMA1                                   
-    call onep                                   ; here+1
+    _onep                                   ; here+1
     call here                                   ; here+1 &here
     call store
     ret                                                     
@@ -69,6 +69,14 @@ COMMA1:
     call tor                                    ; w here r: here
     call store                                  
     call rfrom                                  ; here                                  
+    ret
+
+; call,       ( adr -- )
+; Assemble a call instruction to adr
+CODE 'call,',0,CALLC
+    _push CALL_OPCODE
+    call ccomma
+    call comma
     ret
 
 ; ALLOT       ( n -- )

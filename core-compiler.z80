@@ -4,10 +4,11 @@ CODE 'COMPILE',0,compi
     call rfrom
     call dup
     call at
-    call comma     ;compile address
-    call cellp
-    call tor
-    ret
+    call callc                              ;compile call to address
+    _push 3
+    call plus
+    ld HL,BC
+    jp (HL)
 
 ;   LITERAL     ( w -- )
 ;               Compile tos to code dictionary as an integer literal.
@@ -27,19 +28,16 @@ CODE "create",0,create
     call comma                              ; write value current value of latest to link field (inc here by 2)
     call latest                             ; here latest
     call store                              ; store header to latest 
-    call dolit 
-    dw 0                                    ; 0
+    _push 0                                    ; 0
     call ccomma                             ; write 0 to flags field (inc here by 1)
     call bl                                 ; delim
     call word                               ; read word token into name field at here
     call cat                                ; get name length
-    call onep                               ; inc by 1 for length byte
+    _onep                               ; inc by 1 for length byte
     call allot                              ; allot len+1
-    call dolit 
-    dw jp_opcode 
+    _push jp_opcode 
     call ccomma                             ; compile default behavious
-    call dolit 
-    dw create1 
+    _push create1 
     call comma                              ; i.e. push addr of data area
     ret
 create1:
@@ -48,8 +46,7 @@ create1:
     
 CODE ":",0,colon
     call create                             ; create the dictionary entry / header
-    call dolit
-    dw -3
+    _push -3
     call allot                              ; erase jump instruction left by create 
     call latest
     call at
@@ -60,7 +57,7 @@ CODE ":",0,colon
 ; hidden addr --
 ; hides word pointed to by addr
 CODE "hidden",0,hidden
-    call cellp                              ; Point to name/flags byte.
+    _cellp                              ; Point to name/flags byte.
     ld A, (BC)
     xor HIDE        	                    ; Toggle the HIDDEN bit.
     ld (BC), A
@@ -77,8 +74,7 @@ CODE "]",0,rbrac
     ret
     
 CODE ";",1,IMMED,semicolon
-    call dolit 
-    dw RET_OPCODE 
+    _push RET_OPCODE 
     call comma                              ; compile ret
     call latest                             
     call at                                 ; get latest defined word

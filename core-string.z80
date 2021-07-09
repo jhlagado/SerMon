@@ -3,7 +3,7 @@
 
 CODE 'COUNT',0,COUNT
     call dup
-    call onep
+    _onep
     call swap
     call cat
     ret

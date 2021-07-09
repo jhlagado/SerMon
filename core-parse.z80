@@ -5,9 +5,8 @@ CODE "word",0,word
     call tor                                ; save delim
     call here                               ; 
     call at                                 ; ptr
-    call onep                               ; ptr'
-    call dolit                  
-    dw $40                                  ; ptr' maxlen
+    _onep                                   ; ptr'
+    _push $40                               ; ptr' maxlen
     call rfrom                              ; ptr' maxlen delim
     call parseWord                          ; ptr' len
     call swap                               ; len ptr'
