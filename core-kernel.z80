@@ -1,7 +1,7 @@
 initKernel:
     ld DE, dataStack
     ld BC, 0
-    ld (nestLevel),BC
+    ld (var_state),BC
     ld BC, 10
     ld (var_base),BC
     ld BC, (initialLatest)

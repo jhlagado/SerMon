@@ -71,7 +71,9 @@ compileNum:
             jr interpNum2
 
 compileNum2:
+            _push dolit
             call callc
+            call comma
             ret
             
             
