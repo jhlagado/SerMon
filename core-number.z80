@@ -46,7 +46,7 @@ toNumber:                               ; str len -- num err
     call dup                            ; str len len
     call isZero
     jr nz,endif_toNumber1               ; if zero then return 0 0
-        call nip                        ; zero
+        _nip                        ; zero
         jp dup                        ; zero zero
 endif_toNumber1:
     call swap                           ; len str
@@ -62,7 +62,7 @@ endif_toNumber1:
         call dup                        ; str len len
         call isZero
         jr nz,else_toNumber3
-            call nip                    ; zero
+            _nip                    ; zero
             call dup                    ; zero zero
             ld BC,1                     ; TODO _push 1
             ret                         ; 0 1
@@ -78,7 +78,7 @@ toNumber21:
         call isValidDigit               ; str len num nib bool
         call isZero
         jr nz,endif_toNumber211         ; str len num nib
-            call twonip                   ; str nib
+            _2nip                   ; str nib
             call drop                   ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1
@@ -101,7 +101,7 @@ endIf_toNumber211:
         jr toNumber21
 toNumber22:
     pop HL
-    call nip                            ; str num
+    _nip                            ; str num
     call swap                           ; num str
     ld A,(BC)
     cp "-"

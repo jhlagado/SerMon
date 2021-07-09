@@ -36,3 +36,13 @@
 .macro _cellp
     _twop
 .endm
+
+.macro _nip
+    dec DE
+    dec DE
+.endm
+
+.macro _2nip
+    _nip
+    _nip
+.endm

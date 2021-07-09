@@ -93,7 +93,7 @@ CODE "2dup", 0, twodup                                           ; xa xb -- xa x
     jp over
 
 CODE "2drop", 0, twodrop                                          ; x x --   ?????????????????
-    call nip
+    _nip
     jp drop
 
 ; 2SWAP	( x1 x2 x3 x4 -- x3 x4 x1 x2 )	
@@ -121,7 +121,7 @@ CODE "2over", 0, twoover
 ; Discard the second stack item.
 
 CODE "2nip", 0, twonip
-    call nip
+    _nip
     jp nip
 
 ; depth of data stack

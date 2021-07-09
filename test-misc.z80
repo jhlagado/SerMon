@@ -70,7 +70,7 @@
         _push $BBBB
         _push $CCCC
         _push $DDDD
-        call twonip
+        _2nip
         expect $DDDD, "twoover $DDDD"
         expect $AAAA, "twoover $AAAA"
     
