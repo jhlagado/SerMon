@@ -41,6 +41,18 @@ create1:
     call rfrom                              ; push onto stack
     ret
     
+; hidden addr --
+; hides word pointed to by addr
+hidden:
+    _cellp                                  ; pflags
+    call dup                                ; pflags pflags
+    call at                                 ; pflags flags
+    _push HIDE                              ; pflags flags HIDE
+    call xorr                               ; pflags flags^HIDE
+    call swap                               ; flags^HIDE pflags
+    call store
+    ret
+
 CODE ":",0,colon
     call create                             ; create the dictionary entry / header
     _push -3
@@ -49,15 +61,6 @@ CODE ":",0,colon
     call hidden                             ; make the word hidden
     call rbrac                              ; go into compile mode.
     ret                                     
-
-; hidden addr --
-; hides word pointed to by addr
-CODE "hidden",0,hidden
-    _cellp                                  ; Point to name/flags byte.
-    ld A, (BC)
-    xor HIDE        	                    ; Toggle the HIDDEN bit.
-    ld (BC), A
-    ret
 
 CODE "[",IMMED,lbrac
 	ld HL, FALSE

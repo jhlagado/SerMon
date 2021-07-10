@@ -1,3 +1,25 @@
+; next ( -- ) ( r: idx ret ) followed by address of loop start
+; Run time code for the single index loop.
+; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
+doNext:         
+    call rfrom          ; ret ( r: idx )   
+    call rfrom          ; ret idx 
+    call dup            ; ret idx idx
+    call isZero     
+    jr z,doNext1    
+    dec BC              ; ret idx'
+    call tor            ; ret (r: idx')
+    call at             ; ret' (r: idx')
+    ld HL,BC
+    call drop
+    jp (HL)
+doNext1:
+    call drop           ; ret
+    ld HL,2
+    add HL,BC
+    call drop
+    jp (HL)
+
 CODE "?branch", 0, qbranch           
     call isZero
     jr z, branch
@@ -20,26 +42,6 @@ CODE "execute", 0, execute
     call drop
     jp (HL)
 
-; next ( -- ) ( r: idx ret ) followed by address of loop start
-; Run time code for the single index loop.
-; r> r> dup if 1 - >r @ >r exit then drop cell+ >r ;
-CODE 'donxt',0,DONXT         
-    call rfrom          ; ret ( r: idx )   
-    call rfrom          ; ret idx 
-    call dup            ; ret idx idx
-    call isZero     
-    jr z,DONXT1    
-    dec BC              ; ret idx'
-    call tor            ; ret (r: idx')
-    call at             ; ret' (r: idx')
-    ld HL,BC
-    jp (HL)
-DONXT1:
-    call drop           ; ret
-    ld HL,2
-    add HL,BC
-    jp (HL)
-
 ; FOR         ( -- a )
 ; Start a FOR-NEXT loop structure in a colon definition.
 CODE 'for',IMMED,for    
@@ -51,7 +53,7 @@ CODE 'for',IMMED,for
 ; NEXT        ( a -- )
 ; Terminate a FOR-NEXT loop structure.
 CODE 'next',IMMED,next    
-    _push DONXT
+    _push doNext
     call callc
     call COMMA
     ret    
