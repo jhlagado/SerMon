@@ -11,7 +11,7 @@ formatNum:                              ; ptr num -- ptr len
         inc BC                          ; ptr num1 ptr'
         call swap                       ; ptr ptr' num1
 formatNum1:    
-    _push (var_base)                  ; ptr ptr' num1 base
+    _fetch base                         ; ptr ptr' num1 base
     call swap                           ; ptr ptr' base num1
     ex AF,AF'
     ld A, 0                             ; D counter
@@ -92,7 +92,7 @@ endIf_toNumber211:
         call isZero                     ; str num len
         call swap                       ; str len num
         jr z, toNumber22
-        _push (var_base)              ; str len num base
+        _fetch base                     ; str len num base
         call uMultiply                  ; str len num num2 (num *= var_base)
         call drop                       ; str len num
         pop HL

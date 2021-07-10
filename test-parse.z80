@@ -8,8 +8,7 @@
         call dup
         call cat
         EXPECT 3, "word length 'xyz'"
-        call here
-        call at
+        _fetch here
         call minus
         EXPECT 0, "word ptr HERE"
     

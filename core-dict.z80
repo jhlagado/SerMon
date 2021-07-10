@@ -1,5 +1,5 @@
 FIND:
-            _push (var_latest)                  ; ptr len headptr
+            _fetch latest                  ; ptr len headptr
 find1:
             call dup
             call isZero

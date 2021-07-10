@@ -3,8 +3,7 @@
 ; Skip leading delimiters. Parse characters ccc delimited by char. 
 CODE "word",0,word
     call tor                                ; save delim
-    call here                               ; 
-    call at                                 ; ptr
+    _fetch here                             ; ptr
     _onep                                   ; ptr'
     _push $40                               ; ptr' maxlen
     call rfrom                              ; ptr' maxlen delim

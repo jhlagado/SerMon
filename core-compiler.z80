@@ -21,13 +21,11 @@ CODE 'LITERAL',IMMED,LITER
 ; CREATE ( -- ; <string> )
 ; Compile a new array entry without allocating code space.
 CODE "create",0,create             
-    call here                               ; &here
-    call at                                 ; here
+    _fetch here                               ; &here
     _fetch latest                           ; here latest
     call comma                              ; write value current value of latest to link field (inc here by 2)
-    call latest                             ; here latest
-    call store                              ; store header to latest 
-    _push 0                                    ; 0
+    _store latest                           ; store header to latest 
+    _push 0                                 ; 0
     call ccomma                             ; write 0 to flags field (inc here by 1)
     call bl                                 ; delim
     call word                               ; read word token into name field at here
@@ -55,7 +53,7 @@ CODE ":",0,colon
 ; hidden addr --
 ; hides word pointed to by addr
 CODE "hidden",0,hidden
-    _cellp                              ; Point to name/flags byte.
+    _cellp                                  ; Point to name/flags byte.
     ld A, (BC)
     xor HIDE        	                    ; Toggle the HIDDEN bit.
     ld (BC), A
@@ -73,9 +71,8 @@ CODE "]",0,rbrac
     
 CODE ";",IMMED,semicolon
     _push RET_OPCODE 
-    call ccomma                              ; compile ret
-    call latest                             
-    call at                                 ; get latest defined word
+    call ccomma                             ; compile ret
+    _fetch latest                           ; get latest defined word
     call hidden                             ; toggle hidden flag -- unhide 
     call lbrac                              ; go back to immediate mode.
     ret                                

@@ -52,19 +52,16 @@ rat:
 ; Compile an integer into the code dictionary.
 CODE ",",0,COMMA
     call COMMA1                                   
-    _cellp                                  ; here+2
-    call here                                   ; here+2 &here
-    call store
+    _cellp                                      ; here+2
+    _store here                                 ; here+2 &here
     ret                                                     
 CODE "c,",0,CCOMMA
     call COMMA1                                   
-    _onep                                   ; here+1
-    call here                                   ; here+1 &here
-    call store
+    _onep                                       ; here+1
+    _store here                                 ; here+1 &here
     ret                                                     
 COMMA1:
-    call here                                   ; w &here
-    call at                                     ; w here
+    _fetch here                                 ; w here
     call dup                                 
     call tor                                    ; w here r: here
     call store                                  

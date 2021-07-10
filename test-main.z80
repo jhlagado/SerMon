@@ -15,10 +15,10 @@ org START_RAM
 TESTS_START:
     
     .include "test-compiler.z80"
-    .include "test-math.z80"
-    .include "test-misc.z80"
-    .include "test-parse.z80"
-    .include "test-stack.z80"
+    ; .include "test-math.z80"
+    ; .include "test-misc.z80"
+    ; .include "test-parse.z80"
+    ; .include "test-stack.z80"
     
     _pushPStr "\r\nDone! \r\n"
     call printPStr
