@@ -1,9 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;; constants
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ROM_SIZE        equ     $2000
 RAM_SIZE        equ     $10000 - ROM_SIZE
 RET_STACK_SIZE  equ     $80                 ; return stack
@@ -26,4 +20,5 @@ TRUE            equ     -1
 
 CALL_OPCODE     equ     $CD
 JP_OPCODE       equ     $C3
+JPZ_OPCODE      equ     $CA
 RET_OPCODE      equ     $C9

@@ -59,7 +59,7 @@ compileWord:
     call isZero
     jr nz,interpWord2
     call getBody                    ; ptr'
-    call comma                      ; compile
+    call callc                      ; compile call
     ret
 
 compileNum:

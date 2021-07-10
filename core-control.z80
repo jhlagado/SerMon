@@ -64,8 +64,8 @@ CODE 'begin',IMMED,begin
 ; UNTIL       ( a -- )
 ; Terminate a BEGIN-UNTIL indefinite loop structure.
 CODE 'until',IMMED,until
-    _push qbranch
-    call callc
+    _push jpz_opcode
+    call ccomma
     call comma
     ret
 
@@ -73,8 +73,8 @@ CODE 'until',IMMED,until
 ; Terminate a BEGIN-AGAIN infinite loop structure.
 
 CODE 'again',IMMED,again
-    _push branch
-    call callc
+    _push jp_opcode
+    call ccomma
     call comma
     ret
 
@@ -82,8 +82,8 @@ CODE 'again',IMMED,again
 ; Begin a conditional branch structure.
 
 CODE 'if',IMMED,iff
-    _push qbranch
-    call callc
+    _push jpz_opcode
+    call ccomma
     _fetch here
     _push dolit
     call callc
@@ -93,8 +93,8 @@ CODE 'if',IMMED,iff
 ; AHEAD       ( -- A )
 ; Compile a forward branch instruction.
 CODE 'ahead',IMMED,ahead
-    _push branch
-    call callc
+    _push jp_opcode
+    call ccomma
     _fetch here
     _push dolit
     call callc

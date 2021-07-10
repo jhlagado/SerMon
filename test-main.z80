@@ -13,12 +13,16 @@ org START_RAM
     charPtr:   dw 0
     
 TESTS_START:
+    TEST_SET_TEXT ": x 1 1+ ; x"
+    call INTERPRET
+    EXPECT 2, "interpret 1 1+ = 2"
+
     
     .include "test-compiler.z80"
-    ; .include "test-math.z80"
-    ; .include "test-misc.z80"
-    ; .include "test-parse.z80"
-    ; .include "test-stack.z80"
+    .include "test-math.z80"
+    .include "test-misc.z80"
+    .include "test-parse.z80"
+    .include "test-stack.z80"
     
     _pushPStr "\r\nDone! \r\n"
     call printPStr
