@@ -51,10 +51,10 @@ compileWord:
             call dup                        ; str len ptrOrNull ptrOrNull
             call isZero                     ; str len ptrOrNull
             jr z,compileNum
-            _2nip                     ; ptr
+            _2nip                           ; ptr
             call dup                        ; ptr ptr
-            _cellp                      ; ptr pflags
-            call at
+            _cellp                          ; ptr pflags
+            call cat
             _push IMMED
             call ANDD
             call isZero

@@ -1,3 +1,7 @@
+        call initKernel
+        ld HL,16
+        ld (var_base),HL
+
         _push 1234
         expect 1234, "lit 1234"
 

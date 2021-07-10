@@ -1,15 +1,15 @@
-_push 16
-call base
-call store
+        call initKernel
+        ld HL,16
+        ld (var_base),HL
 
-TEST_SET_TEXT "xyz "
-_push $20
-call WORD
-call dup
-call cat
-EXPECT 3, "word length 'xyz'"
-call here
-call at
-call minus
-EXPECT 0, "word ptr HERE"
+        TEST_SET_TEXT "xyz "
+        _push $20
+        call WORD
+        call dup
+        call cat
+        EXPECT 3, "word length 'xyz'"
+        call here
+        call at
+        call minus
+        EXPECT 0, "word ptr HERE"
     

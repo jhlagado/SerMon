@@ -1,7 +1,3 @@
-CODE "ok", 0, OK
-    _pushPStr "OK"
-    jp printPStr
-
 printCR:                                ; --
     ld A,"\r"
     call putc

@@ -30,6 +30,10 @@ jp serialIn
 .include "core-stack.z80"
 .include "core-string.z80"
 
+CODE "ok", 0, OK
+    _pushPStr "OK"
+    jp printPStr
+
 initialLatest:
 dw backLink
 

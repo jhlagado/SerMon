@@ -1,3 +1,4 @@
+        call initKernel
         ld HL,16
         ld (var_base),HL
     

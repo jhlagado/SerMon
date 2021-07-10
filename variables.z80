@@ -16,4 +16,4 @@ wordBuf2:           ds 64
 var_base:           dw 0
 var_here:           dw 0
 var_latest:         dw 0
-var_state:          dw 0
+var_state:          dw FALSE

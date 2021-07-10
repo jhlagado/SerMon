@@ -1,3 +1,7 @@
+        call initKernel
+        ld HL,10
+        ld (var_base),HL
+
         TEST_SET_TEXT "1 2 ."
         call INTERPRET
         EXPECT 1, "1 2 . -> 2"

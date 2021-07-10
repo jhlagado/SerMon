@@ -64,18 +64,18 @@ CODE "hidden",0,hidden
     ret
 
 CODE "[",IMMED,lbrac
-	ld HL, 0
+	ld HL, FALSE
 	ld (VAR_STATE), HL	; Set STATE to 0.
     ret
 
 CODE "]",0,rbrac
-	ld HL, 1
+	ld HL, TRUE
 	ld (VAR_STATE), HL	; Set STATE to 1.
     ret
     
-CODE ";",1,IMMED,semicolon
+CODE ";",IMMED,semicolon
     _push RET_OPCODE 
-    call comma                              ; compile ret
+    call ccomma                              ; compile ret
     call latest                             
     call at                                 ; get latest defined word
     call hidden                             ; toggle hidden flag -- unhide 
