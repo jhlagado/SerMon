@@ -32,14 +32,13 @@ CODE 'donxt',0,DONXT
     dec BC              ; ret idx'
     call tor            ; ret (r: idx')
     call at             ; ret' (r: idx')
-    call tor            ; (r: idx' ret')
-    ret
+    ld HL,BC
+    jp (HL)
 DONXT1:
     call drop           ; ret
-    inc BC          
-    inc BC              ; ret+2
-    call tor            ; (r: ret+2)
-    ret
+    ld HL,2
+    add HL,BC
+    jp (HL)
 
 ; FOR         ( -- a )
 ; Start a FOR-NEXT loop structure in a colon definition.
