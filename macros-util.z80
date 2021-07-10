@@ -37,12 +37,12 @@
     _twop
 .endm
 
-.macro _nip
-    dec DE
-    dec DE
+.macro _fetch, label
+    call dup
+    ld BC,(var_label)
 .endm
 
-.macro _2nip
-    _nip
-    _nip
-.endm
+.macro _store, label
+    ld (var_label),BC
+    call drop
+.endm    

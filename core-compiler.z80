@@ -23,8 +23,7 @@ CODE 'LITERAL',IMMED,LITER
 CODE "create",0,create             
     call here                               ; &here
     call at                                 ; here
-    call latest                             ; here &latest
-    call at                                 ; here latest
+    _fetch latest                           ; here latest
     call comma                              ; write value current value of latest to link field (inc here by 2)
     call latest                             ; here latest
     call store                              ; store header to latest 
@@ -48,8 +47,7 @@ CODE ":",0,colon
     call create                             ; create the dictionary entry / header
     _push -3
     call allot                              ; erase jump instruction left by create 
-    call latest
-    call at
+    _fetch latest
     call hidden                             ; make the word hidden
     call rbrac                              ; go into compile mode.
     ret                                     

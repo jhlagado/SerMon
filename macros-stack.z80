@@ -18,6 +18,16 @@
     call drop
 .endm
 
+.macro _nip
+    dec DE
+    dec DE
+.endm
+
+.macro _2nip
+    _nip
+    _nip
+.endm
+
 .macro _pushChar, char
     call dup
     _setTOS 0,char
