@@ -20,5 +20,4 @@ TRUE            equ     -1
 
 CALL_OPCODE     equ     $CD
 JP_OPCODE       equ     $C3
-JPZ_OPCODE      equ     $CA
 RET_OPCODE      equ     $C9

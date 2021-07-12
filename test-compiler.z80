@@ -19,6 +19,3 @@
     call INTERPRET
     EXPECT 2, "interpret 1 1+ = 2"
 
-    TEST_SET_TEXT ": x 3 for aft 1+ then next ; 0 x "
-    call INTERPRET
-    EXPECT 3, "loop 3 times"

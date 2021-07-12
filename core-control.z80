@@ -35,6 +35,7 @@ CODE "branch", 0, branch
     inc HL
     ld B,(HL)
     ld HL,BC
+    call drop
     jp (HL)
 
 CODE "execute", 0, execute
@@ -58,26 +59,13 @@ CODE 'next',IMMED,next
     call COMMA
     ret    
     
-; BEGIN       ( -- a )
-; Start an infinite or indefinite loop structure.
-CODE 'begin',IMMED,begin
-    _fetch HERE
-    ret
-
-; UNTIL       ( a -- )
-; Terminate a BEGIN-UNTIL indefinite loop structure.
-CODE 'until',IMMED,until
-    _push jpz_opcode
-    call ccomma
-    call comma
-    ret
-
-; AGAIN       ( a -- )
-; Terminate a BEGIN-AGAIN infinite loop structure.
-
-CODE 'again',IMMED,again
-    _push jp_opcode
-    call ccomma
+; AHEAD       ( -- A )
+; Compile a forward branch instruction.
+CODE 'ahead',IMMED,ahead
+    _push branch
+    call callc
+    _fetch here
+    _push 0
     call comma
     ret
 
@@ -85,33 +73,19 @@ CODE 'again',IMMED,again
 ; Begin a conditional branch structure.
 
 CODE 'if',IMMED,iff
-    _push jpz_opcode
-    call ccomma
-    _fetch here
-    _push dolit
+    _push qbranch
     call callc
-    call comma
-    ret
-
-; AHEAD       ( -- A )
-; Compile a forward branch instruction.
-CODE 'ahead',IMMED,ahead
-    _push jp_opcode
-    call ccomma
     _fetch here
-    _push dolit
-    call callc
     _push 0
     call comma
     ret
 
-; REPEAT      ( A a -- )
-; Terminate a BEGIN-WHILE-REPEAT indefinite loop.
-CODE 'repeat',IMMED,repeat
-    call again
-    _fetch here
+; ELSE        ( A -- A )
+; Start the false clause in an IF-ELSE-THEN structure.
+CODE 'else',IMMED,else
+    call ahead
     call swap
-    call store
+    call thenn
     ret
 
 ; THEN        ( A -- )
@@ -131,12 +105,36 @@ CODE 'aft',IMMED,aft
     call swap
     ret
 
-; ELSE        ( A -- A )
-; Start the false clause in an IF-ELSE-THEN structure.
-CODE 'else',IMMED,else
-    call ahead
+; BEGIN       ( -- a )
+; Start an infinite or indefinite loop structure.
+CODE 'begin',IMMED,begin
+    _fetch HERE
+    ret
+
+; UNTIL       ( a -- )
+; Terminate a BEGIN-UNTIL indefinite loop structure.
+CODE 'until',IMMED,until
+    _push qbranch
+    call callc
+    call comma
+    ret
+
+; AGAIN       ( a -- )
+; Terminate a BEGIN-AGAIN infinite loop structure.
+
+CODE 'again',IMMED,again
+    _push jp_opcode
+    call ccomma
+    call comma
+    ret
+
+; REPEAT      ( A a -- )
+; Terminate a BEGIN-WHILE-REPEAT indefinite loop.
+CODE 'repeat',IMMED,repeat
+    call again
+    _fetch here
     call swap
-    call thenn
+    call store
     ret
 
 ; WHILE       ( a -- A a )

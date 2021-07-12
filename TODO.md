@@ -1,2 +1,8 @@
 # TODO
 
+'
+[']
+DOES>
+COMPILE
+[COMPILE]
+RECURSE
