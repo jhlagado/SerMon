@@ -122,7 +122,8 @@ CODE "2over", 0, twoover
 
 CODE "2nip", 0, twonip
     _nip
-    jp nip
+    _nip
+    ret
 
 ; depth of data stack
 ; destroys: HL

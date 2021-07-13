@@ -27,7 +27,7 @@ interpWord:                                 ; str len -- num?
     call dup                        ; str len ptrOrNull ptrOrNull
     call isZero                     ; str len ptrOrNull
     jr z,interpNum
-    _2nip                     ; ptr
+    _twonip                     ; ptr
 interpWord2:
     call getBody                    ; ptr'
     call execute                    ; ?
@@ -50,7 +50,7 @@ compileWord:
     call dup                        ; str len ptrOrNull ptrOrNull
     call isZero                     ; str len ptrOrNull
     jr z,compileNum
-    _2nip                           ; ptr
+    _twonip                           ; ptr
     call dup                        ; ptr ptr
     _cellp                          ; ptr pflags
     call cat

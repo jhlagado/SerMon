@@ -23,7 +23,7 @@
     dec DE
 .endm
 
-.macro _2nip
+.macro _twonip
     _nip
     _nip
 .endm

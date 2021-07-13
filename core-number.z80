@@ -78,7 +78,7 @@ toNumber21:
         call isValidDigit               ; str len num nib bool
         call isZero
         jr nz,endif_toNumber211         ; str len num nib
-            _2nip                   ; str nib
+            _twonip                   ; str nib
             call drop                   ; str
             ld BC,0                     ; 0
             _push 1                     ; 0 1

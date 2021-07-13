@@ -47,7 +47,7 @@
         _push $BBBB
         _push $CCCC
         _push $DDDD
-        _2nip
+        _twonip
         expect $DDDD, "twoover $DDDD"
         expect $AAAA, "twoover $AAAA"
     
